@@ -1,5 +1,5 @@
 (async () => {
-  const ID = 'cm-universal-dash-v36';
+  const ID = 'cm-universal-dash-v38';
   if (document.getElementById(ID)) { document.getElementById(ID).remove(); return; }
 
   // ── STYLE ──────────────────────────────────────────────────────────────────
@@ -20,6 +20,7 @@
       --tbl-row-even: rgba(255, 255, 255, 0.15); --tbl-row-hover: rgba(255, 255, 255, 0.35);
       --modal-bg: rgba(255, 255, 255, 0.85); --input-bg: rgba(255, 255, 255, 0.9);
       --switch-bg: rgba(0, 0, 0, 0.05);
+      --spinner-color: #3b82f6;
     }
     #${ID}.dark {
       --bg-app: rgba(15, 23, 42, 0.75); 
@@ -33,6 +34,7 @@
       --tbl-row-even: rgba(255, 255, 255, 0.03); --tbl-row-hover: rgba(255, 255, 255, 0.08);
       --modal-bg: rgba(15, 23, 42, 0.9); --input-bg: rgba(15, 23, 42, 0.8);
       --switch-bg: rgba(255, 255, 255, 0.05);
+      --spinner-color: #22c55e;
     }
     
     #${ID} { position:fixed; inset:0; background:var(--bg-app); backdrop-filter: blur(2.5px) saturate(150%); -webkit-backdrop-filter: blur(2.5px) saturate(150%); z-index:2147483647; display:flex; flex-direction:column; color:var(--text-main); transition: background .3s, color .3s; }
@@ -40,9 +42,15 @@
     #${ID} ::-webkit-scrollbar-thumb { background:#1e3a5f; border-radius:4px; }
     #${ID} ::-webkit-scrollbar-track { background: transparent; }
     
+    .cm-loader-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.2); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index:99999; display:none; align-items:center; justify-content:center; }
+    .cm-loader-box { background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border:var(--glass-border); box-shadow: var(--glass-shadow), var(--glass-glow); border-radius:16px; padding:32px 48px; display:flex; flex-direction:column; align-items:center; gap:16px; }
+    .cm-spinner { width:40px; height:40px; border:4px solid rgba(0,0,0,0.05); border-top:4px solid var(--spinner-color); border-radius:50%; animation: cm-spin 0.8s linear infinite; }
+    .dark .cm-spinner { border:4px solid rgba(255,255,255,0.1); border-top:4px solid var(--spinner-color); }
+    @keyframes cm-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .cm-loader-text { font-size:12px; font-weight:800; color:var(--text-main); letter-spacing:1px; text-transform:uppercase; }
+    
     .cm-top { background:rgba(0, 0, 0, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding:6px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 4px 20px rgba(0,0,0,.5); position:sticky; top:0; z-index:100; flex-wrap:wrap; border-bottom: 1px solid rgba(255,255,255,0.1); }
     
-    /* EFEK LIGHT SWEEP LOGO */
     .cm-logo { font-size:14px; font-weight:900; letter-spacing:.5px; display:flex; align-items:center; gap:4px; }
     .cm-logo span.zap { color:#fbbf24; text-shadow:0 0 10px rgba(251,191,36,0.8); }
     .cm-shine-text {
@@ -64,19 +72,14 @@
     #cm-month-sel { color:#000 !important; background:#fff !important; border:1px solid #cbd5e1 !important; }
     #cm-month-sel option { color:#000 !important; background:#fff !important; }
     
-    /* TOMBOL GLASSMORPHISM */
     .cm-btn-glass { height:32px; padding:0 16px; border:none; border-radius:8px; font-size:12px; font-weight:900; cursor:pointer; color:#fff; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display:flex; align-items:center; justify-content:center; gap:6px; transition: all 0.2s; }
     .cm-btn-glass:disabled { opacity:0.6; cursor:not-allowed; }
-    
     .cm-btn-blue { background:rgba(59, 130, 246, 0.7); box-shadow: 0 4px 12px rgba(59,130,246,.3), inset 0 1px 1px rgba(255,255,255,0.4); border:1px solid rgba(59,130,246,0.8); }
-    .cm-btn-blue:hover:not(:disabled) { background:rgba(59, 130, 246, 0.9); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(59,130,246,.4), inset 0 1px 1px rgba(255,255,255,0.5); }
-    
+    .cm-btn-blue:hover:not(:disabled) { background:rgba(59, 130, 246, 0.9); transform: translateY(-1px); }
     .cm-btn-green { background:rgba(22, 163, 74, 0.7); box-shadow: 0 4px 12px rgba(22,163,74,.3), inset 0 1px 1px rgba(255,255,255,0.4); border:1px solid rgba(22,163,74,0.8); color:#fff; }
     .cm-btn-green:hover:not(:disabled) { background:rgba(22, 163, 74, 0.9); transform: translateY(-1px); }
-    
     .cm-btn-red { background:rgba(239, 68, 68, 0.7); box-shadow: 0 4px 12px rgba(239,68,68,.3), inset 0 1px 1px rgba(255,255,255,0.4); border:1px solid rgba(239,68,68,0.8); color:#fff; }
     .cm-btn-red:hover:not(:disabled) { background:rgba(239, 68, 68, 0.9); transform: translateY(-1px); }
-    
     .cm-btn-grey { background:rgba(255, 255, 255, 0.15); box-shadow: 0 4px 12px rgba(0,0,0,.1), inset 0 1px 1px rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); color:#fff; }
     .cm-btn-grey:hover:not(:disabled) { background:rgba(255, 255, 255, 0.25); transform: translateY(-1px); }
     
@@ -108,12 +111,17 @@
     .cm-fee-bar { margin-top:12px; background:var(--bg-card); backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); border:var(--glass-border); box-shadow: var(--glass-shadow), var(--glass-glow); color:var(--text-main); padding:10px 16px; border-radius:12px; font-size:11px; display:flex; gap:20px; flex-wrap:wrap; }
     .cm-fee-bar b { color:#fbbf24; }
     
+    /* TABS MAIN DIPERLEBAR JADI 3 */
     .cm-main-switcher { display:flex; gap:8px; justify-content:center; padding:0 0 16px 0; }
-    .cm-sw-btn { padding:10px 20px; border-radius:12px; border:var(--glass-border); background:var(--bg-card); backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); color:var(--text-sub); font-weight:800; font-size:12px; cursor:pointer; transition: 0.2s; width:200px; text-align:center; box-shadow: var(--glass-shadow); }
+    .cm-sw-btn { padding:10px 20px; border-radius:12px; border:var(--glass-border); background:var(--bg-card); backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); color:var(--text-sub); font-weight:800; font-size:12px; cursor:pointer; transition: 0.2s; flex:1; max-width:250px; text-align:center; box-shadow: var(--glass-shadow); }
     .cm-sw-btn.active { background:rgba(22, 163, 74, 0.8); color:#fff; border:1px solid rgba(255,255,255,0.4); box-shadow:0 8px 20px rgba(22,163,74,.4); }
     
     .cm-pane { display:none; flex:1; min-height:0; flex-direction:column; }
     .cm-pane.active { display:flex; }
+    
+    /* LAYOUT PLAYER REPORT */
+    .cm-player-grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; flex:1; min-height:0; }
+    @media (max-width: 1024px) { .cm-player-grid { grid-template-columns: 1fr; } }
     
     .cm-sec { flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; background:var(--bg-sec); backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); border-radius:16px; box-shadow: var(--glass-shadow), var(--glass-glow); border:var(--glass-border); }
     .cm-shead { padding:12px 16px; border-bottom:1px solid var(--tbl-border); font-size:12px; font-weight:900; display:flex; justify-content:space-between; align-items:center; color:var(--text-main); background: rgba(255,255,255,0.05); flex-wrap:wrap; gap:8px; }
@@ -208,6 +216,13 @@
   const themeIcon = ui.classList.contains('dark') ? '☀️' : '🌙';
 
   ui.innerHTML = `
+    <div class="cm-loader-overlay" id="cm-loader-overlay">
+      <div class="cm-loader-box">
+        <div class="cm-spinner"></div>
+        <div class="cm-loader-text">Loading Data...</div>
+      </div>
+    </div>
+
     <div class="cm-top">
       <div class="cm-logo">
         <span class="zap">⚡</span>
@@ -255,6 +270,7 @@
       <div class="cm-main-switcher">
         <button class="cm-sw-btn active" onclick="switchMainTab('tunai')">TRANSAKSI TUNAI</button>
         <button class="cm-sw-btn" onclick="switchMainTab('cb')">CREDIT BALANCE</button>
+        <button class="cm-sw-btn" onclick="switchMainTab('player')">PLAYER REPORT</button>
       </div>
       
       <div id="pane-tunai" class="cm-pane active">
@@ -460,6 +476,37 @@
           </div>
         </div>
       </div>
+
+      <!-- TAB PLAYER REPORT -->
+      <div id="pane-player" class="cm-pane">
+        <div class="cm-player-grid">
+          <div class="cm-sec">
+            <div class="cm-shead">
+              <div style="white-space:nowrap;">🔴 TOP LOSERS (HOUSE SURPLUS)</div>
+              <div style="font-size:10px; font-weight:700; color:var(--text-sub);">Diurutkan dari kalahan terbesar</div>
+            </div>
+            <div class="cm-tbl-area">
+              <table class="cm-tbl thin">
+                <thead><tr><th>RANK</th><th>USERNAME</th><th>MASUK (DEPO)</th><th>KELUAR (WD)</th><th>FEE</th><th>NETT</th><th>NAMA REK</th></tr></thead>
+                <tbody id="cm-table-losers"><tr><td colspan="7" style="text-align:center; color:#aaa; padding:20px;">Data belum dimuat.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="cm-sec">
+            <div class="cm-shead">
+              <div style="white-space:nowrap;">🟢 TOP WINNERS (HOUSE DEFICIT)</div>
+              <div style="font-size:10px; font-weight:700; color:var(--text-sub);">Diurutkan dari kemenangan terbesar</div>
+            </div>
+            <div class="cm-tbl-area">
+              <table class="cm-tbl thin">
+                <thead><tr><th>RANK</th><th>USERNAME</th><th>MASUK (DEPO)</th><th>KELUAR (WD)</th><th>FEE</th><th>NETT</th><th>NAMA REK</th></tr></thead>
+                <tbody id="cm-table-winners"><tr><td colspan="7" style="text-align:center; color:#aaa; padding:20px;">Data belum dimuat.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <div class="gs-modal-bg" id="gs-modal-bg" onclick="if(event.target===this)closeGSModal()">
@@ -563,10 +610,13 @@
       document.querySelector('.cm-sw-btn[onclick="switchMainTab(\'tunai\')"]').classList.add('active'); 
       document.getElementById('pane-tunai').classList.add('active');
       switchSubTab('tunai-rekap');
-    } else {
+    } else if(tab === 'cb') {
       document.querySelector('.cm-sw-btn[onclick="switchMainTab(\'cb\')"]').classList.add('active'); 
       document.getElementById('pane-cb').classList.add('active');
       switchSubTab('cb-rekap');
+    } else if(tab === 'player') {
+      document.querySelector('.cm-sw-btn[onclick="switchMainTab(\'player\')"]').classList.add('active'); 
+      document.getElementById('pane-player').classList.add('active');
     }
   };
 
@@ -816,8 +866,10 @@
     const startVal = document.getElementById('cm-start').value;
     const endVal = document.getElementById('cm-end').value;
     const statusEl = document.getElementById('cm-status');
+    const loader = document.getElementById('cm-loader-overlay');
 
     if (!startVal || !endVal) { alert('Pilih tanggal!'); return false; }
+    if(loader) loader.style.display = 'flex';
     statusEl.innerHTML = '⏳ <b>Loading...</b> Mengambil data...';
     
     try {
@@ -945,6 +997,7 @@
       mSel.innerHTML = '<option value="">Semua Module</option>' + Array.from(uMods).sort().map(m => `<option value="${m}">${m}</option>`).join('');
 
       renderTunaiHistory();
+      renderPlayerReport(); // Render Player Report
 
       let profitKotor = totalDepoGross - totalWdGross;
       let profitBersih = profitKotor - totalDepoFee - totalWdFee;
@@ -1131,12 +1184,13 @@
       statusEl.innerHTML = '❌ <b>Error Fatal:</b> ' + e.message; 
       console.error('Error:', e); 
       return false; 
+    } finally {
+      if(loader) loader.style.display = 'none';
     }
-  };
+  }
 
   document.getElementById('cm-load').onclick = loadData;
 
-  // FIX: PAKAI window. SUPAYA BISA DIAKSES DARI ONCLICK HTML
   window.renderTunaiHistory = function() {
     let fTipe = document.getElementById('filter-tipe').value;
     let fUser = document.getElementById('filter-user').value.toLowerCase();
@@ -1153,7 +1207,6 @@
 
     let html = filtered.length === 0 ? '<tr><td colspan="12" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data yang cocok.</td></tr>' : '';
     
-    // Variabel buat sum total filter
     let sumMasuk = 0, sumKeluar = 0, sumFee = 0, sumNett = 0;
     
     filtered.forEach(item => {
@@ -1165,7 +1218,6 @@
       let feeVal = -Math.abs(item.fee); 
       let nettVal = item.nett; 
       
-      // Tambahin ke sum
       sumMasuk += masukVal;
       sumKeluar += keluarVal;
       sumFee += feeVal;
@@ -1198,7 +1250,6 @@
       </tr>`;
     });
 
-    // Tambahin baris total dinamis di bawah sendiri kalau ada datanya
     if (filtered.length > 0) {
       html += `<tr class="row-total">
         <td colspan="3">TOTAL FILTER</td>
@@ -1230,5 +1281,67 @@
     });
     
     document.getElementById('cm-table-cb-history').innerHTML = cbHtmlHistory || '<tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data yang cocok.</td></tr>';
+  }
+
+  // FUNGSI RENDER PLAYER REPORT
+  window.renderPlayerReport = function() {
+    let playerStats = {};
+    
+    _allTrx.forEach(item => {
+      if(!playerStats[item.username]) {
+        playerStats[item.username] = { username: item.username, namaRek: '-', masuk: 0, keluar: 0, fee: 0 };
+      }
+      let p = playerStats[item.username];
+      if(item.tipe === 'Deposit') p.masuk += item.nominal;
+      else p.keluar += item.nominal;
+      p.fee += Math.abs(item.fee);
+      if(item.namaRek && item.namaRek !== '-') p.namaRek = item.namaRek;
+    });
+    
+    let players = Object.values(playerStats).map(p => {
+      p.nett = p.masuk - p.keluar - p.fee; // Jika +: player kalah (house surplus). Jika -: player menang (house deficit)
+      return p;
+    });
+    
+    // Top 100 Losers (Nett tertinggi positif)
+    let losers = players.filter(p => p.nett > 0).sort((a, b) => b.nett - a.nett).slice(0, 100);
+    // Top 100 Winners (Nett tertinggi negatif)
+    let winners = players.filter(p => p.nett < 0).sort((a, b) => a.nett - b.nett).slice(0, 100);
+    
+    let htmlLosers = '';
+    if(losers.length === 0) {
+      htmlLosers = '<tr><td colspan="7" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data.</td></tr>';
+    } else {
+      losers.forEach((p, i) => {
+        htmlLosers += `<tr>
+          <td>${i + 1}</td>
+          <td style="font-weight:800;">${p.username}</td>
+          <td>${formatRupiahTable(p.masuk)}</td>
+          <td>${formatRupiahTable(p.keluar)}</td>
+          <td>${formatRupiahTable(p.fee)}</td>
+          <td style="color:#16a34a; font-weight:800;">${formatRupiahTable(p.nett)}</td>
+          <td>${p.namaRek}</td>
+        </tr>`;
+      });
+    }
+    document.getElementById('cm-table-losers').innerHTML = htmlLosers;
+    
+    let htmlWinners = '';
+    if(winners.length === 0) {
+      htmlWinners = '<tr><td colspan="7" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data.</td></tr>';
+    } else {
+      winners.forEach((p, i) => {
+        htmlWinners += `<tr>
+          <td>${i + 1}</td>
+          <td style="font-weight:800;">${p.username}</td>
+          <td>${formatRupiahTable(p.masuk)}</td>
+          <td>${formatRupiahTable(p.keluar)}</td>
+          <td>${formatRupiahTable(p.fee)}</td>
+          <td style="color:#ef4444; font-weight:800;">${formatRupiahTable(p.nett)}</td>
+          <td>${p.namaRek}</td>
+        </tr>`;
+      });
+    }
+    document.getElementById('cm-table-winners').innerHTML = htmlWinners;
   }
 })();
