@@ -1,5 +1,5 @@
 (async () => {
-  const ID = 'cm-universal-dash-v38';
+  const ID = 'cm-universal-dash-v39';
   if (document.getElementById(ID)) { document.getElementById(ID).remove(); return; }
 
   // ── STYLE ──────────────────────────────────────────────────────────────────
@@ -111,7 +111,6 @@
     .cm-fee-bar { margin-top:12px; background:var(--bg-card); backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); border:var(--glass-border); box-shadow: var(--glass-shadow), var(--glass-glow); color:var(--text-main); padding:10px 16px; border-radius:12px; font-size:11px; display:flex; gap:20px; flex-wrap:wrap; }
     .cm-fee-bar b { color:#fbbf24; }
     
-    /* TABS MAIN DIPERLEBAR JADI 3 */
     .cm-main-switcher { display:flex; gap:8px; justify-content:center; padding:0 0 16px 0; }
     .cm-sw-btn { padding:10px 20px; border-radius:12px; border:var(--glass-border); background:var(--bg-card); backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); color:var(--text-sub); font-weight:800; font-size:12px; cursor:pointer; transition: 0.2s; flex:1; max-width:250px; text-align:center; box-shadow: var(--glass-shadow); }
     .cm-sw-btn.active { background:rgba(22, 163, 74, 0.8); color:#fff; border:1px solid rgba(255,255,255,0.4); box-shadow:0 8px 20px rgba(22,163,74,.4); }
@@ -119,7 +118,6 @@
     .cm-pane { display:none; flex:1; min-height:0; flex-direction:column; }
     .cm-pane.active { display:flex; }
     
-    /* LAYOUT PLAYER REPORT */
     .cm-player-grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; flex:1; min-height:0; }
     @media (max-width: 1024px) { .cm-player-grid { grid-template-columns: 1fr; } }
     
@@ -186,6 +184,19 @@
     .badge-wd { background:#fee2e2; color:#b91c1c; padding:2px 6px; border-radius:4px; font-weight:900; font-size:9px; }
     .badge-in { background:#dcfce7; color:#15803d; padding:2px 6px; border-radius:4px; font-weight:900; font-size:9px; }
     .badge-out { background:#fee2e2; color:#b91c1c; padding:2px 6px; border-radius:4px; font-weight:900; font-size:9px; }
+    
+    /* TOMBOL VIEW & MODAL PLAYER */
+    .cm-view-btn { height:24px; width:24px; border-radius:50%; border:none; background:rgba(59, 130, 246, 0.7); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow: 0 2px 6px rgba(59,130,246,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; }
+    .cm-view-btn:hover { background:rgba(59, 130, 246, 1); transform: scale(1.1); }
+    
+    .cm-player-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; padding:20px; }
+    .cm-player-modal-bg.show { display:flex; }
+    .cm-player-modal { background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; width:800px; max-width:95vw; height:80vh; max-height:600px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); display:flex; flex-direction:column; position:relative; }
+    .cm-player-modal-head { padding:16px 24px; border-bottom:1px solid var(--tbl-border); display:flex; justify-content:space-between; align-items:center; background: rgba(255,255,255,0.05); border-top-left-radius:16px; border-top-right-radius:16px; }
+    .cm-player-modal-title { font-size:14px; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:8px; }
+    .cm-player-modal-close { height:32px; width:32px; background:rgba(239, 68, 68, 0.7); color:#fff; border:1px solid rgba(239,68,68,0.8); border-radius:8px; cursor:pointer; font-weight:900; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 6px rgba(239,68,68,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; }
+    .cm-player-modal-close:hover { background:rgba(239, 68, 68, 1); transform: rotate(90deg); }
+    .cm-player-modal-body { flex:1; overflow-y:auto; padding:16px 24px; }
     
     .gs-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; }
     .gs-modal-bg.show { display:flex; }
@@ -477,7 +488,6 @@
         </div>
       </div>
 
-      <!-- TAB PLAYER REPORT -->
       <div id="pane-player" class="cm-pane">
         <div class="cm-player-grid">
           <div class="cm-sec">
@@ -487,8 +497,8 @@
             </div>
             <div class="cm-tbl-area">
               <table class="cm-tbl thin">
-                <thead><tr><th>RANK</th><th>USERNAME</th><th>MASUK (DEPO)</th><th>KELUAR (WD)</th><th>FEE</th><th>NETT</th><th>NAMA REK</th></tr></thead>
-                <tbody id="cm-table-losers"><tr><td colspan="7" style="text-align:center; color:#aaa; padding:20px;">Data belum dimuat.</td></tr></tbody>
+                <thead><tr><th>RANK</th><th>USERNAME</th><th>MASUK (DEPO)</th><th>KELUAR (WD)</th><th>FEE</th><th>NETT</th><th>NAMA REK</th><th>VIEW</th></tr></thead>
+                <tbody id="cm-table-losers"><tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">Data belum dimuat.</td></tr></tbody>
               </table>
             </div>
           </div>
@@ -499,14 +509,25 @@
             </div>
             <div class="cm-tbl-area">
               <table class="cm-tbl thin">
-                <thead><tr><th>RANK</th><th>USERNAME</th><th>MASUK (DEPO)</th><th>KELUAR (WD)</th><th>FEE</th><th>NETT</th><th>NAMA REK</th></tr></thead>
-                <tbody id="cm-table-winners"><tr><td colspan="7" style="text-align:center; color:#aaa; padding:20px;">Data belum dimuat.</td></tr></tbody>
+                <thead><tr><th>RANK</th><th>USERNAME</th><th>MASUK (DEPO)</th><th>KELUAR (WD)</th><th>FEE</th><th>NETT</th><th>NAMA REK</th><th>VIEW</th></tr></thead>
+                <tbody id="cm-table-winners"><tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">Data belum dimuat.</td></tr></tbody>
               </table>
             </div>
           </div>
         </div>
       </div>
 
+    </div>
+
+    <!-- MODAL PLAYER DETAIL -->
+    <div class="cm-player-modal-bg" id="cm-player-modal-bg" onclick="if(event.target===this)closePlayerModal()">
+      <div class="cm-player-modal">
+        <div class="cm-player-modal-head">
+          <div class="cm-player-modal-title" id="cm-player-modal-title">🔍 Detail Transaksi</div>
+          <button class="cm-player-modal-close" onclick="closePlayerModal()">✖</button>
+        </div>
+        <div class="cm-player-modal-body" id="cm-player-modal-body"></div>
+      </div>
     </div>
 
     <div class="gs-modal-bg" id="gs-modal-bg" onclick="if(event.target===this)closeGSModal()">
@@ -997,7 +1018,7 @@
       mSel.innerHTML = '<option value="">Semua Module</option>' + Array.from(uMods).sort().map(m => `<option value="${m}">${m}</option>`).join('');
 
       renderTunaiHistory();
-      renderPlayerReport(); // Render Player Report
+      renderPlayerReport();
 
       let profitKotor = totalDepoGross - totalWdGross;
       let profitBersih = profitKotor - totalDepoFee - totalWdFee;
@@ -1283,7 +1304,6 @@
     document.getElementById('cm-table-cb-history').innerHTML = cbHtmlHistory || '<tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data yang cocok.</td></tr>';
   }
 
-  // FUNGSI RENDER PLAYER REPORT
   window.renderPlayerReport = function() {
     let playerStats = {};
     
@@ -1299,18 +1319,16 @@
     });
     
     let players = Object.values(playerStats).map(p => {
-      p.nett = p.masuk - p.keluar - p.fee; // Jika +: player kalah (house surplus). Jika -: player menang (house deficit)
+      p.nett = p.masuk - p.keluar - p.fee; 
       return p;
     });
     
-    // Top 100 Losers (Nett tertinggi positif)
     let losers = players.filter(p => p.nett > 0).sort((a, b) => b.nett - a.nett).slice(0, 100);
-    // Top 100 Winners (Nett tertinggi negatif)
     let winners = players.filter(p => p.nett < 0).sort((a, b) => a.nett - b.nett).slice(0, 100);
     
     let htmlLosers = '';
     if(losers.length === 0) {
-      htmlLosers = '<tr><td colspan="7" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data.</td></tr>';
+      htmlLosers = '<tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data.</td></tr>';
     } else {
       losers.forEach((p, i) => {
         htmlLosers += `<tr>
@@ -1321,6 +1339,7 @@
           <td>${formatRupiahTable(p.fee)}</td>
           <td style="color:#16a34a; font-weight:800;">${formatRupiahTable(p.nett)}</td>
           <td>${p.namaRek}</td>
+          <td><button class="cm-view-btn" onclick="viewPlayerHistory('${p.username}')">👁</button></td>
         </tr>`;
       });
     }
@@ -1328,7 +1347,7 @@
     
     let htmlWinners = '';
     if(winners.length === 0) {
-      htmlWinners = '<tr><td colspan="7" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data.</td></tr>';
+      htmlWinners = '<tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data.</td></tr>';
     } else {
       winners.forEach((p, i) => {
         htmlWinners += `<tr>
@@ -1339,9 +1358,62 @@
           <td>${formatRupiahTable(p.fee)}</td>
           <td style="color:#ef4444; font-weight:800;">${formatRupiahTable(p.nett)}</td>
           <td>${p.namaRek}</td>
+          <td><button class="cm-view-btn" onclick="viewPlayerHistory('${p.username}')">👁</button></td>
         </tr>`;
       });
     }
     document.getElementById('cm-table-winners').innerHTML = htmlWinners;
   }
+
+  window.viewPlayerHistory = (username) => {
+    document.getElementById('cm-player-modal-title').innerHTML = `🔍 History Transaksi: <span style="color:#3b82f6;">${username}</span>`;
+    const body = document.getElementById('cm-player-modal-body');
+    
+    let filtered = _allTrx.filter(item => item.username === username);
+    filtered.sort((a, b) => a.time - b.time);
+    
+    let html = `<table class="cm-tbl thin"><thead><tr><th>WAKTU</th><th>TIPE</th><th>MASUK</th><th>KELUAR</th><th>FEE</th><th>NETT</th><th>BANK</th><th>HANDLER</th></tr></thead><tbody>`;
+    let sumMasuk = 0, sumKeluar = 0, sumFee = 0, sumNett = 0;
+    
+    if (filtered.length === 0) {
+      html += '<tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data.</td></tr>';
+    } else {
+      filtered.forEach(item => {
+        let isDepo = item.tipe === 'Deposit';
+        let masukVal = isDepo ? item.nominal : 0;
+        let keluarVal = !isDepo ? -item.nominal : 0; 
+        let feeVal = -Math.abs(item.fee); 
+        let nettVal = item.nett; 
+        
+        sumMasuk += masukVal; sumKeluar += keluarVal; sumFee += feeVal; sumNett += nettVal;
+        
+        let badgeClass = isDepo ? 'badge-depo' : 'badge-wd';
+        html += `<tr>
+          <td>${item.timeStr}</td>
+          <td><span class="${badgeClass}">${item.tipe}</span></td>
+          <td>${formatRupiahTable(masukVal)}</td>
+          <td>${formatRupiahTable(keluarVal)}</td>
+          <td>${formatRupiahTable(feeVal)}</td>
+          <td>${formatRupiahTable(nettVal)}</td>
+          <td style="color:#3b82f6;">${item.bankPlayer}</td>
+          <td style="font-size:9px; font-weight:700; color:#65676b;">${item.handler}</td>
+        </tr>`;
+      });
+      html += `<tr class="row-total">
+        <td colspan="2">TOTAL</td>
+        <td>${formatRupiahTable(sumMasuk)}</td>
+        <td>${formatRupiahTable(sumKeluar)}</td>
+        <td>${formatRupiahTable(sumFee)}</td>
+        <td>${formatRupiahTable(sumNett)}</td>
+        <td colspan="2"></td>
+      </tr>`;
+    }
+    html += `</tbody></table>`;
+    body.innerHTML = html;
+    document.getElementById('cm-player-modal-bg').classList.add('show');
+  };
+
+  window.closePlayerModal = () => {
+    document.getElementById('cm-player-modal-bg').classList.remove('show');
+  };
 })();
