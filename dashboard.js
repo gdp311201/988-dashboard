@@ -1,5 +1,5 @@
 (async () => {
-  const ID = 'cm-universal-dash-v39';
+  const ID = 'cm-universal-dash-v41';
   if (document.getElementById(ID)) { document.getElementById(ID).remove(); return; }
 
   // ── STYLE ──────────────────────────────────────────────────────────────────
@@ -185,10 +185,25 @@
     .badge-in { background:#dcfce7; color:#15803d; padding:2px 6px; border-radius:4px; font-weight:900; font-size:9px; }
     .badge-out { background:#fee2e2; color:#b91c1c; padding:2px 6px; border-radius:4px; font-weight:900; font-size:9px; }
     
-    /* TOMBOL VIEW & MODAL PLAYER */
-    .cm-view-btn { height:24px; width:24px; border-radius:50%; border:none; background:rgba(59, 130, 246, 0.7); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow: 0 2px 6px rgba(59,130,246,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; }
+    .cm-view-btn { height:24px; width:24px; border-radius:50%; border:none; background:rgba(59, 130, 246, 0.7); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow: 0 2px 6px rgba(59,130,246,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; margin:auto; }
     .cm-view-btn:hover { background:rgba(59, 130, 246, 1); transform: scale(1.1); }
     
+    /* CSS DAILY CHART */
+    .cm-chart-scroll { flex:1; min-height:0; overflow-x:auto; overflow-y:hidden; position:relative; padding:16px; }
+    .cm-chart-inner { display:flex; height:100%; align-items:stretch; gap:12px; min-width:100%; }
+    .cm-chart-col { display:flex; flex-direction:column; min-width:60px; height:100%; align-items:center; justify-content:center; position:relative; }
+    .cm-chart-half { flex:1; width:100%; display:flex; flex-direction:column; align-items:center; min-height:0; }
+    .cm-chart-half.top { justify-content:flex-end; }
+    .cm-chart-half.bottom { justify-content:flex-start; }
+    .cm-chart-bar { width:60%; border-radius:4px; transition: width 0.2s, box-shadow 0.2s; cursor:pointer; }
+    .cm-chart-bar.up { background:linear-gradient(to top, rgba(22,163,74,0.4), rgba(22,163,74,0.9)); box-shadow: 0 0 8px rgba(22,163,74,0.3); }
+    .cm-chart-bar.down { background:linear-gradient(to bottom, rgba(239,68,68,0.4), rgba(239,68,68,0.9)); box-shadow: 0 0 8px rgba(239,68,68,0.3); }
+    .cm-chart-bar:hover { width:80%; box-shadow: 0 0 15px rgba(255,255,255,0.2); z-index:5; }
+    .cm-chart-val { font-size:9px; font-weight:700; margin: 4px 0; white-space:nowrap; }
+    .cm-chart-label { font-size:10px; font-weight:600; color:var(--text-sub); margin-top:8px; }
+    .cm-chart-center-line { position:absolute; top:50%; left:0; right:0; height:1px; background:var(--tbl-border); z-index:0; pointer-events:none; }
+    
+    /* MODAL PLAYER DETAIL */
     .cm-player-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; padding:20px; }
     .cm-player-modal-bg.show { display:flex; }
     .cm-player-modal { background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; width:800px; max-width:95vw; height:80vh; max-height:600px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); display:flex; flex-direction:column; position:relative; }
@@ -362,6 +377,7 @@
             <div class="cm-subtabs">
               <button class="cm-subtab active" onclick="switchSubTab('tunai-rekap')">REKAP HARIAN</button>
               <button class="cm-subtab" onclick="switchSubTab('tunai-history')">HISTORY TRANSAKSI</button>
+              <button class="cm-subtab" onclick="switchSubTab('tunai-chart')">DAILY CHART</button>
             </div>
           </div>
           <div class="cm-subpane active" id="subpane-tunai-rekap">
@@ -422,6 +438,11 @@
                 <thead><tr><th>WAKTU</th><th>TIPE</th><th>USERNAME</th><th>MASUK</th><th>KELUAR</th><th>FEE</th><th>NETT</th><th>BANK</th><th>NAMA REK</th><th>HANDLER</th><th>KETERANGAN</th><th>STATUS</th></tr></thead>
                 <tbody id="cm-table-tunai-history"><tr><td colspan="12" style="text-align:center; color:#aaa; padding:20px;">Data belum dimuat.</td></tr></tbody>
               </table>
+            </div>
+          </div>
+          <div class="cm-subpane" id="subpane-tunai-chart">
+            <div class="cm-chart-scroll" id="cm-chart-area">
+              <div style="margin:auto;color:#aaa;">Data belum dimuat.</div>
             </div>
           </div>
         </div>
@@ -519,7 +540,6 @@
 
     </div>
 
-    <!-- MODAL PLAYER DETAIL -->
     <div class="cm-player-modal-bg" id="cm-player-modal-bg" onclick="if(event.target===this)closePlayerModal()">
       <div class="cm-player-modal">
         <div class="cm-player-modal-head">
@@ -655,6 +675,11 @@
     let cbFilters = document.getElementById('cb-filters');
     if(tunaiFilters) tunaiFilters.style.display = (sub === 'tunai-history') ? 'flex' : 'none';
     if(cbFilters) cbFilters.style.display = (sub === 'cb-history') ? 'flex' : 'none';
+    
+    // Render chart saat tab diklik agar tinggi area terhitung dengan benar
+    if (sub === 'tunai-chart') {
+      setTimeout(renderDailyChart, 50);
+    }
   };
 
   window.openGSModal = () => { 
@@ -1019,6 +1044,7 @@
 
       renderTunaiHistory();
       renderPlayerReport();
+      renderDailyChart();
 
       let profitKotor = totalDepoGross - totalWdGross;
       let profitBersih = profitKotor - totalDepoFee - totalWdFee;
@@ -1046,6 +1072,9 @@
         let totalAgentFee = dp.totalQrFee + wd.totalQrFee;
         let pKotor = dp.totalGross - wd.totalGross;
         let pBersih = (dp.totalQrNett + dp.nonQr.v) - (wd.totalQrNett + wd.nonQr.v);
+        
+        // Save for chart
+        _dailyTunai[day].pBersih = pBersih;
         
         return `<tr>
           <td>${day}</td>
@@ -1339,7 +1368,7 @@
           <td>${formatRupiahTable(p.fee)}</td>
           <td style="color:#16a34a; font-weight:800;">${formatRupiahTable(p.nett)}</td>
           <td>${p.namaRek}</td>
-          <td><button class="cm-view-btn" onclick="viewPlayerHistory('${p.username}')">👁</button></td>
+          <td style="text-align:center;"><button class="cm-view-btn" onclick="viewPlayerHistory('${p.username}')">👁</button></td>
         </tr>`;
       });
     }
@@ -1358,12 +1387,62 @@
           <td>${formatRupiahTable(p.fee)}</td>
           <td style="color:#ef4444; font-weight:800;">${formatRupiahTable(p.nett)}</td>
           <td>${p.namaRek}</td>
-          <td><button class="cm-view-btn" onclick="viewPlayerHistory('${p.username}')">👁</button></td>
+          <td style="text-align:center;"><button class="cm-view-btn" onclick="viewPlayerHistory('${p.username}')">👁</button></td>
         </tr>`;
       });
     }
     document.getElementById('cm-table-winners').innerHTML = htmlWinners;
   }
+
+  window.renderDailyChart = function() {
+    const area = document.getElementById('cm-chart-area');
+    if (!area) return;
+    
+    let days = Object.keys(_dailyTunai).sort();
+    if (days.length === 0) {
+      area.innerHTML = '<div style="margin:auto;color:#aaa;padding:20px;">Data belum dimuat. Klik TARIK DATA.</div>';
+      return;
+    }
+    
+    let maxVal = 1;
+    days.forEach(day => {
+      let p = _dailyTunai[day].pBersih || 0;
+      if (Math.abs(p) > maxVal) maxVal = Math.abs(p);
+    });
+    
+    // Dapatkan tinggi area yang tersedia (dikurangi padding dan label)
+    // Karena chart dibagi 2 (atas dan bawah), tiap sisi punya setengah tinggi
+    let areaHeight = area.clientHeight;
+    if (areaHeight < 100) areaHeight = 350; // Fallback 350px kalau display none
+    let halfHeight = (areaHeight - 40) / 2; // 40px untuk padding + label tanggal
+    
+    let html = '<div class="cm-chart-center-line"></div><div class="cm-chart-inner">';
+    days.forEach(day => {
+      let p = _dailyTunai[day].pBersih || 0;
+      let heightPx = (Math.abs(p) / maxVal) * (halfHeight - 20); // 20px untuk teks nilai
+      if (heightPx < 2) heightPx = 2; // minimal 2px biar keliatan
+      let isPos = p >= 0;
+      let valStr = formatRupiahPlain(p).replace('Rp ', '');
+      
+      html += `<div class="cm-chart-col">`;
+      html += `<div class="cm-chart-half top">`;
+      if (isPos) {
+        html += `<div class="cm-chart-val" style="color:#16a34a;">${valStr}</div>`;
+        html += `<div class="cm-chart-bar up" style="height:${heightPx}px;"></div>`;
+      }
+      html += `</div>`;
+      html += `<div class="cm-chart-half bottom">`;
+      if (!isPos) {
+        html += `<div class="cm-chart-bar down" style="height:${heightPx}px;"></div>`;
+        html += `<div class="cm-chart-val" style="color:#ef4444;">${valStr}</div>`;
+      }
+      html += `</div>`;
+      html += `<div class="cm-chart-label">${day.substring(5)}</div>`;
+      html += `</div>`;
+    });
+    html += '</div>';
+    area.innerHTML = html;
+  };
 
   window.viewPlayerHistory = (username) => {
     document.getElementById('cm-player-modal-title').innerHTML = `🔍 History Transaksi: <span style="color:#3b82f6;">${username}</span>`;
