@@ -1,6 +1,10 @@
 (async () => {
-  const ID = 'cm-universal-dash-v43';
+  const ID = 'cm-universal-dash-v46';
   if (document.getElementById(ID)) { document.getElementById(ID).remove(); return; }
+
+  // Inject Library untuk Export Excel dan Screenshot
+  if (!window.XLSX) { const s1 = document.createElement('script'); s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; document.head.appendChild(s1); }
+  if (!window.html2canvas) { const s2 = document.createElement('script'); s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; document.head.appendChild(s2); }
 
   // ── STYLE ──────────────────────────────────────────────────────────────────
   const st = document.createElement('style');
@@ -10,34 +14,34 @@
     
     #${ID} {
       --bg-base: #eef2f7; 
-      --bg-card: rgba(255, 255, 255, 0.55);
-      --bg-sec: rgba(255, 255, 255, 0.35);
+      --bg-card: rgba(255, 255, 255, 0.35); 
+      --bg-sec: rgba(255, 255, 255, 0.25);
       --text-main: #1c1e21; --text-sub: #65676b;
       --glass-border: 1px solid rgba(255, 255, 255, 0.8);
       --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 0 15px rgba(255, 255, 255, 0.5);
       --glass-glow: 0 0 25px rgba(0, 0, 0, 0.15); 
-      --tbl-head-bg: rgba(255, 255, 255, 0.7); --tbl-head-text: #1c1e21; --tbl-border: rgba(200, 210, 225, 0.5);
+      --tbl-head-bg: #f1f5f9; --tbl-head-text: #1c1e21; --tbl-border: rgba(200, 210, 225, 0.5);
       --tbl-row-even: rgba(255, 255, 255, 0.15); --tbl-row-hover: rgba(255, 255, 255, 0.35);
-      --modal-bg: rgba(255, 255, 255, 0.85); --input-bg: rgba(255, 255, 255, 0.9);
+      --modal-bg: rgba(255, 255, 255, 0.75); --input-bg: rgba(255, 255, 255, 0.9);
       --switch-bg: rgba(0, 0, 0, 0.05);
       --spinner-color: #3b82f6;
     }
     #${ID}.dark {
       --bg-base: #020617; 
-      --bg-card: rgba(30, 41, 59, 0.55);
-      --bg-sec: rgba(15, 23, 42, 0.45);
+      --bg-card: rgba(30, 41, 59, 0.35); 
+      --bg-sec: rgba(15, 23, 42, 0.35);
       --text-main: #e2e8f0; --text-sub: #94a3b8;
       --glass-border: 1px solid rgba(16, 185, 129, 0.3); 
       --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.05);
       --glass-glow: 0 0 30px rgba(16, 185, 129, 0.25); 
-      --tbl-head-bg: rgba(15, 23, 42, 0.8); --tbl-head-text: #e2e8f0; --tbl-border: rgba(255, 255, 255, 0.1);
+      --tbl-head-bg: #020617; --tbl-head-text: #e2e8f0; --tbl-border: rgba(255, 255, 255, 0.1);
       --tbl-row-even: rgba(255, 255, 255, 0.03); --tbl-row-hover: rgba(255, 255, 255, 0.08);
-      --modal-bg: rgba(15, 23, 42, 0.9); --input-bg: rgba(15, 23, 42, 0.8);
+      --modal-bg: rgba(15, 23, 42, 0.75); --input-bg: rgba(15, 23, 42, 0.8);
       --switch-bg: rgba(255, 255, 255, 0.05);
       --spinner-color: #22c55e;
     }
     
-    /* MESH GRADIENT BACKGROUND */
+    /* MESH GRADIENT & GLASS BUBBLES */
     .cm-bg-wrap { position: fixed; inset: 0; z-index: -2; overflow: hidden; background: var(--bg-base); }
     .cm-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; animation: floatBlob 20s infinite ease-in-out; }
     .cm-blob.b1 { width: 500px; height: 500px; background: #3b82f6; top: -100px; left: -100px; }
@@ -46,6 +50,14 @@
     .dark .cm-blob.b1 { background: #1d4ed8; opacity: 0.4; }
     .dark .cm-blob.b2 { background: #6d28d9; opacity: 0.4; }
     .dark .cm-blob.b3 { background: #0e7490; opacity: 0.4; }
+    .cm-glass-bubble {
+      position: absolute; border-radius: 50%; 
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.1) 40%, transparent 70%);
+      border: 1px solid rgba(255,255,255,0.3); 
+      box-shadow: inset 5px 5px 15px rgba(255,255,255,0.5), inset -5px -5px 15px rgba(0,0,0,0.1);
+      backdrop-filter: blur(2px); opacity: 0.4; animation: floatBlob 15s infinite ease-in-out;
+    }
+    .dark .cm-glass-bubble { background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), rgba(255,255,255,0.05) 40%, transparent 70%); border: 1px solid rgba(255,255,255,0.1); }
     @keyframes floatBlob { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } }
     
     #${ID} { position:fixed; inset:0; background: transparent; backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%); z-index:2147483647; display:flex; flex-direction:column; color:var(--text-main); transition: background .3s, color .3s; }
@@ -62,32 +74,23 @@
     
     .cm-top { background:rgba(0, 0, 0, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding:6px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 4px 20px rgba(0,0,0,.5); position:sticky; top:0; z-index:100; flex-wrap:wrap; border-bottom: 1px solid rgba(255,255,255,0.1); }
     
-    .cm-logo { font-size:14px; font-weight:900; letter-spacing:.5px; display:flex; align-items:center; gap:4px; }
+    .cm-logo { font-size:14px; font-weight:900; letter-spacing:.5px; display:flex; align-items:center; gap:4px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
     .cm-logo span.zap { color:#fbbf24; text-shadow:0 0 10px rgba(251,191,36,0.8); }
-    .cm-shine-text {
-      background: linear-gradient(90deg, #fff 0%, #b1b1b1 40%, #fff 50%, #b1b1b1 60%, #fff 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: shine 3s linear infinite;
-    }
+    .cm-shine-text { background: linear-gradient(90deg, #fff 0%, #b1b1b1 40%, #fff 50%, #b1b1b1 60%, #fff 100%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite; }
     @keyframes shine { to { background-position: 200% center; } }
     .cm-logo em { font-style:normal; color:#22c55e; }
     
     .cm-dbar { display:flex; align-items:center; gap:8px; flex:1; flex-wrap:wrap; }
-    .cm-qb { height:30px; padding:0 12px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.1); color:#fff; font-size:11px; font-weight:700; cursor:pointer; transition: all 0.2s; }
-    .cm-qb:hover { background:rgba(255,255,255,.2); transform: translateY(-1px); }
-    .cm-qb.act { background:rgba(34, 197, 94, 0.8); color:#000; border-color:#22c55e; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3); }
+    .cm-qb { height:30px; padding:0 12px; border-radius:6px; border:1px solid rgba(59,130,246,0.4); background:rgba(59,130,246,0.3); color:#fff; font-size:11px; font-weight:700; cursor:pointer; transition: all 0.2s; backdrop-filter: blur(8px); }
+    .cm-qb:hover { background:rgba(59,130,246,0.5); transform: translateY(-1px); }
+    .cm-qb.act { background:rgba(59,130,246,0.6); border-color:rgba(59,130,246,0.8); box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
     .cm-dinp { height:30px; padding:0 8px; border:1px solid rgba(255,255,255,.2); border-radius:6px; font-size:12px; font-weight:600; color:#fff; background:rgba(255,255,255,.1); outline:none; }
     #cm-month-sel { color:#000 !important; background:#fff !important; border:1px solid #cbd5e1 !important; }
     #cm-month-sel option { color:#000 !important; background:#fff !important; }
     
-    /* TOMBOL GLASSMORPHISM V2 */
     .cm-btn-glass { height:32px; padding:0 16px; border:none; border-radius:8px; font-size:12px; font-weight:900; cursor:pointer; color:#fff; backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); display:flex; align-items:center; justify-content:center; gap:6px; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.1), inset 0 1px 1px rgba(255,255,255,0.2); border: 1px solid rgba(255, 255, 255, 0.3); }
     .cm-btn-glass:disabled { opacity:0.6; cursor:not-allowed; }
     .cm-btn-glass:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.3); }
-    
     .cm-btn-blue { background: rgba(59, 130, 246, 0.5); border-color: rgba(59, 130, 246, 0.6); color:#fff; }
     .cm-btn-blue:hover { background: rgba(59, 130, 246, 0.7); }
     .cm-btn-green { background: rgba(22, 163, 74, 0.5); border-color: rgba(22, 163, 74, 0.6); color:#fff; }
@@ -100,7 +103,6 @@
     .cm-auto-wrap { display:flex; align-items:center; gap:4px; margin-left:8px; padding-left:8px; border-left:1px solid rgba(255,255,255,.2); }
     .cm-auto-sel { height:30px; padding:0 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:11px; font-weight:700; color:#000; background:#fff; outline:none; cursor:pointer; }
     .cm-auto-custom { width:50px; height:30px; padding:0 4px; border:1px solid #cbd5e1; border-radius:6px; font-size:11px; font-weight:700; color:#000; background:#fff; outline:none; text-align:center; display:none; }
-    
     .cm-auto-btn { height:32px; padding:0 12px; border-radius:8px; border: 1px solid rgba(245, 158, 11, 0.6); font-size:11px; font-weight:900; cursor:pointer; color:#fff; backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); background: rgba(245, 158, 11, 0.4); box-shadow: 0 4px 12px rgba(0,0,0,0.1), inset 0 1px 1px rgba(255,255,255,0.2); transition: all 0.3s ease; }
     .cm-auto-btn:hover { background: rgba(245, 158, 11, 0.6); transform: translateY(-1px); }
     .cm-auto-btn.active { background: rgba(239, 68, 68, 0.6); border-color: rgba(239, 68, 68, 0.8); animation:pulse 1.5s infinite; }
@@ -128,12 +130,11 @@
     .cm-fee-bar { margin-top:12px; background:var(--bg-card); backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); border:var(--glass-border); box-shadow: var(--glass-shadow), var(--glass-glow); color:var(--text-main); padding:10px 16px; border-radius:12px; font-size:11px; display:flex; gap:20px; flex-wrap:wrap; }
     .cm-fee-bar b { color:#fbbf24; }
     
-    /* TABS UTAMA GRADIEN BIRU */
     .cm-main-switcher { display:flex; gap:8px; justify-content:center; padding:0 0 16px 0; }
     .cm-sw-btn { padding:10px 20px; border-radius:12px; border:var(--glass-border); background:var(--bg-card); backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); color:var(--text-sub); font-weight:800; font-size:12px; cursor:pointer; transition: all 0.3s ease; flex:1; max-width:250px; text-align:center; box-shadow: var(--glass-shadow); }
     .cm-sw-btn:hover { background: rgba(59, 130, 246, 0.2); color: #fff; transform: translateY(-2px); }
-    .cm-sw-btn.active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(29, 78, 216, 0.6)); color: #fff; border: 1px solid rgba(59, 130, 246, 0.5); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); }
-    .dark .cm-sw-btn.active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(29, 78, 216, 0.6)); }
+    .cm-sw-btn.active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(29, 78, 216, 0.6)); color: #1c1e21; border: 1px solid rgba(59, 130, 246, 0.5); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); }
+    .dark .cm-sw-btn.active { color: #fff; }
     
     .cm-pane { display:none; flex:1; min-height:0; flex-direction:column; }
     .cm-pane.active { display:flex; }
@@ -144,12 +145,11 @@
     .cm-sec { flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; background:var(--bg-sec); backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); border-radius:16px; box-shadow: var(--glass-shadow), var(--glass-glow); border:var(--glass-border); }
     .cm-shead { padding:12px 16px; border-bottom:1px solid var(--tbl-border); font-size:12px; font-weight:900; display:flex; justify-content:space-between; align-items:center; color:var(--text-main); background: rgba(255,255,255,0.05); flex-wrap:wrap; gap:8px; }
     .cm-shead-left { display:flex; align-items:center; gap:16px; flex:1; flex-wrap:wrap; }
-    
-    /* SUB TABS GRADIEN BIRU */
     .cm-subtabs { display:flex; gap:4px; background:var(--switch-bg); padding:4px; border-radius:8px; border: 1px solid var(--tbl-border); }
     .cm-subtab { padding:6px 12px; border-radius:6px; border:none; background:transparent; font-size:10px; font-weight:800; cursor:pointer; color:var(--text-sub); transition: all 0.3s ease; }
     .cm-subtab:hover { background: rgba(59, 130, 246, 0.2); color: #fff; }
-    .cm-subtab.active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(29, 78, 216, 0.4)); color: #fff; box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3); }
+    .cm-subtab.active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(29, 78, 216, 0.4)); color: #1c1e21; box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3); }
+    .dark .cm-subtab.active { color: #fff; }
     
     .cm-filters { display:none; gap:6px; align-items:center; flex-wrap:wrap; }
     .cm-filter-sel { height:28px; padding:0 8px; background:var(--input-bg); color:var(--text-main); border:1px solid var(--tbl-border); border-radius:6px; font-size:10px; font-weight:600; outline:none; cursor:pointer; }
@@ -168,13 +168,13 @@
     table.cm-tbl.thin { table-layout:auto; white-space:normal; }
     table.cm-tbl.wide { min-width:2500px; white-space:nowrap; }
     
-    table.cm-tbl thead { position: sticky; top: 0; z-index: 10; }
-    table.cm-tbl th { background:var(--tbl-head-bg); backdrop-filter: blur(8px); padding:8px; font-size:9px; font-weight:900; color:var(--tbl-head-text); border: 1px solid var(--tbl-border); text-align:center; vertical-align:middle; }
+    /* FIX TABEL STICKY Z-INDEX SOLID */
+    table.cm-tbl thead { position: sticky; top: 0; z-index: 100; background: var(--tbl-head-bg); }
+    table.cm-tbl th { background: var(--tbl-head-bg); padding:8px; font-size:9px; font-weight:900; color:var(--tbl-head-text); border: 1px solid var(--tbl-border); text-align:center; vertical-align:middle; }
     table.cm-tbl td { padding:6px 8px; border: 1px solid var(--tbl-border); font-weight:600; color:var(--text-main); font-size:10px; text-align:center; vertical-align:middle; background: transparent; }
     table.cm-tbl tbody tr:nth-child(even) { background:var(--tbl-row-even); }
     table.cm-tbl tbody tr:hover { background:var(--tbl-row-hover); }
-    
-    table.cm-tbl tbody tr.row-total { background:var(--tbl-head-bg) !important; font-weight:900; font-size:11px; position:sticky; bottom:0; backdrop-filter: blur(8px); }
+    table.cm-tbl tbody tr.row-total { background:var(--tbl-head-bg) !important; font-weight:900; font-size:11px; position:sticky; bottom:0; z-index: 50; }
     table.cm-tbl tbody tr.row-total td { border-top:2px solid #475569; color:var(--text-main); }
     
     .rp-flex { display:flex; justify-content:space-between; width:100%; align-items:center; }
@@ -211,7 +211,6 @@
     .cm-view-btn { height:24px; width:24px; border-radius:50%; border:none; background:rgba(59, 130, 246, 0.7); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow: 0 2px 6px rgba(59,130,246,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; margin:auto; }
     .cm-view-btn:hover { background:rgba(59, 130, 246, 1); transform: scale(1.1); }
     
-    /* CSS DAILY CHART V2 */
     .cm-chart-scroll { flex:1; min-height:0; overflow-x:auto; overflow-y:hidden; position:relative; padding:16px; }
     .cm-chart-inner { display:flex; height:100%; align-items:stretch; gap:8px; min-width:100%; }
     .cm-chart-col { display:flex; flex-direction:column; min-width:30px; height:100%; align-items:center; justify-content:center; position:relative; }
@@ -228,25 +227,34 @@
     .cm-chart-bar-wrap:hover .cm-chart-bar { filter: brightness(1.2); }
     .cm-chart-label { font-size:9px; font-weight:600; color:var(--text-sub); margin-top:8px; writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); height: 40px; }
     .cm-chart-center-line { position:absolute; top:50%; left:0; right:0; height:1px; background:var(--tbl-border); z-index:0; pointer-events:none; }
-    
     .cm-chart-tooltip { position:fixed; background:var(--modal-bg); backdrop-filter: blur(12px); border:1px solid var(--glass-border); border-radius:8px; padding:8px 12px; font-size:10px; color:var(--text-main); box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:1000; pointer-events:none; display:none; white-space:nowrap; }
     
     .cm-player-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; padding:20px; }
     .cm-player-modal-bg.show { display:flex; }
     .cm-player-modal { background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; width:800px; max-width:95vw; height:80vh; max-height:600px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); display:flex; flex-direction:column; position:relative; }
-    .cm-player-modal-head { padding:16px 24px; border-bottom:1px solid var(--tbl-border); display:flex; justify-content:space-between; align-items:center; background: rgba(255,255,255,0.05); border-top-left-radius:16px; border-top-right-radius:16px; }
+    .cm-player-modal-head { padding:16px 24px; border-bottom:1px solid var(--tbl-border); display:flex; justify-content:space-between; align-items:center; background: rgba(255,255,255,0.05); border-top-left-radius:16px; border-top-right-radius:16px; flex-shrink: 0; }
     .cm-player-modal-title { font-size:14px; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:8px; }
+    .cm-player-modal-actions { display:flex; gap:8px; }
+    .cm-cam-btn { height:32px; width:32px; background:rgba(59, 130, 246, 0.7); color:#fff; border:1px solid rgba(59,130,246,0.8); border-radius:8px; cursor:pointer; font-weight:900; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow: 0 2px 6px rgba(59,130,246,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; }
+    .cm-cam-btn:hover { background:rgba(59, 130, 246, 1); transform: scale(1.05); }
     .cm-player-modal-close { height:32px; width:32px; background:rgba(239, 68, 68, 0.7); color:#fff; border:1px solid rgba(239,68,68,0.8); border-radius:8px; cursor:pointer; font-weight:900; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 6px rgba(239,68,68,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; }
     .cm-player-modal-close:hover { background:rgba(239, 68, 68, 1); transform: rotate(90deg); }
-    .cm-player-modal-body { flex:1; overflow-y:auto; padding:16px 24px; }
+    /* FIX MODAL BODY PADDING BIAR HEADER TABEL NEMPEL MENTOK */
+    .cm-player-modal-body { flex:1; overflow-y:auto; padding:0 24px 16px; }
+    .cm-player-summary { margin-top: 16px; margin-bottom: 16px; padding:12px 16px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); border-radius:8px; display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:700; color:var(--text-main); flex-wrap:wrap; gap:8px; }
+    .dark .cm-player-summary { background:rgba(59,130,246,0.05); }
     
+    /* FIX GS MODAL TRANSPARANSI & TULISAN */
     .gs-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; }
     .gs-modal-bg.show { display:flex; }
-    .gs-modal { background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; padding:24px; width:480px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); }
+    .gs-modal { background:rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; padding:24px; width:480px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); }
+    .dark .gs-modal { background:rgba(15, 23, 42, 0.65); }
     .gs-modal h3 { font-size:14px; font-weight:900; margin:0 0 4px; color:var(--text-main); }
     .gs-modal p { font-size:11px; color:var(--text-sub); margin:0 0 16px; }
     .gs-inp { width:100%; height:36px; padding:0 12px; border:1.5px solid var(--tbl-border); border-radius:8px; font-size:12px; outline:none; font-family:monospace; margin-bottom:8px; background:var(--input-bg); color:var(--text-main); }
     .gs-btns { display:flex; gap:8px; margin-top:16px; justify-content:flex-end; }
+    .gs-modal .cm-btn-glass { color: #1c1e21; }
+    .dark .gs-modal .cm-btn-glass { color: #fff; }
   `;
   document.head.appendChild(st);
 
@@ -273,6 +281,11 @@
       <div class="cm-blob b1"></div>
       <div class="cm-blob b2"></div>
       <div class="cm-blob b3"></div>
+      <div class="cm-glass-bubble" style="width: 150px; height: 150px; top: 15%; left: 10%; animation-delay: -2s;"></div>
+      <div class="cm-glass-bubble" style="width: 100px; height: 100px; top: 70%; left: 80%; animation-delay: -8s;"></div>
+      <div class="cm-glass-bubble" style="width: 200px; height: 200px; top: 40%; left: 50%; animation-delay: -12s;"></div>
+      <div class="cm-glass-bubble" style="width: 80px; height: 80px; top: 85%; left: 20%; animation-delay: -4s;"></div>
+      <div class="cm-glass-bubble" style="width: 120px; height: 120px; top: 10%; left: 75%; animation-delay: -6s;"></div>
     </div>
 
     <div class="cm-loader-overlay" id="cm-loader-overlay">
@@ -338,21 +351,21 @@
             <div class="cm-card" style="--accent-color:#10b981">
               <div class="cm-clbl">TOTAL DEPOSIT</div>
               <div class="cm-card-flex">
-                <div class="cm-cval" id="cm-card-depo" style="color:#10b981">Rp 0</div>
+                <div class="cm-cval" id="cm-card-depo" style="color:#059669">Rp 0</div>
                 <div class="cm-csub" id="cm-card-depo-tkt">0 Tiket</div>
               </div>
             </div>
             <div class="cm-card" style="--accent-color:#ef4444">
               <div class="cm-clbl">TOTAL WITHDRAW</div>
               <div class="cm-card-flex">
-                <div class="cm-cval" id="cm-card-wd" style="color:#ef4444">Rp 0</div>
+                <div class="cm-cval" id="cm-card-wd" style="color:#dc2626">Rp 0</div>
                 <div class="cm-csub" id="cm-card-wd-tkt">0 Tiket</div>
               </div>
             </div>
             <div class="cm-card" style="--accent-color:#3b82f6">
               <div class="cm-clbl">PROFIT KOTOR</div>
               <div class="cm-card-flex">
-                <div class="cm-cval" id="cm-card-profit-kotor" style="color:#3b82f6">Rp 0</div>
+                <div class="cm-cval" id="cm-card-profit-kotor" style="color:#2563eb">Rp 0</div>
                 <div class="cm-csub">Sebelum Fee</div>
               </div>
             </div>
@@ -365,21 +378,21 @@
             </div>
             <div class="cm-card" style="--accent-color:#06b6d4">
               <div class="cm-clbl">QR KOTOR</div>
-              <div class="cm-cval" id="cm-card-qr-kotor" style="color:#06b6d4">Rp 0</div>
+              <div class="cm-cval" id="cm-card-qr-kotor" style="color:#0891b2">Rp 0</div>
               <div class="cm-csub-inline" id="cm-card-qr-kotor-sub">-</div>
             </div>
             <div class="cm-card" style="--accent-color:#0891b2">
               <div class="cm-clbl">QR BERSIH</div>
-              <div class="cm-cval" id="cm-card-qr-bersih" style="color:#0891b2">Rp 0</div>
+              <div class="cm-cval" id="cm-card-qr-bersih" style="color:#0e7490">Rp 0</div>
               <div class="cm-csub-inline" id="cm-card-qr-bersih-sub">-</div>
             </div>
             <div class="cm-card" style="--accent-color:#8b5cf6">
               <div class="cm-clbl">DEPOSIT NON QRIS</div>
-              <div class="cm-cval" id="cm-card-depo-nonqr" style="color:#8b5cf6">Rp 0</div>
+              <div class="cm-cval" id="cm-card-depo-nonqr" style="color:#7c3aed">Rp 0</div>
             </div>
             <div class="cm-card" style="--accent-color:#f97316">
               <div class="cm-clbl">WD NON QRIS</div>
-              <div class="cm-cval" id="cm-card-wd-nonqr" style="color:#f97316">Rp 0</div>
+              <div class="cm-cval" id="cm-card-wd-nonqr" style="color:#ea580c">Rp 0</div>
             </div>
           </div>
           <div class="cm-fee-bar" id="cm-fee-bar">RINCIAN FEE QRIS: <span id="cm-fee-details">Belum ada data</span></div>
@@ -404,7 +417,7 @@
                 </select>
                 <button class="cm-filter-btn cm-btn-search" onclick="renderTunaiHistory()">🔍 SEARCH</button>
                 <button class="cm-filter-btn cm-btn-reset" onclick="resetFilters('tunai')">↺ RESET</button>
-                <button class="cm-filter-btn cm-btn-excel" onclick="exportTableToCSV('cm-table-tunai-history', 'History_Tunai.csv')">📊 EXCEL</button>
+                <button class="cm-filter-btn cm-btn-excel" onclick="exportTableToExcel('cm-table-tunai-history', 'History_Tunai')">📊 EXCEL</button>
               </div>
             </div>
             <div class="cm-subtabs">
@@ -484,10 +497,10 @@
       <div id="pane-cb" class="cm-pane">
         <div class="cm-cards-area">
           <div class="cm-cards">
-            <div class="cm-card" style="--accent-color:#3b82f6"><div class="cm-clbl">SALDO AWAL</div><div class="cm-cval" id="cm-card-cb-start" style="color:#3b82f6">Rp 0</div></div>
-            <div class="cm-card" style="--accent-color:#8b5cf6"><div class="cm-clbl">SALDO AKHIR</div><div class="cm-cval" id="cm-card-cb-end" style="color:#8b5cf6">Rp 0</div></div>
-            <div class="cm-card" style="--accent-color:#10b981"><div class="cm-clbl">TOTAL MASUK</div><div class="cm-cval" id="cm-card-cb-in" style="color:#10b981">Rp 0</div></div>
-            <div class="cm-card" style="--accent-color:#ef4444"><div class="cm-clbl">TOTAL KELUAR</div><div class="cm-cval" id="cm-card-cb-out" style="color:#ef4444">Rp 0</div></div>
+            <div class="cm-card" style="--accent-color:#3b82f6"><div class="cm-clbl">SALDO AWAL</div><div class="cm-cval" id="cm-card-cb-start" style="color:#2563eb">Rp 0</div></div>
+            <div class="cm-card" style="--accent-color:#8b5cf6"><div class="cm-clbl">SALDO AKHIR</div><div class="cm-cval" id="cm-card-cb-end" style="color:#7c3aed">Rp 0</div></div>
+            <div class="cm-card" style="--accent-color:#10b981"><div class="cm-clbl">TOTAL MASUK</div><div class="cm-cval" id="cm-card-cb-in" style="color:#059669">Rp 0</div></div>
+            <div class="cm-card" style="--accent-color:#ef4444"><div class="cm-clbl">TOTAL KELUAR</div><div class="cm-cval" id="cm-card-cb-out" style="color:#dc2626">Rp 0</div></div>
           </div>
         </div>
         <div class="cm-sec">
@@ -500,7 +513,7 @@
                 </select>
                 <button class="cm-filter-btn cm-btn-search" onclick="renderCBHistory()">🔍 SEARCH</button>
                 <button class="cm-filter-btn cm-btn-reset" onclick="resetFilters('cb')">↺ RESET</button>
-                <button class="cm-filter-btn cm-btn-excel" onclick="exportTableToCSV('cm-table-cb-history', 'History_CB.csv')">📊 EXCEL</button>
+                <button class="cm-filter-btn cm-btn-excel" onclick="exportTableToExcel('cm-table-cb-history', 'History_CB')">📊 EXCEL</button>
               </div>
             </div>
             <div class="cm-subtabs">
@@ -551,7 +564,7 @@
             </div>
             <div class="cm-tbl-area">
               <table class="cm-tbl thin">
-                <thead><tr><th>RANK</th><th>USERNAME</th><th>MASUK (DEPO)</th><th>KELUAR (WD)</th><th>FEE</th><th>NETT</th><th>NAMA REK</th><th>VIEW</th></tr></thead>
+                <thead><tr><th>RANK</th><th>USERNAME</th><th>DEPOSIT</th><th>WITHDRAW</th><th>FEE</th><th>NETT</th><th>NAMA REK</th><th>VIEW</th></tr></thead>
                 <tbody id="cm-table-losers"><tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">Data belum dimuat.</td></tr></tbody>
               </table>
             </div>
@@ -563,7 +576,7 @@
             </div>
             <div class="cm-tbl-area">
               <table class="cm-tbl thin">
-                <thead><tr><th>RANK</th><th>USERNAME</th><th>MASUK (DEPO)</th><th>KELUAR (WD)</th><th>FEE</th><th>NETT</th><th>NAMA REK</th><th>VIEW</th></tr></thead>
+                <thead><tr><th>RANK</th><th>USERNAME</th><th>DEPOSIT</th><th>WITHDRAW</th><th>FEE</th><th>NETT</th><th>NAMA REK</th><th>VIEW</th></tr></thead>
                 <tbody id="cm-table-winners"><tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">Data belum dimuat.</td></tr></tbody>
               </table>
             </div>
@@ -579,7 +592,10 @@
       <div class="cm-player-modal">
         <div class="cm-player-modal-head">
           <div class="cm-player-modal-title" id="cm-player-modal-title">🔍 Detail Transaksi</div>
-          <button class="cm-player-modal-close" onclick="closePlayerModal()">✖</button>
+          <div class="cm-player-modal-actions">
+            <button class="cm-cam-btn" onclick="captureModal()" title="Screenshot Tabel">📸</button>
+            <button class="cm-player-modal-close" onclick="closePlayerModal()">✖</button>
+          </div>
         </div>
         <div class="cm-player-modal-body" id="cm-player-modal-body"></div>
       </div>
@@ -623,6 +639,7 @@
   let _allTrx = []; let _cbRawList = []; let _dailyTunai = {}; let _dailyCB = {};
   let _autoTimer = null; 
   let _lastSummary = { tktDepo:0, depo:0, tktWd:0, wd:0, pKotor:0, pBersih:0, saldoAkhir:0 };
+  let _currentCapturedUser = ''; 
   
   const cbOutMods = ["Deposit", "Manual Deposit", "Provider Withdraw", "Deduct Credit", "Bonus Claim", "Bonus Transfer", "Rebate", "Bonus Deposit"];
   const cbInMods = ["Withdraw", "Add Credit", "Manual Withdraw", "Provider Deposit"];
@@ -662,7 +679,9 @@
   window.setDateRange = (type, val) => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     document.querySelectorAll('.cm-qb').forEach(b => b.classList.remove('act'));
-    document.getElementById('cm-month-sel').value = "";
+    if (type !== 'month') {
+      document.getElementById('cm-month-sel').value = "";
+    }
     if (type === 'today') {
       document.querySelector('.cm-qb[onclick="setDateRange(\'today\')"]').classList.add('act');
       const t = getLocalYMD(today); document.getElementById('cm-start').value = t; document.getElementById('cm-end').value = t;
@@ -865,36 +884,13 @@
     }
   };
 
-  window.exportTableToCSV = (tableId, filename) => {
+  window.exportTableToExcel = (tableId, filename) => {
+    if (!window.XLSX) { alert('Library Excel masih loading, coba beberapa detik lagi.'); return; }
     const table = document.getElementById(tableId);
     if (!table) return alert('Tabel tidak ditemukan!');
     
-    let csv = [];
-    const rows = table.querySelectorAll('tr');
-    rows.forEach(row => {
-      const cols = row.querySelectorAll('td, th');
-      let rowData = [];
-      cols.forEach(col => {
-        let text = col.innerText.replace(/\n/g, ' ').replace(/"/g, '""');
-        if (text.includes('Rp')) {
-          text = text.replace(/Rp/g, '').replace(/\./g, '').trim();
-          if (text.includes('-')) text = '-' + text.replace('-', '').trim();
-        }
-        rowData.push(`"${text}"`);
-      });
-      csv.push(rowData.join(','));
-    });
-    
-    const csvString = csv.join('\n');
-    const blob = new Blob(["\ufeff" + csvString], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', filename);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+    XLSX.writeFile(wb, filename + '.xlsx');
   };
 
   window.resetFilters = (type) => {
@@ -1080,7 +1076,6 @@
       renderTunaiHistory();
       renderPlayerReport();
       
-      // Render chart jika sedang aktif
       if (document.getElementById('subpane-tunai-chart').classList.contains('active')) {
           setTimeout(renderDailyChart, 100);
       }
@@ -1467,7 +1462,7 @@
       
       let isPos = pK >= 0;
       
-      let parts = day.split('-'); // dd-mm-yyyy
+      let parts = day.split('-'); 
       let dd = parts[0];
       let mm = monthNames[parseInt(parts[1]) - 1] || '';
       let dateLabel = `${dd} ${mm}`;
@@ -1513,13 +1508,36 @@
   };
 
   window.viewPlayerHistory = (username) => {
+    _currentCapturedUser = username; 
     document.getElementById('cm-player-modal-title').innerHTML = `🔍 History Transaksi: <span style="color:#3b82f6;">${username}</span>`;
     const body = document.getElementById('cm-player-modal-body');
     
     let filtered = _allTrx.filter(item => item.username === username);
     filtered.sort((a, b) => a.time - b.time);
     
-    let html = `<table class="cm-tbl thin"><thead><tr><th>WAKTU</th><th>TIPE</th><th>MASUK</th><th>KELUAR</th><th>FEE</th><th>NETT</th><th>BANK</th><th>HANDLER</th></tr></thead><tbody>`;
+    let sumDepoTkt = 0, sumWdTkt = 0;
+    filtered.forEach(item => {
+        if (item.tipe === 'Deposit') sumDepoTkt++;
+        else sumWdTkt++;
+    });
+
+    let startVal = document.getElementById('cm-start').value;
+    let endVal = document.getElementById('cm-end').value;
+    function fmtDate(dStr) {
+        if(!dStr) return '-';
+        let p = dStr.split('-');
+        return `${parseInt(p[2])} ${monthNames[parseInt(p[1])-1]} ${p[0]}`;
+    }
+    let dateRange = (startVal === endVal) ? fmtDate(startVal) : `${fmtDate(startVal)} - ${fmtDate(endVal)}`;
+
+    let html = `
+      <div class="cm-player-summary">
+        <span>Tiket Deposit: <b style="color:#16a34a">${sumDepoTkt}</b></span>
+        <span>Tiket Withdraw: <b style="color:#ef4444">${sumWdTkt}</b></span>
+        <span>Periode Data: <b style="color:#3b82f6">${dateRange}</b></span>
+      </div>
+      <table class="cm-tbl thin"><thead><tr><th>WAKTU</th><th>TIPE</th><th>DEPOSIT</th><th>WITHDRAW</th><th>FEE</th><th>NETT</th><th>BANK</th><th>HANDLER</th></tr></thead><tbody>
+    `;
     let sumMasuk = 0, sumKeluar = 0, sumFee = 0, sumNett = 0;
     
     if (filtered.length === 0) {
@@ -1558,6 +1576,52 @@
     html += `</tbody></table>`;
     body.innerHTML = html;
     document.getElementById('cm-player-modal-bg').classList.add('show');
+  };
+
+  window.captureModal = async () => {
+    if (!window.html2canvas) { alert('Library kamera masih loading, coba beberapa detik lagi.'); return; }
+    const modal = document.querySelector('.cm-player-modal');
+    const body = document.getElementById('cm-player-modal-body');
+    
+    const oldModalHeight = modal.style.height;
+    const oldModalMaxHeight = modal.style.maxHeight;
+    const oldBodyOverflow = body.style.overflowY;
+    const oldBodyMaxHeight = body.style.maxHeight;
+    
+    modal.style.height = 'auto';
+    modal.style.maxHeight = 'none';
+    body.style.overflowY = 'visible';
+    body.style.maxHeight = 'none';
+    
+    await new Promise(r => setTimeout(r, 100));
+    
+    try {
+      const canvas = await html2canvas(modal, { 
+        backgroundColor: document.getElementById(ID).classList.contains('dark') ? '#0f172a' : '#f1f5f9', 
+        scale: 2, 
+        logging: false, 
+        useCORS: true,
+        onclone: (doc) => {
+          const el = doc.querySelector('.cm-player-modal');
+          if(el) el.style.backdropFilter = 'none';
+          const bd = doc.getElementById('cm-player-modal-body');
+          if(bd) bd.style.backdropFilter = 'none';
+        }
+      });
+      
+      const link = document.createElement('a');
+      link.download = `history_${_currentCapturedUser || 'player'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch(e) {
+      console.error("Capture Error:", e);
+      alert("Gagal capture: " + e.message);
+    } finally {
+      modal.style.height = oldModalHeight;
+      modal.style.maxHeight = oldModalMaxHeight;
+      body.style.overflowY = oldBodyOverflow;
+      body.style.maxHeight = oldBodyMaxHeight;
+    }
   };
 
   window.closePlayerModal = () => {
