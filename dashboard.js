@@ -1,10 +1,9 @@
 (async () => {
-  const ID = 'cm-universal-dash-v46';
+  const ID = 'cm-universal-dash-v50';
   if (document.getElementById(ID)) { document.getElementById(ID).remove(); return; }
 
-  // Inject Library untuk Export Excel dan Screenshot
+  // Inject Library untuk Export Excel
   if (!window.XLSX) { const s1 = document.createElement('script'); s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; document.head.appendChild(s1); }
-  if (!window.html2canvas) { const s2 = document.createElement('script'); s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; document.head.appendChild(s2); }
 
   // ── STYLE ──────────────────────────────────────────────────────────────────
   const st = document.createElement('style');
@@ -67,12 +66,15 @@
     #${ID} ::-webkit-scrollbar-thumb { background:#1e3a5f; border-radius:4px; }
     #${ID} ::-webkit-scrollbar-track { background: transparent; }
     
-    .cm-loader-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.2); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index:99999; display:none; align-items:center; justify-content:center; }
-    .cm-loader-box { background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border:var(--glass-border); box-shadow: var(--glass-shadow), var(--glass-glow); border-radius:16px; padding:32px 48px; display:flex; flex-direction:column; align-items:center; gap:16px; }
-    .cm-spinner { width:40px; height:40px; border:4px solid rgba(0,0,0,0.05); border-top:4px solid var(--spinner-color); border-radius:50%; animation: cm-spin 0.8s linear infinite; }
-    .dark .cm-spinner { border:4px solid rgba(255,255,255,0.1); border-top:4px solid var(--spinner-color); }
-    @keyframes cm-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .cm-loader-text { font-size:12px; font-weight:800; color:var(--text-main); letter-spacing:1px; text-transform:uppercase; }
+    /* FLOATING CIRCLE PERCENTAGE LOADER */
+    .cm-loader-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index:99999; display:none; align-items:center; justify-content:center; }
+    .cm-loader-container { display:flex; flex-direction:column; align-items:center; gap:12px; }
+    .cm-loader-ring { width:90px; height:90px; position:relative; }
+    .cm-loader-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+    .cm-loader-ring-track { stroke: rgba(255,255,255,0.1); stroke-width: 8; fill: none; }
+    .cm-loader-ring-fill { stroke: #3b82f6; stroke-width: 8; fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.2s ease, stroke 0.5s ease; }
+    .cm-loader-percent { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:24px; font-weight:900; color:#3b82f6; transition: color 0.5s ease; }
+    .cm-loader-text { font-size:12px; font-weight:800; color:rgba(255,255,255,0.8); letter-spacing:1px; text-transform:uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
     
     .cm-top { background:rgba(0, 0, 0, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding:6px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 4px 20px rgba(0,0,0,.5); position:sticky; top:0; z-index:100; flex-wrap:wrap; border-bottom: 1px solid rgba(255,255,255,0.1); }
     
@@ -213,7 +215,9 @@
     .cm-view-btn { height:24px; width:24px; border-radius:50%; border:none; background:rgba(59, 130, 246, 0.7); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow: 0 2px 6px rgba(59,130,246,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; margin:auto; }
     .cm-view-btn:hover { background:rgba(59, 130, 246, 1); transform: scale(1.1); }
     
-    .cm-chart-scroll { flex:1; min-height:0; overflow-x:auto; overflow-y:hidden; position:relative; padding:16px; }
+    /* CHART AREA FIX SPLIT LAYOUT */
+    .cm-chart-scroll { flex:1; min-height:0; display:flex; overflow:hidden; position:relative; }
+    .cm-chart-left { flex:1; overflow-x:auto; overflow-y:hidden; padding:16px; position:relative; }
     .cm-chart-inner { display:flex; height:100%; align-items:stretch; gap:8px; min-width:100%; }
     .cm-chart-col { display:flex; flex-direction:column; min-width:30px; height:100%; align-items:center; justify-content:center; position:relative; }
     .cm-chart-half { flex:1; width:100%; display:flex; flex-direction:column; align-items:center; min-height:0; }
@@ -231,24 +235,61 @@
     .cm-chart-center-line { position:absolute; top:50%; left:0; right:0; height:1px; background:var(--tbl-border); z-index:0; pointer-events:none; }
     .cm-chart-tooltip { position:fixed; background:var(--modal-bg); backdrop-filter: blur(12px); border:1px solid var(--glass-border); border-radius:8px; padding:8px 12px; font-size:10px; color:var(--text-main); box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:1000; pointer-events:none; display:none; white-space:nowrap; }
     
-    /* FIX MODAL STICKY HEADER */
+    /* CHART RIGHT PANEL STATISTICS - 2 COLUMN GRID WIDER */
+    .cm-chart-right { flex: 0 0 720px; border-left: 1px solid var(--tbl-border); padding: 12px; overflow-y: auto; background: var(--bg-sec); display: grid; grid-template-columns: 1fr 1fr; gap: 12px; min-height: 0; align-content: start; }
+    .cm-stats-box { background: var(--bg-card); border: 1px solid var(--tbl-border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; min-height: 140px; }
+    .cm-stats-title { font-size: 12px; font-weight: 900; margin-bottom: 12px; color: var(--text-main); display:flex; align-items:center; gap:6px; flex-shrink: 0; }
+    .cm-stat-row { display:flex; justify-content:space-between; align-items:center; padding: 6px 0; border-bottom: 1px dashed var(--tbl-border); font-size: 10px; }
+    .cm-stat-row:last-child { border-bottom: none; }
+    .cm-stat-label { color: var(--text-sub); font-weight: 700; }
+    .cm-stat-val { color: var(--text-main); font-weight: 900; font-size: 11px; }
+    .cm-stat-val.pos { color: #16a34a; }
+    .cm-stat-val.neg { color: #ef4444; }
+    .cm-stats-flex { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .cm-tkt-chart-list { display:flex; flex-direction:column; gap:6px; overflow-y: auto; flex: 1; padding-right: 4px; }
+    .cm-tkt-chart-row { display:flex; align-items:center; gap:8px; font-size:10px; flex-shrink: 0; }
+    .cm-tkt-chart-label { width: 45px; text-align:right; color: var(--text-sub); font-weight:700; }
+    .cm-tkt-chart-bar-bg { flex: 1; height: 14px; background: rgba(0,0,0,0.05); border-radius: 4px; overflow:hidden; border: 1px solid var(--tbl-border); }
+    .dark .cm-tkt-chart-bar-bg { background: rgba(255,255,255,0.05); }
+    .cm-tkt-chart-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #06b6d4); border-radius: 4px; transition: width 0.3s ease; }
+    .cm-tkt-chart-val { width: 35px; text-align:left; font-weight: 900; color: var(--text-main); }
+
+    /* MINI TABLES FOR HANDLER & KETERANGAN */
+    .cm-stats-table { width: 100%; font-size: 10px; border-collapse: collapse; }
+    .cm-stats-table th { text-align: left; padding: 4px 2px; font-size: 9px; color: var(--text-sub); font-weight: 800; text-transform: uppercase; border-bottom: 1px solid var(--tbl-border); }
+    .cm-stats-table td { padding: 4px 2px; color: var(--text-main); font-weight: 600; border-bottom: 1px dashed var(--tbl-border); }
+    .cm-stats-table tr:last-child td { border-bottom: none; }
+    .cm-stats-table .num-d { text-align: right; color: #16a34a; font-weight: 800; }
+    .cm-stats-table .num-w { text-align: right; color: #ef4444; font-weight: 800; }
+    .cm-stats-table .num-0 { color: var(--text-sub) !important; opacity: 0.5; }
+
+    /* FIX MODAL LAYOUT - NO STICKY BUG */
     .cm-player-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; padding:20px; }
     .cm-player-modal-bg.show { display:flex; }
-    .cm-player-modal { background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; width:800px; max-width:95vw; height:80vh; max-height:600px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); display:flex; flex-direction:column; position:relative; }
+    .cm-player-modal { background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; width:800px; max-width:95vw; height:80vh; max-height:600px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); display:flex; flex-direction:column; position:relative; overflow: hidden; }
     .cm-player-modal-head { padding:16px 24px; border-bottom:1px solid var(--tbl-border); display:flex; justify-content:space-between; align-items:center; background: rgba(255,255,255,0.05); border-top-left-radius:16px; border-top-right-radius:16px; flex-shrink: 0; }
     .cm-player-modal-title { font-size:14px; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:8px; }
     .cm-player-modal-actions { display:flex; gap:8px; }
-    .cm-cam-btn { height:32px; width:32px; background:rgba(59, 130, 246, 0.7); color:#fff; border:1px solid rgba(59,130,246,0.8); border-radius:8px; cursor:pointer; font-weight:900; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow: 0 2px 6px rgba(59,130,246,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; }
-    .cm-cam-btn:hover { background:rgba(59, 130, 246, 1); transform: scale(1.05); }
     .cm-player-modal-close { height:32px; width:32px; background:rgba(239, 68, 68, 0.7); color:#fff; border:1px solid rgba(239,68,68,0.8); border-radius:8px; cursor:pointer; font-weight:900; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 6px rgba(239,68,68,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; }
     .cm-player-modal-close:hover { background:rgba(239, 68, 68, 1); transform: rotate(90deg); }
-    .cm-player-modal-body { flex:1; overflow-y:auto; padding:16px 24px; }
-    .cm-player-modal-body .cm-tbl thead { position: sticky; top: 0; z-index: 10; }
-    .cm-player-modal-body .cm-tbl th { background: var(--tbl-head-bg); }
-    .cm-player-modal-body .cm-tbl tbody tr.row-total { background: var(--tbl-foot-bg) !important; }
     
-    .cm-player-summary { margin-bottom:16px; padding:12px 16px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); border-radius:8px; display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:700; color:var(--text-main); flex-wrap:wrap; gap:8px; }
-    .dark .cm-player-summary { background:rgba(59,130,246,0.05); }
+    .cm-player-modal-body { flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; padding: 0; position:relative; }
+    .cm-player-summary { 
+      flex-shrink: 0; 
+      background: var(--bg-base); /* SOLID BG */
+      backdrop-filter: none; -webkit-backdrop-filter: none; 
+      padding: 0 24px; height: 48px; 
+      display: flex; align-items: center; flex-wrap: wrap; gap: 16px; 
+      border-bottom: 2px solid var(--tbl-border); 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+      z-index: 10;
+    }
+    .cm-player-modal-tbl-wrap { flex: 1; min-height: 0; overflow-y: auto; overflow-x: auto; padding: 0 24px 16px; }
+    .cm-player-modal-tbl-wrap .cm-tbl thead { 
+      position: sticky; top: 0; z-index: 5; 
+      background: var(--tbl-head-bg) !important; /* SOLID BG */ 
+      backdrop-filter: none; -webkit-backdrop-filter: none; 
+    }
     
     .gs-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; }
     .gs-modal-bg.show { display:flex; }
@@ -294,8 +335,14 @@
     </div>
 
     <div class="cm-loader-overlay" id="cm-loader-overlay">
-      <div class="cm-loader-box">
-        <div class="cm-spinner"></div>
+      <div class="cm-loader-container">
+        <div class="cm-loader-ring">
+          <svg viewBox="0 0 100 100">
+            <circle class="cm-loader-ring-track" cx="50" cy="50" r="40"></circle>
+            <circle class="cm-loader-ring-fill" id="cm-loader-ring-fill" cx="50" cy="50" r="40" stroke-dasharray="251.32" stroke-dashoffset="251.32"></circle>
+          </svg>
+          <div class="cm-loader-percent" id="cm-loader-percent">0%</div>
+        </div>
         <div class="cm-loader-text">Loading Data...</div>
       </div>
     </div>
@@ -598,7 +645,6 @@
         <div class="cm-player-modal-head">
           <div class="cm-player-modal-title" id="cm-player-modal-title">🔍 Detail Transaksi</div>
           <div class="cm-player-modal-actions">
-            <button class="cm-cam-btn" onclick="captureModal()" title="Screenshot Tabel">📸</button>
             <button class="cm-player-modal-close" onclick="closePlayerModal()">✖</button>
           </div>
         </div>
@@ -645,6 +691,9 @@
   let _autoTimer = null; 
   let _lastSummary = { tktDepo:0, depo:0, tktWd:0, wd:0, pKotor:0, pBersih:0, saldoAkhir:0 };
   let _currentCapturedUser = '';
+  let _progressInterval = null;
+  let _handlerStats = {};
+  let _ketStats = {};
   
   const cbOutMods = ["Deposit", "Manual Deposit", "Provider Withdraw", "Deduct Credit", "Bonus Claim", "Bonus Transfer", "Rebate", "Bonus Deposit"];
   const cbInMods = ["Withdraw", "Add Credit", "Manual Withdraw", "Provider Deposit"];
@@ -949,11 +998,39 @@
     const endVal = document.getElementById('cm-end').value;
     const statusEl = document.getElementById('cm-status');
     const loader = document.getElementById('cm-loader-overlay');
+    const percentEl = document.getElementById('cm-loader-percent');
+    const fillEl = document.getElementById('cm-loader-ring-fill');
+    const circumference = 2 * Math.PI * 40;
 
     if (!startVal || !endVal) { alert('Pilih tanggal!'); return false; }
     if(loader) loader.style.display = 'flex';
     statusEl.innerHTML = '⏳ <b>Loading...</b> Mengambil data...';
     
+    // START CONTINUOUS PERCENTAGE SIMULATION
+    let progress = 0;
+    fillEl.style.strokeDasharray = circumference;
+    fillEl.style.strokeDashoffset = circumference;
+    percentEl.innerText = '0%';
+    fillEl.style.stroke = '#3b82f6'; // Blue
+    percentEl.style.color = '#3b82f6';
+
+    if (_progressInterval) clearInterval(_progressInterval);
+    _progressInterval = setInterval(() => {
+        progress += Math.random() * 3 + 1; // 1% to 4% increment
+        if (progress >= 99.5) progress = 99.5; // hold near 100
+        let offset = circumference - (progress / 100) * circumference;
+        fillEl.style.strokeDashoffset = offset;
+        percentEl.innerText = Math.floor(progress) + '%';
+        
+        // CHANGE COLOR SMOOTHLY
+        let color = '#3b82f6'; // Blue
+        if (progress > 33 && progress <= 66) color = '#8b5cf6'; // Purple
+        else if (progress > 66) color = '#f97316'; // Orange
+        
+        fillEl.style.stroke = color;
+        percentEl.style.color = color;
+    }, 100);
+
     try {
       const [depoJson, wdJson] = await Promise.all([ fetchTrx("1001", startVal, endVal, "Deposit"), fetchTrx("1002", startVal, endVal, "Withdraw") ]);
       let cbJson = null;
@@ -964,6 +1041,7 @@
       let listCb = cbJson ? (cbJson.cblhs || []) : [];
 
       _allTrx = []; _dailyTunai = {}; _dailyCB = {}; _cbRawList = listCb;
+      _handlerStats = {}; _ketStats = {}; 
       const parseHandler = (raw) => { if(!raw) return '-'; let h = raw.includes('@') ? raw.split('@')[0] : raw; return h.toLowerCase() === 'xbets988' ? 'SISTEM' : h; };
       
       let totalDepoGross = 0, totalWdGross = 0, totalDepoFee = 0, totalWdFee = 0;
@@ -1019,7 +1097,14 @@
           ketText = n.toLowerCase() === 'qris' ? `${n} (${a})` : `${n} - ${an}`;
         }
         
-        _allTrx.push({ time: parseTrxTime(item.prctm), timeStr: item.prctm, tipe: 'Deposit', username: item.usnn, nominal, fee, nett, bankPlayer: item.usb?.bank?.name, namaRek: item.usb?.accnm, handler: parseHandler(item.unfn), ketText, cmb: item.cmb, trxNote: item.trxNote, status: item.ststr });
+        let handler = parseHandler(item.unfn);
+        _allTrx.push({ time: parseTrxTime(item.prctm), timeStr: item.prctm, tipe: 'Deposit', username: item.usnn, nominal, fee, nett, bankPlayer: item.usb?.bank?.name, namaRek: item.usb?.accnm, handler: handler, ketText: ketText, cmb: item.cmb, trxNote: item.trxNote, status: item.ststr });
+        
+        // POPULATE CHART STATS
+        if(!_handlerStats[handler]) _handlerStats[handler] = { depo: 0, wd: 0 };
+        _handlerStats[handler].depo++;
+        if(!_ketStats[ketText]) _ketStats[ketText] = { depo: 0, wd: 0 };
+        _ketStats[ketText].depo++;
       });
 
       listWd.forEach(item => {
@@ -1056,8 +1141,14 @@
         }
         
         let ketText = item.trxNote === '-' ? 'MANUAL' : item.trxNote;
+        let handler = parseHandler(item.unfn);
+        _allTrx.push({ time: parseTrxTime(item.prctm), timeStr: item.prctm, tipe: 'Withdraw', username: item.usnn, nominal, fee, nett: -nett, bankPlayer: item.usb?.bank?.name, namaRek: item.usb?.accnm, handler: handler, ketText: ketText, cmb: item.cmb, trxNote: item.trxNote, status: item.ststr });
         
-        _allTrx.push({ time: parseTrxTime(item.prctm), timeStr: item.prctm, tipe: 'Withdraw', username: item.usnn, nominal, fee, nett: -nett, bankPlayer: item.usb?.bank?.name, namaRek: item.usb?.accnm, handler: parseHandler(item.unfn), ketText, cmb: item.cmb, trxNote: item.trxNote, status: item.ststr });
+        // POPULATE CHART STATS
+        if(!_handlerStats[handler]) _handlerStats[handler] = { depo: 0, wd: 0 };
+        _handlerStats[handler].wd++;
+        if(!_ketStats[ketText]) _ketStats[ketText] = { depo: 0, wd: 0 };
+        _ketStats[ketText].wd++;
       });
 
       _allTrx.sort((a, b) => a.time - b.time);
@@ -1267,6 +1358,14 @@
 
       if (cbJson) statusEl.innerHTML = `✅ <b>OK</b> | Total Depo: ${listDepo.length} | Total WD: ${listWd.length} | Total CB: ${listCb.length} | Profit Bersih: ${formatRupiahPlain(profitBersih)}`;
       
+      // FINISH PERCENTAGE TO 100%
+      if (_progressInterval) clearInterval(_progressInterval);
+      fillEl.style.strokeDashoffset = 0;
+      percentEl.innerText = '100%';
+      fillEl.style.stroke = '#f97316'; // Orange
+      percentEl.style.color = '#f97316';
+      await new Promise(r => setTimeout(r, 300));
+
       return true;
 
     } catch (e) { 
@@ -1274,6 +1373,7 @@
       console.error('Error:', e); 
       return false; 
     } finally {
+      if (_progressInterval) clearInterval(_progressInterval);
       if(loader) loader.style.display = 'none';
     }
   }
@@ -1442,7 +1542,26 @@
       area.innerHTML = '<div style="margin:auto;color:#aaa;padding:20px;">Data belum dimuat. Klik TARIK DATA.</div>';
       return;
     }
-    
+
+    // STATS CALCULATION
+    let totalDays = days.length;
+    let sumPB = 0;
+    let topProfit = { day: '-', val: -Infinity };
+    let bottomProfit = { day: '-', val: Infinity };
+    let maxTkt = 0;
+    let ticketStats = [];
+
+    days.forEach(day => {
+      let pB = _dailyTunai[day].pBersih || 0;
+      let dpT = _dailyTunai[day].depo?.totalTkt || 0;
+      sumPB += pB;
+      if (pB > topProfit.val) topProfit = { day: day, val: pB };
+      if (pB < bottomProfit.val) bottomProfit = { day: day, val: pB };
+      if (dpT > maxTkt) maxTkt = dpT;
+      ticketStats.push({ day: day, tkt: dpT });
+    });
+    let avgPB = sumPB / totalDays;
+
     let maxVal = 1;
     days.forEach(day => {
       let pK = _dailyTunai[day].pKotor || 0;
@@ -1452,7 +1571,7 @@
     let areaHeight = area.clientHeight || 350;
     let halfHeight = (areaHeight - 60) / 2; 
     
-    let html = '<div class="cm-chart-center-line"></div><div class="cm-chart-inner">';
+    let chartHtml = '<div class="cm-chart-left"><div class="cm-chart-center-line"></div><div class="cm-chart-inner">';
     
     days.forEach(day => {
       let pK = _dailyTunai[day].pKotor || 0;
@@ -1472,26 +1591,124 @@
       let mm = monthNames[parseInt(parts[1]) - 1] || '';
       let dateLabel = `${dd} ${mm}`;
       
-      html += `<div class="cm-chart-col">`;
-      html += `<div class="cm-chart-half top">`;
+      chartHtml += `<div class="cm-chart-col">`;
+      chartHtml += `<div class="cm-chart-half top">`;
       if (isPos) {
-        html += `<div class="cm-chart-bar-wrap" data-day="${day}" data-pk="${formatRupiahPlain(pK)}" data-pb="${formatRupiahPlain(pB)}" data-dpt="${dpT}" data-wdt="${wdT}">`;
-        html += `<div class="cm-chart-bar outer up" style="height:${heightOuter}px;"><div class="cm-chart-bar inner up" style="height:${heightInner}px;"></div></div>`;
-        html += `</div>`;
+        chartHtml += `<div class="cm-chart-bar-wrap" data-day="${day}" data-pk="${formatRupiahPlain(pK)}" data-pb="${formatRupiahPlain(pB)}" data-dpt="${dpT}" data-wdt="${wdT}">`;
+        chartHtml += `<div class="cm-chart-bar outer up" style="height:${heightOuter}px;"><div class="cm-chart-bar inner up" style="height:${heightInner}px;"></div></div>`;
+        chartHtml += `</div>`;
       }
-      html += `</div>`;
-      html += `<div class="cm-chart-half bottom">`;
+      chartHtml += `</div>`;
+      chartHtml += `<div class="cm-chart-half bottom">`;
       if (!isPos) {
-        html += `<div class="cm-chart-bar-wrap bottom" data-day="${day}" data-pk="${formatRupiahPlain(pK)}" data-pb="${formatRupiahPlain(pB)}" data-dpt="${dpT}" data-wdt="${wdT}">`;
-        html += `<div class="cm-chart-bar outer down" style="height:${heightOuter}px;"><div class="cm-chart-bar inner down" style="height:${heightInner}px;"></div></div>`;
-        html += `</div>`;
+        chartHtml += `<div class="cm-chart-bar-wrap bottom" data-day="${day}" data-pk="${formatRupiahPlain(pK)}" data-pb="${formatRupiahPlain(pB)}" data-dpt="${dpT}" data-wdt="${wdT}">`;
+        chartHtml += `<div class="cm-chart-bar outer down" style="height:${heightOuter}px;"><div class="cm-chart-bar inner down" style="height:${heightInner}px;"></div></div>`;
+        chartHtml += `</div>`;
       }
-      html += `</div>`;
-      html += `<div class="cm-chart-label">${dateLabel}</div>`;
-      html += `</div>`;
+      chartHtml += `</div>`;
+      chartHtml += `<div class="cm-chart-label">${dateLabel}</div>`;
+      chartHtml += `</div>`;
     });
-    html += '</div>';
-    area.innerHTML = html;
+    chartHtml += '</div></div>'; 
+    
+    // GENERATE TABLES FOR HANDLER & KETERANGAN
+    let handlerRows = Object.keys(_handlerStats).sort((a,b) => ((_handlerStats[b].depo + _handlerStats[b].wd) - (_handlerStats[a].depo + _handlerStats[a].wd))).map(h => {
+      let d = _handlerStats[h].depo;
+      let w = _handlerStats[h].wd;
+      return `<tr>
+        <td>${h}</td>
+        <td class="num-d ${d === 0 ? 'num-0' : ''}">${d || 0}</td>
+        <td class="num-w ${w === 0 ? 'num-0' : ''}">${w || 0}</td>
+      </tr>`;
+    }).join('');
+
+    let ketRows = Object.keys(_ketStats).sort((a,b) => ((_ketStats[b].depo + _ketStats[b].wd) - (_ketStats[a].depo + _ketStats[a].wd))).map(k => {
+      let d = _ketStats[k].depo;
+      let w = _ketStats[k].wd;
+      return `<tr>
+        <td>${k}</td>
+        <td class="num-d ${d === 0 ? 'num-0' : ''}">${d || 0}</td>
+        <td class="num-w ${w === 0 ? 'num-0' : ''}">${w || 0}</td>
+      </tr>`;
+    }).join('');
+
+    // GENERATE RIGHT PANEL HTML (2 COLUMN GRID WIDER)
+    let rightHtml = `
+      <div class="cm-chart-right">
+        <div class="cm-stats-box">
+          <div class="cm-stats-title">📊 STATISTIK PERIODE</div>
+          <div class="cm-stat-row">
+            <span class="cm-stat-label">Total Hari</span>
+            <span class="cm-stat-val">${totalDays} Hari</span>
+          </div>
+          <div class="cm-stat-row">
+            <span class="cm-stat-label">Rata-rata Profit</span>
+            <span class="cm-stat-val ${avgPB >= 0 ? 'pos' : 'neg'}">${formatRupiahPlain(avgPB)}</span>
+          </div>
+          <div class="cm-stat-row">
+            <span class="cm-stat-label">Top Profit (Tgl)</span>
+            <span class="cm-stat-val pos">${topProfit.day}</span>
+          </div>
+          <div class="cm-stat-row">
+            <span class="cm-stat-label">Nominal Top</span>
+            <span class="cm-stat-val pos">${formatRupiahPlain(topProfit.val)}</span>
+          </div>
+          <div class="cm-stat-row">
+            <span class="cm-stat-label">Bottom Profit (Tgl)</span>
+            <span class="cm-stat-val neg">${bottomProfit.day}</span>
+          </div>
+          <div class="cm-stat-row">
+            <span class="cm-stat-label">Nominal Bottom</span>
+            <span class="cm-stat-val neg">${formatRupiahPlain(bottomProfit.val)}</span>
+          </div>
+        </div>
+        
+        <div class="cm-stats-box">
+          <div class="cm-stats-title">👨‍💼 LIST HANDLER</div>
+          <div class="cm-stats-flex" style="overflow-y:auto;">
+            <table class="cm-stats-table">
+              <thead><tr><th>NAMA</th><th style="text-align:right;">DEPO</th><th style="text-align:right;">WD</th></tr></thead>
+              <tbody>${handlerRows || '<tr><td colspan="3" style="text-align:center; color:#aaa;">No Data</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cm-stats-box cm-stats-flex">
+          <div class="cm-stats-title">🎟 TIKET DEPOSIT HARIAN</div>
+          <div class="cm-tkt-chart-list">
+    `;
+    
+    ticketStats.forEach(ts => {
+      let widthPercent = maxTkt > 0 ? (ts.tkt / maxTkt) * 100 : 0;
+      let parts = ts.day.split('-');
+      let label = `${parts[0]} ${monthNames[parseInt(parts[1]) - 1] || ''}`;
+      rightHtml += `
+        <div class="cm-tkt-chart-row">
+          <div class="cm-tkt-chart-label">${label}</div>
+          <div class="cm-tkt-chart-bar-bg">
+            <div class="cm-tkt-chart-bar-fill" style="width:${widthPercent}%;"></div>
+          </div>
+          <div class="cm-tkt-chart-val">${ts.tkt}</div>
+        </div>
+      `;
+    });
+
+    rightHtml += `</div></div>`;
+
+    rightHtml += `
+        <div class="cm-stats-box">
+          <div class="cm-stats-title">🏦 COMPANY ACCOUNT</div>
+          <div class="cm-stats-flex" style="overflow-y:auto;">
+            <table class="cm-stats-table">
+              <thead><tr><th>METODE</th><th style="text-align:right;">DEPO</th><th style="text-align:right;">WD</th></tr></thead>
+              <tbody>${ketRows || '<tr><td colspan="3" style="text-align:center; color:#aaa;">No Data</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+
+    area.innerHTML = chartHtml + rightHtml;
     
     document.querySelectorAll('.cm-chart-bar-wrap').forEach(el => {
       el.addEventListener('mousemove', (e) => {
@@ -1541,7 +1758,8 @@
         <span>Tiket Withdraw: <b style="color:#ef4444">${sumWdTkt}</b></span>
         <span>Periode Data: <b style="color:#3b82f6">${dateRange}</b></span>
       </div>
-      <table class="cm-tbl thin"><thead><tr><th>WAKTU</th><th>TIPE</th><th>DEPOSIT</th><th>WITHDRAW</th><th>FEE</th><th>NETT</th><th>BANK</th><th>HANDLER</th></tr></thead><tbody>
+      <div class="cm-player-modal-tbl-wrap">
+        <table class="cm-tbl thin"><thead><tr><th>WAKTU</th><th>TIPE</th><th>DEPOSIT</th><th>WITHDRAW</th><th>FEE</th><th>NETT</th><th>BANK</th><th>HANDLER</th></tr></thead><tbody>
     `;
     let sumMasuk = 0, sumKeluar = 0, sumFee = 0, sumNett = 0;
     
@@ -1578,55 +1796,9 @@
         <td colspan="2"></td>
       </tr>`;
     }
-    html += `</tbody></table>`;
+    html += `</tbody></table></div>`;
     body.innerHTML = html;
     document.getElementById('cm-player-modal-bg').classList.add('show');
-  };
-
-  window.captureModal = async () => {
-    if (!window.html2canvas) { alert('Library kamera masih loading, coba beberapa detik lagi.'); return; }
-    const modal = document.querySelector('.cm-player-modal');
-    const body = document.getElementById('cm-player-modal-body');
-    
-    const oldModalHeight = modal.style.height;
-    const oldModalMaxHeight = modal.style.maxHeight;
-    const oldBodyOverflow = body.style.overflowY;
-    const oldBodyMaxHeight = body.style.maxHeight;
-    
-    modal.style.height = 'auto';
-    modal.style.maxHeight = 'none';
-    body.style.overflowY = 'visible';
-    body.style.maxHeight = 'none';
-    
-    await new Promise(r => setTimeout(r, 100));
-    
-    try {
-      const canvas = await html2canvas(modal, { 
-        backgroundColor: document.getElementById(ID).classList.contains('dark') ? '#0f172a' : '#f1f5f9', 
-        scale: 2, 
-        logging: false, 
-        useCORS: true,
-        onclone: (doc) => {
-          const el = doc.querySelector('.cm-player-modal');
-          if(el) el.style.backdropFilter = 'none';
-          const bd = doc.getElementById('cm-player-modal-body');
-          if(bd) bd.style.backdropFilter = 'none';
-        }
-      });
-      
-      const link = document.createElement('a');
-      link.download = `history_${_currentCapturedUser || 'player'}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch(e) {
-      console.error("Capture Error:", e);
-      alert("Gagal capture: " + e.message);
-    } finally {
-      modal.style.height = oldModalHeight;
-      modal.style.maxHeight = oldModalMaxHeight;
-      body.style.overflowY = oldBodyOverflow;
-      body.style.maxHeight = oldBodyMaxHeight;
-    }
   };
 
   window.closePlayerModal = () => {
