@@ -1,5 +1,5 @@
 (async () => {
-  const ID = 'cm-universal-dash-v41';
+  const ID = 'cm-universal-dash-v43';
   if (document.getElementById(ID)) { document.getElementById(ID).remove(); return; }
 
   // ── STYLE ──────────────────────────────────────────────────────────────────
@@ -9,7 +9,7 @@
     #${ID} * { box-sizing:border-box; font-family:'Inter',sans-serif!important; }
     
     #${ID} {
-      --bg-app: rgba(241, 245, 249, 0.75); 
+      --bg-base: #eef2f7; 
       --bg-card: rgba(255, 255, 255, 0.55);
       --bg-sec: rgba(255, 255, 255, 0.35);
       --text-main: #1c1e21; --text-sub: #65676b;
@@ -23,7 +23,7 @@
       --spinner-color: #3b82f6;
     }
     #${ID}.dark {
-      --bg-app: rgba(15, 23, 42, 0.75); 
+      --bg-base: #020617; 
       --bg-card: rgba(30, 41, 59, 0.55);
       --bg-sec: rgba(15, 23, 42, 0.45);
       --text-main: #e2e8f0; --text-sub: #94a3b8;
@@ -37,7 +37,18 @@
       --spinner-color: #22c55e;
     }
     
-    #${ID} { position:fixed; inset:0; background:var(--bg-app); backdrop-filter: blur(2.5px) saturate(150%); -webkit-backdrop-filter: blur(2.5px) saturate(150%); z-index:2147483647; display:flex; flex-direction:column; color:var(--text-main); transition: background .3s, color .3s; }
+    /* MESH GRADIENT BACKGROUND */
+    .cm-bg-wrap { position: fixed; inset: 0; z-index: -2; overflow: hidden; background: var(--bg-base); }
+    .cm-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; animation: floatBlob 20s infinite ease-in-out; }
+    .cm-blob.b1 { width: 500px; height: 500px; background: #3b82f6; top: -100px; left: -100px; }
+    .cm-blob.b2 { width: 400px; height: 400px; background: #8b5cf6; bottom: -50px; right: 10%; animation-delay: -5s; }
+    .cm-blob.b3 { width: 450px; height: 450px; background: #06b6d4; top: 30%; left: 40%; animation-delay: -10s; }
+    .dark .cm-blob.b1 { background: #1d4ed8; opacity: 0.4; }
+    .dark .cm-blob.b2 { background: #6d28d9; opacity: 0.4; }
+    .dark .cm-blob.b3 { background: #0e7490; opacity: 0.4; }
+    @keyframes floatBlob { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } }
+    
+    #${ID} { position:fixed; inset:0; background: transparent; backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%); z-index:2147483647; display:flex; flex-direction:column; color:var(--text-main); transition: background .3s, color .3s; }
     #${ID} ::-webkit-scrollbar { width:6px; height:6px; }
     #${ID} ::-webkit-scrollbar-thumb { background:#1e3a5f; border-radius:4px; }
     #${ID} ::-webkit-scrollbar-track { background: transparent; }
@@ -65,34 +76,40 @@
     .cm-logo em { font-style:normal; color:#22c55e; }
     
     .cm-dbar { display:flex; align-items:center; gap:8px; flex:1; flex-wrap:wrap; }
-    .cm-qb { height:30px; padding:0 12px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.1); color:#fff; font-size:11px; font-weight:700; cursor:pointer; transition: 0.2s; }
-    .cm-qb:hover { background:rgba(255,255,255,.2); }
-    .cm-qb.act { background:#22c55e; color:#000; border-color:#22c55e; }
+    .cm-qb { height:30px; padding:0 12px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.1); color:#fff; font-size:11px; font-weight:700; cursor:pointer; transition: all 0.2s; }
+    .cm-qb:hover { background:rgba(255,255,255,.2); transform: translateY(-1px); }
+    .cm-qb.act { background:rgba(34, 197, 94, 0.8); color:#000; border-color:#22c55e; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3); }
     .cm-dinp { height:30px; padding:0 8px; border:1px solid rgba(255,255,255,.2); border-radius:6px; font-size:12px; font-weight:600; color:#fff; background:rgba(255,255,255,.1); outline:none; }
     #cm-month-sel { color:#000 !important; background:#fff !important; border:1px solid #cbd5e1 !important; }
     #cm-month-sel option { color:#000 !important; background:#fff !important; }
     
-    .cm-btn-glass { height:32px; padding:0 16px; border:none; border-radius:8px; font-size:12px; font-weight:900; cursor:pointer; color:#fff; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display:flex; align-items:center; justify-content:center; gap:6px; transition: all 0.2s; }
+    /* TOMBOL GLASSMORPHISM V2 */
+    .cm-btn-glass { height:32px; padding:0 16px; border:none; border-radius:8px; font-size:12px; font-weight:900; cursor:pointer; color:#fff; backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); display:flex; align-items:center; justify-content:center; gap:6px; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.1), inset 0 1px 1px rgba(255,255,255,0.2); border: 1px solid rgba(255, 255, 255, 0.3); }
     .cm-btn-glass:disabled { opacity:0.6; cursor:not-allowed; }
-    .cm-btn-blue { background:rgba(59, 130, 246, 0.7); box-shadow: 0 4px 12px rgba(59,130,246,.3), inset 0 1px 1px rgba(255,255,255,0.4); border:1px solid rgba(59,130,246,0.8); }
-    .cm-btn-blue:hover:not(:disabled) { background:rgba(59, 130, 246, 0.9); transform: translateY(-1px); }
-    .cm-btn-green { background:rgba(22, 163, 74, 0.7); box-shadow: 0 4px 12px rgba(22,163,74,.3), inset 0 1px 1px rgba(255,255,255,0.4); border:1px solid rgba(22,163,74,0.8); color:#fff; }
-    .cm-btn-green:hover:not(:disabled) { background:rgba(22, 163, 74, 0.9); transform: translateY(-1px); }
-    .cm-btn-red { background:rgba(239, 68, 68, 0.7); box-shadow: 0 4px 12px rgba(239,68,68,.3), inset 0 1px 1px rgba(255,255,255,0.4); border:1px solid rgba(239,68,68,0.8); color:#fff; }
-    .cm-btn-red:hover:not(:disabled) { background:rgba(239, 68, 68, 0.9); transform: translateY(-1px); }
-    .cm-btn-grey { background:rgba(255, 255, 255, 0.15); box-shadow: 0 4px 12px rgba(0,0,0,.1), inset 0 1px 1px rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); color:#fff; }
-    .cm-btn-grey:hover:not(:disabled) { background:rgba(255, 255, 255, 0.25); transform: translateY(-1px); }
+    .cm-btn-glass:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.3); }
+    
+    .cm-btn-blue { background: rgba(59, 130, 246, 0.5); border-color: rgba(59, 130, 246, 0.6); color:#fff; }
+    .cm-btn-blue:hover { background: rgba(59, 130, 246, 0.7); }
+    .cm-btn-green { background: rgba(22, 163, 74, 0.5); border-color: rgba(22, 163, 74, 0.6); color:#fff; }
+    .cm-btn-green:hover { background: rgba(22, 163, 74, 0.7); }
+    .cm-btn-red { background: rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 0.6); color:#fff; }
+    .cm-btn-red:hover { background: rgba(239, 68, 68, 0.7); }
+    .cm-btn-grey { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.3); color:#fff; }
+    .cm-btn-grey:hover { background: rgba(255, 255, 255, 0.25); }
     
     .cm-auto-wrap { display:flex; align-items:center; gap:4px; margin-left:8px; padding-left:8px; border-left:1px solid rgba(255,255,255,.2); }
     .cm-auto-sel { height:30px; padding:0 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:11px; font-weight:700; color:#000; background:#fff; outline:none; cursor:pointer; }
     .cm-auto-custom { width:50px; height:30px; padding:0 4px; border:1px solid #cbd5e1; border-radius:6px; font-size:11px; font-weight:700; color:#000; background:#fff; outline:none; text-align:center; display:none; }
-    .cm-auto-btn { height:32px; padding:0 12px; border-radius:8px; border:none; font-size:11px; font-weight:900; cursor:pointer; color:#fff; background:#f59e0b; box-shadow:0 4px 12px rgba(245,158,11,.3), inset 0 1px 1px rgba(255,255,255,0.3); }
-    .cm-auto-btn.active { background:#ef4444; animation:pulse 1.5s infinite; box-shadow:0 4px 12px rgba(239,68,68,.3); }
+    
+    .cm-auto-btn { height:32px; padding:0 12px; border-radius:8px; border: 1px solid rgba(245, 158, 11, 0.6); font-size:11px; font-weight:900; cursor:pointer; color:#fff; backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); background: rgba(245, 158, 11, 0.4); box-shadow: 0 4px 12px rgba(0,0,0,0.1), inset 0 1px 1px rgba(255,255,255,0.2); transition: all 0.3s ease; }
+    .cm-auto-btn:hover { background: rgba(245, 158, 11, 0.6); transform: translateY(-1px); }
+    .cm-auto-btn.active { background: rgba(239, 68, 68, 0.6); border-color: rgba(239, 68, 68, 0.8); animation:pulse 1.5s infinite; }
     @keyframes pulse { 0% { opacity:1; } 50% { opacity:.7; } 100% { opacity:1; } }
     .cm-auto-label { color:rgba(255,255,255,0.6); font-size:10px; font-weight:700; margin-right:4px; }
     
     .cm-tabs-right { display:flex; gap:6px; align-items:center; margin-left:auto; }
-    .cm-theme-btn { height:32px; width:32px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); border-radius:8px; cursor:pointer; color:#fff; font-size:16px; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(8px); }
+    .cm-theme-btn { height:32px; width:32px; border-radius:8px; cursor:pointer; color:#fff; font-size:16px; display:flex; align-items:center; justify-content:center; transition: all 0.3s ease; backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.1), inset 0 1px 1px rgba(255,255,255,0.2); }
+    .cm-theme-btn:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.05); }
     
     .cm-sbar { background:rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding:4px 20px; font-size:10px; color:rgba(255,255,255,.5); border-bottom: 1px solid rgba(255,255,255,.1); }
     .cm-sbar b { color:#e2e8f0; }
@@ -111,9 +128,12 @@
     .cm-fee-bar { margin-top:12px; background:var(--bg-card); backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); border:var(--glass-border); box-shadow: var(--glass-shadow), var(--glass-glow); color:var(--text-main); padding:10px 16px; border-radius:12px; font-size:11px; display:flex; gap:20px; flex-wrap:wrap; }
     .cm-fee-bar b { color:#fbbf24; }
     
+    /* TABS UTAMA GRADIEN BIRU */
     .cm-main-switcher { display:flex; gap:8px; justify-content:center; padding:0 0 16px 0; }
-    .cm-sw-btn { padding:10px 20px; border-radius:12px; border:var(--glass-border); background:var(--bg-card); backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); color:var(--text-sub); font-weight:800; font-size:12px; cursor:pointer; transition: 0.2s; flex:1; max-width:250px; text-align:center; box-shadow: var(--glass-shadow); }
-    .cm-sw-btn.active { background:rgba(22, 163, 74, 0.8); color:#fff; border:1px solid rgba(255,255,255,0.4); box-shadow:0 8px 20px rgba(22,163,74,.4); }
+    .cm-sw-btn { padding:10px 20px; border-radius:12px; border:var(--glass-border); background:var(--bg-card); backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); color:var(--text-sub); font-weight:800; font-size:12px; cursor:pointer; transition: all 0.3s ease; flex:1; max-width:250px; text-align:center; box-shadow: var(--glass-shadow); }
+    .cm-sw-btn:hover { background: rgba(59, 130, 246, 0.2); color: #fff; transform: translateY(-2px); }
+    .cm-sw-btn.active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(29, 78, 216, 0.6)); color: #fff; border: 1px solid rgba(59, 130, 246, 0.5); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); }
+    .dark .cm-sw-btn.active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(29, 78, 216, 0.6)); }
     
     .cm-pane { display:none; flex:1; min-height:0; flex-direction:column; }
     .cm-pane.active { display:flex; }
@@ -124,9 +144,12 @@
     .cm-sec { flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; background:var(--bg-sec); backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); border-radius:16px; box-shadow: var(--glass-shadow), var(--glass-glow); border:var(--glass-border); }
     .cm-shead { padding:12px 16px; border-bottom:1px solid var(--tbl-border); font-size:12px; font-weight:900; display:flex; justify-content:space-between; align-items:center; color:var(--text-main); background: rgba(255,255,255,0.05); flex-wrap:wrap; gap:8px; }
     .cm-shead-left { display:flex; align-items:center; gap:16px; flex:1; flex-wrap:wrap; }
+    
+    /* SUB TABS GRADIEN BIRU */
     .cm-subtabs { display:flex; gap:4px; background:var(--switch-bg); padding:4px; border-radius:8px; border: 1px solid var(--tbl-border); }
-    .cm-subtab { padding:6px 12px; border-radius:6px; border:none; background:transparent; font-size:10px; font-weight:800; cursor:pointer; color:var(--text-sub); }
-    .cm-subtab.active { background:var(--bg-card); color:var(--text-main); box-shadow:0 1px 3px rgba(0,0,0,.1); }
+    .cm-subtab { padding:6px 12px; border-radius:6px; border:none; background:transparent; font-size:10px; font-weight:800; cursor:pointer; color:var(--text-sub); transition: all 0.3s ease; }
+    .cm-subtab:hover { background: rgba(59, 130, 246, 0.2); color: #fff; }
+    .cm-subtab.active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(29, 78, 216, 0.4)); color: #fff; box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3); }
     
     .cm-filters { display:none; gap:6px; align-items:center; flex-wrap:wrap; }
     .cm-filter-sel { height:28px; padding:0 8px; background:var(--input-bg); color:var(--text-main); border:1px solid var(--tbl-border); border-radius:6px; font-size:10px; font-weight:600; outline:none; cursor:pointer; }
@@ -188,22 +211,26 @@
     .cm-view-btn { height:24px; width:24px; border-radius:50%; border:none; background:rgba(59, 130, 246, 0.7); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow: 0 2px 6px rgba(59,130,246,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; margin:auto; }
     .cm-view-btn:hover { background:rgba(59, 130, 246, 1); transform: scale(1.1); }
     
-    /* CSS DAILY CHART */
+    /* CSS DAILY CHART V2 */
     .cm-chart-scroll { flex:1; min-height:0; overflow-x:auto; overflow-y:hidden; position:relative; padding:16px; }
-    .cm-chart-inner { display:flex; height:100%; align-items:stretch; gap:12px; min-width:100%; }
-    .cm-chart-col { display:flex; flex-direction:column; min-width:60px; height:100%; align-items:center; justify-content:center; position:relative; }
+    .cm-chart-inner { display:flex; height:100%; align-items:stretch; gap:8px; min-width:100%; }
+    .cm-chart-col { display:flex; flex-direction:column; min-width:30px; height:100%; align-items:center; justify-content:center; position:relative; }
     .cm-chart-half { flex:1; width:100%; display:flex; flex-direction:column; align-items:center; min-height:0; }
     .cm-chart-half.top { justify-content:flex-end; }
     .cm-chart-half.bottom { justify-content:flex-start; }
-    .cm-chart-bar { width:60%; border-radius:4px; transition: width 0.2s, box-shadow 0.2s; cursor:pointer; }
-    .cm-chart-bar.up { background:linear-gradient(to top, rgba(22,163,74,0.4), rgba(22,163,74,0.9)); box-shadow: 0 0 8px rgba(22,163,74,0.3); }
-    .cm-chart-bar.down { background:linear-gradient(to bottom, rgba(239,68,68,0.4), rgba(239,68,68,0.9)); box-shadow: 0 0 8px rgba(239,68,68,0.3); }
-    .cm-chart-bar:hover { width:80%; box-shadow: 0 0 15px rgba(255,255,255,0.2); z-index:5; }
-    .cm-chart-val { font-size:9px; font-weight:700; margin: 4px 0; white-space:nowrap; }
-    .cm-chart-label { font-size:10px; font-weight:600; color:var(--text-sub); margin-top:8px; }
+    .cm-chart-bar-wrap { width:20px; height:100%; display:flex; flex-direction:column; justify-content:flex-end; cursor:pointer; position:relative; }
+    .cm-chart-bar-wrap.bottom { flex-direction:column; justify-content:flex-start; }
+    .cm-chart-bar { width:100%; border-radius:4px; transition: filter 0.2s; position:relative; overflow:hidden; }
+    .cm-chart-bar.outer.up { background:linear-gradient(to top, rgba(22,163,74,0.2), rgba(22,163,74,0.5)); }
+    .cm-chart-bar.inner.up { position:absolute; bottom:0; left:0; background:rgba(22,163,74,1); }
+    .cm-chart-bar.outer.down { background:linear-gradient(to bottom, rgba(239,68,68,0.2), rgba(239,68,68,0.5)); }
+    .cm-chart-bar.inner.down { position:absolute; top:0; left:0; background:rgba(239,68,68,1); }
+    .cm-chart-bar-wrap:hover .cm-chart-bar { filter: brightness(1.2); }
+    .cm-chart-label { font-size:9px; font-weight:600; color:var(--text-sub); margin-top:8px; writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); height: 40px; }
     .cm-chart-center-line { position:absolute; top:50%; left:0; right:0; height:1px; background:var(--tbl-border); z-index:0; pointer-events:none; }
     
-    /* MODAL PLAYER DETAIL */
+    .cm-chart-tooltip { position:fixed; background:var(--modal-bg); backdrop-filter: blur(12px); border:1px solid var(--glass-border); border-radius:8px; padding:8px 12px; font-size:10px; color:var(--text-main); box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:1000; pointer-events:none; display:none; white-space:nowrap; }
+    
     .cm-player-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; padding:20px; }
     .cm-player-modal-bg.show { display:flex; }
     .cm-player-modal { background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; width:800px; max-width:95vw; height:80vh; max-height:600px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); display:flex; flex-direction:column; position:relative; }
@@ -242,6 +269,12 @@
   const themeIcon = ui.classList.contains('dark') ? '☀️' : '🌙';
 
   ui.innerHTML = `
+    <div class="cm-bg-wrap">
+      <div class="cm-blob b1"></div>
+      <div class="cm-blob b2"></div>
+      <div class="cm-blob b3"></div>
+    </div>
+
     <div class="cm-loader-overlay" id="cm-loader-overlay">
       <div class="cm-loader-box">
         <div class="cm-spinner"></div>
@@ -540,6 +573,8 @@
 
     </div>
 
+    <div class="cm-chart-tooltip" id="cm-chart-tooltip"></div>
+
     <div class="cm-player-modal-bg" id="cm-player-modal-bg" onclick="if(event.target===this)closePlayerModal()">
       <div class="cm-player-modal">
         <div class="cm-player-modal-head">
@@ -591,6 +626,7 @@
   
   const cbOutMods = ["Deposit", "Manual Deposit", "Provider Withdraw", "Deduct Credit", "Bonus Claim", "Bonus Transfer", "Rebate", "Bonus Deposit"];
   const cbInMods = ["Withdraw", "Add Credit", "Manual Withdraw", "Provider Deposit"];
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
 
   function toDDMM(ymd) { const [y, m, d] = ymd.split('-'); return `${d}-${m}-${y}`; }
   
@@ -676,7 +712,6 @@
     if(tunaiFilters) tunaiFilters.style.display = (sub === 'tunai-history') ? 'flex' : 'none';
     if(cbFilters) cbFilters.style.display = (sub === 'cb-history') ? 'flex' : 'none';
     
-    // Render chart saat tab diklik agar tinggi area terhitung dengan benar
     if (sub === 'tunai-chart') {
       setTimeout(renderDailyChart, 50);
     }
@@ -1044,7 +1079,11 @@
 
       renderTunaiHistory();
       renderPlayerReport();
-      renderDailyChart();
+      
+      // Render chart jika sedang aktif
+      if (document.getElementById('subpane-tunai-chart').classList.contains('active')) {
+          setTimeout(renderDailyChart, 100);
+      }
 
       let profitKotor = totalDepoGross - totalWdGross;
       let profitBersih = profitKotor - totalDepoFee - totalWdFee;
@@ -1073,8 +1112,8 @@
         let pKotor = dp.totalGross - wd.totalGross;
         let pBersih = (dp.totalQrNett + dp.nonQr.v) - (wd.totalQrNett + wd.nonQr.v);
         
-        // Save for chart
         _dailyTunai[day].pBersih = pBersih;
+        _dailyTunai[day].pKotor = pKotor;
         
         return `<tr>
           <td>${day}</td>
@@ -1406,42 +1445,71 @@
     
     let maxVal = 1;
     days.forEach(day => {
-      let p = _dailyTunai[day].pBersih || 0;
-      if (Math.abs(p) > maxVal) maxVal = Math.abs(p);
+      let pK = _dailyTunai[day].pKotor || 0;
+      if (Math.abs(pK) > maxVal) maxVal = Math.abs(pK);
     });
     
-    // Dapatkan tinggi area yang tersedia (dikurangi padding dan label)
-    // Karena chart dibagi 2 (atas dan bawah), tiap sisi punya setengah tinggi
-    let areaHeight = area.clientHeight;
-    if (areaHeight < 100) areaHeight = 350; // Fallback 350px kalau display none
-    let halfHeight = (areaHeight - 40) / 2; // 40px untuk padding + label tanggal
+    let areaHeight = area.clientHeight || 350;
+    let halfHeight = (areaHeight - 60) / 2; 
     
     let html = '<div class="cm-chart-center-line"></div><div class="cm-chart-inner">';
+    
     days.forEach(day => {
-      let p = _dailyTunai[day].pBersih || 0;
-      let heightPx = (Math.abs(p) / maxVal) * (halfHeight - 20); // 20px untuk teks nilai
-      if (heightPx < 2) heightPx = 2; // minimal 2px biar keliatan
-      let isPos = p >= 0;
-      let valStr = formatRupiahPlain(p).replace('Rp ', '');
+      let pK = _dailyTunai[day].pKotor || 0;
+      let pB = _dailyTunai[day].pBersih || 0;
+      let dpT = _dailyTunai[day].depo?.totalTkt || 0;
+      let wdT = _dailyTunai[day].wd?.totalTkt || 0;
+      
+      let heightOuter = (Math.abs(pK) / maxVal) * (halfHeight - 10);
+      let heightInner = (Math.abs(pB) / maxVal) * (halfHeight - 10);
+      if (heightOuter < 4) heightOuter = 4;
+      if (heightInner < 2) heightInner = 2;
+      
+      let isPos = pK >= 0;
+      
+      let parts = day.split('-'); // dd-mm-yyyy
+      let dd = parts[0];
+      let mm = monthNames[parseInt(parts[1]) - 1] || '';
+      let dateLabel = `${dd} ${mm}`;
       
       html += `<div class="cm-chart-col">`;
       html += `<div class="cm-chart-half top">`;
       if (isPos) {
-        html += `<div class="cm-chart-val" style="color:#16a34a;">${valStr}</div>`;
-        html += `<div class="cm-chart-bar up" style="height:${heightPx}px;"></div>`;
+        html += `<div class="cm-chart-bar-wrap" data-day="${day}" data-pk="${formatRupiahPlain(pK)}" data-pb="${formatRupiahPlain(pB)}" data-dpt="${dpT}" data-wdt="${wdT}">`;
+        html += `<div class="cm-chart-bar outer up" style="height:${heightOuter}px;"><div class="cm-chart-bar inner up" style="height:${heightInner}px;"></div></div>`;
+        html += `</div>`;
       }
       html += `</div>`;
       html += `<div class="cm-chart-half bottom">`;
       if (!isPos) {
-        html += `<div class="cm-chart-bar down" style="height:${heightPx}px;"></div>`;
-        html += `<div class="cm-chart-val" style="color:#ef4444;">${valStr}</div>`;
+        html += `<div class="cm-chart-bar-wrap bottom" data-day="${day}" data-pk="${formatRupiahPlain(pK)}" data-pb="${formatRupiahPlain(pB)}" data-dpt="${dpT}" data-wdt="${wdT}">`;
+        html += `<div class="cm-chart-bar outer down" style="height:${heightOuter}px;"><div class="cm-chart-bar inner down" style="height:${heightInner}px;"></div></div>`;
+        html += `</div>`;
       }
       html += `</div>`;
-      html += `<div class="cm-chart-label">${day.substring(5)}</div>`;
+      html += `<div class="cm-chart-label">${dateLabel}</div>`;
       html += `</div>`;
     });
     html += '</div>';
     area.innerHTML = html;
+    
+    document.querySelectorAll('.cm-chart-bar-wrap').forEach(el => {
+      el.addEventListener('mousemove', (e) => {
+        const tt = document.getElementById('cm-chart-tooltip');
+        tt.style.display = 'block';
+        tt.style.left = (e.clientX + 15) + 'px';
+        tt.style.top = (e.clientY + 15) + 'px';
+        tt.innerHTML = `
+          <div style="font-weight:900; margin-bottom:4px; color:var(--text-main);">${el.dataset.day}</div>
+          <div style="color:#3b82f6;">Kotor: ${el.dataset.pk}</div>
+          <div style="color:#16a34a;">Bersih: ${el.dataset.pb}</div>
+          <div style="margin-top:4px; font-size:9px; color:var(--text-sub);">Depo: ${el.dataset.dpt} tkt | WD: ${el.dataset.wdt} tkt</div>
+        `;
+      });
+      el.addEventListener('mouseleave', () => {
+        document.getElementById('cm-chart-tooltip').style.display = 'none';
+      });
+    });
   };
 
   window.viewPlayerHistory = (username) => {
