@@ -20,7 +20,8 @@
       --glass-border: 1px solid rgba(255, 255, 255, 0.8);
       --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 0 15px rgba(255, 255, 255, 0.5);
       --glass-glow: 0 0 25px rgba(0, 0, 0, 0.15); 
-      --tbl-head-bg: #f1f5f9; --tbl-head-text: #1c1e21; --tbl-border: rgba(200, 210, 225, 0.5);
+      --tbl-head-bg: #e2e8f0; --tbl-head-text: #1c1e21; --tbl-border: rgba(200, 210, 225, 0.5);
+      --tbl-foot-bg: #cbd5e1;
       --tbl-row-even: rgba(255, 255, 255, 0.15); --tbl-row-hover: rgba(255, 255, 255, 0.35);
       --modal-bg: rgba(255, 255, 255, 0.75); --input-bg: rgba(255, 255, 255, 0.9);
       --switch-bg: rgba(0, 0, 0, 0.05);
@@ -34,7 +35,8 @@
       --glass-border: 1px solid rgba(16, 185, 129, 0.3); 
       --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.05);
       --glass-glow: 0 0 30px rgba(16, 185, 129, 0.25); 
-      --tbl-head-bg: #020617; --tbl-head-text: #e2e8f0; --tbl-border: rgba(255, 255, 255, 0.1);
+      --tbl-head-bg: #0f172a; --tbl-head-text: #e2e8f0; --tbl-border: rgba(255, 255, 255, 0.1);
+      --tbl-foot-bg: #1e293b;
       --tbl-row-even: rgba(255, 255, 255, 0.03); --tbl-row-hover: rgba(255, 255, 255, 0.08);
       --modal-bg: rgba(15, 23, 42, 0.75); --input-bg: rgba(15, 23, 42, 0.8);
       --switch-bg: rgba(255, 255, 255, 0.05);
@@ -168,13 +170,13 @@
     table.cm-tbl.thin { table-layout:auto; white-space:normal; }
     table.cm-tbl.wide { min-width:2500px; white-space:nowrap; }
     
-    /* FIX TABEL STICKY Z-INDEX SOLID */
-    table.cm-tbl thead { position: sticky; top: 0; z-index: 100; background: var(--tbl-head-bg); }
-    table.cm-tbl th { background: var(--tbl-head-bg); padding:8px; font-size:9px; font-weight:900; color:var(--tbl-head-text); border: 1px solid var(--tbl-border); text-align:center; vertical-align:middle; }
+    /* FIX TABEL STICKY SOLID */
+    table.cm-tbl thead { position: sticky; top: 0; z-index: 20; }
+    table.cm-tbl th { background:var(--tbl-head-bg); backdrop-filter: none; padding:8px; font-size:9px; font-weight:900; color:var(--tbl-head-text); border: 1px solid var(--tbl-border); text-align:center; vertical-align:middle; }
     table.cm-tbl td { padding:6px 8px; border: 1px solid var(--tbl-border); font-weight:600; color:var(--text-main); font-size:10px; text-align:center; vertical-align:middle; background: transparent; }
     table.cm-tbl tbody tr:nth-child(even) { background:var(--tbl-row-even); }
     table.cm-tbl tbody tr:hover { background:var(--tbl-row-hover); }
-    table.cm-tbl tbody tr.row-total { background:var(--tbl-head-bg) !important; font-weight:900; font-size:11px; position:sticky; bottom:0; z-index: 50; }
+    table.cm-tbl tbody tr.row-total { background:var(--tbl-foot-bg) !important; font-weight:900; font-size:11px; position:sticky; bottom:0; backdrop-filter: none; z-index: 10; }
     table.cm-tbl tbody tr.row-total td { border-top:2px solid #475569; color:var(--text-main); }
     
     .rp-flex { display:flex; justify-content:space-between; width:100%; align-items:center; }
@@ -229,6 +231,7 @@
     .cm-chart-center-line { position:absolute; top:50%; left:0; right:0; height:1px; background:var(--tbl-border); z-index:0; pointer-events:none; }
     .cm-chart-tooltip { position:fixed; background:var(--modal-bg); backdrop-filter: blur(12px); border:1px solid var(--glass-border); border-radius:8px; padding:8px 12px; font-size:10px; color:var(--text-main); box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:1000; pointer-events:none; display:none; white-space:nowrap; }
     
+    /* FIX MODAL STICKY HEADER */
     .cm-player-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; padding:20px; }
     .cm-player-modal-bg.show { display:flex; }
     .cm-player-modal { background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; width:800px; max-width:95vw; height:80vh; max-height:600px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); display:flex; flex-direction:column; position:relative; }
@@ -239,12 +242,14 @@
     .cm-cam-btn:hover { background:rgba(59, 130, 246, 1); transform: scale(1.05); }
     .cm-player-modal-close { height:32px; width:32px; background:rgba(239, 68, 68, 0.7); color:#fff; border:1px solid rgba(239,68,68,0.8); border-radius:8px; cursor:pointer; font-weight:900; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 6px rgba(239,68,68,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; }
     .cm-player-modal-close:hover { background:rgba(239, 68, 68, 1); transform: rotate(90deg); }
-    /* FIX MODAL BODY PADDING BIAR HEADER TABEL NEMPEL MENTOK */
-    .cm-player-modal-body { flex:1; overflow-y:auto; padding:0 24px 16px; }
-    .cm-player-summary { margin-top: 16px; margin-bottom: 16px; padding:12px 16px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); border-radius:8px; display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:700; color:var(--text-main); flex-wrap:wrap; gap:8px; }
+    .cm-player-modal-body { flex:1; overflow-y:auto; padding:16px 24px; }
+    .cm-player-modal-body .cm-tbl thead { position: sticky; top: 0; z-index: 10; }
+    .cm-player-modal-body .cm-tbl th { background: var(--tbl-head-bg); }
+    .cm-player-modal-body .cm-tbl tbody tr.row-total { background: var(--tbl-foot-bg) !important; }
+    
+    .cm-player-summary { margin-bottom:16px; padding:12px 16px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); border-radius:8px; display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:700; color:var(--text-main); flex-wrap:wrap; gap:8px; }
     .dark .cm-player-summary { background:rgba(59,130,246,0.05); }
     
-    /* FIX GS MODAL TRANSPARANSI & TULISAN */
     .gs-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; }
     .gs-modal-bg.show { display:flex; }
     .gs-modal { background:rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; padding:24px; width:480px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); }
@@ -639,7 +644,7 @@
   let _allTrx = []; let _cbRawList = []; let _dailyTunai = {}; let _dailyCB = {};
   let _autoTimer = null; 
   let _lastSummary = { tktDepo:0, depo:0, tktWd:0, wd:0, pKotor:0, pBersih:0, saldoAkhir:0 };
-  let _currentCapturedUser = ''; 
+  let _currentCapturedUser = '';
   
   const cbOutMods = ["Deposit", "Manual Deposit", "Provider Withdraw", "Deduct Credit", "Bonus Claim", "Bonus Transfer", "Rebate", "Bonus Deposit"];
   const cbInMods = ["Withdraw", "Add Credit", "Manual Withdraw", "Provider Deposit"];
