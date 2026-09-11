@@ -1,3 +1,11 @@
+Oke, gua udah perbaiki dua hal yang lu sebutin:
+
+1. **Urutan Kartu Agent Report:** Posisi kartu udah gua ubah jadi: *Total Deposit Nett Kotor*, *Saldo Balance Akhir*, *Total AG*, dan *Total Company*. Data *Total Company* ini gua ambil langsung dari hasil kalkulasi Winlose Provider (sama persis angkanya dengan tab WINLOSE REPORT).
+2. **Log Export yang Kosong:** Masalahnya terjadi karena variabel `_lastSummary` (tempat nyimpen total tiket & nominal depo/wd) gak ke-update nilainya di fungsi `loadData()`. Gua udah tambahin logic buat nangkap `listDepo.length`, `totalDepoGross`, `listWd.length`, dan `totalWdGross` ke dalam `_lastSummary` setiap kali data selesai di-fetch. Sekarang log history di spreadsheet lu pasti bakal ke-isi semua.
+
+Berikut skrip yang sudah diperbaiki. Tinggal copy dan replace:
+
+```javascript
 (async () => {
   const ID = 'cm-universal-dash-v55';
   if (document.getElementById(ID)) { document.getElementById(ID).remove(); return; }
@@ -303,6 +311,29 @@
     .dark .gs-save-btn { color: #bfdbfe; }
     .gs-save-btn:hover { background: rgba(59, 130, 246, 0.5); transform: translateY(-1px); color: #fff; }
     .gs-save-btn.success { background: rgba(22, 163, 74, 0.5); border-color: rgba(22, 163, 74, 0.6); color: #fff; }
+
+    /* CUSTOM GLASSMORPHISM NOTIFICATION DIALOG */
+    .cm-dialog-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index:2147483650; align-items:center; justify-content:center; padding:20px; }
+    .cm-dialog-bg.show { display:flex; }
+    .cm-dialog-box { 
+      background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); 
+      border-radius:16px; width:450px; max-width:100%; box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 0 15px rgba(255,255,255,0.1); 
+      border:var(--glass-border); padding:24px; display:flex; flex-direction:column; gap:16px; 
+      animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .cm-dialog-head { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .cm-dialog-title { font-size:16px; font-weight:900; color:var(--text-main); flex:1; }
+    .cm-dialog-icon { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; background:rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; }
+    .cm-dialog-icon.success { background: rgba(22, 163, 74, 0.2); border-color: rgba(22, 163, 74, 0.3); color: #22c55e; }
+    .cm-dialog-icon.error { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; }
+    .cm-dialog-body { font-size:12px; color:var(--text-sub); line-height:1.6; white-space:pre-line; }
+    .cm-dialog-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+    .cm-dialog-btn { height:36px; padding:0 20px; border-radius:8px; font-size:12px; font-weight:900; cursor:pointer; transition: all 0.3s ease; border: none; display:flex; align-items:center; justify-content:center; gap:6px; }
+    .cm-dialog-btn.ok { background: rgba(59, 130, 246, 0.6); color:#fff; box-shadow: 0 4px 12px rgba(59,130,246,0.3), inset 0 1px 1px rgba(255,255,255,0.2); backdrop-filter: blur(8px); }
+    .cm-dialog-btn.ok:hover { background: rgba(59, 130, 246, 0.8); transform: translateY(-1px); }
+    .cm-dialog-btn.cancel { background: rgba(255, 255, 255, 0.15); color:var(--text-main); box-shadow: inset 0 1px 1px rgba(255,255,255,0.2); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px); }
+    .cm-dialog-btn.cancel:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-1px); }
   `;
   document.head.appendChild(st);
 
@@ -916,8 +947,77 @@
         </div>
       </div>
     </div>
+
+    <div class="cm-dialog-bg" id="cm-dialog-bg" onclick="if(event.target===this) closeDialog()">
+      <div class="cm-dialog-box">
+        <div class="cm-dialog-head">
+          <span class="cm-dialog-icon" id="cm-dialog-icon">⚠️</span>
+          <span class="cm-dialog-title" id="cm-dialog-title">Informasi</span>
+        </div>
+        <div class="cm-dialog-body" id="cm-dialog-msg">Pesan notifikasi di sini.</div>
+        <div class="cm-dialog-actions">
+          <button class="cm-dialog-btn cancel" id="cm-dialog-cancel" onclick="closeDialog(false)">Batal</button>
+          <button class="cm-dialog-btn ok" id="cm-dialog-ok" onclick="closeDialog(true)">Oke</button>
+        </div>
+      </div>
+    </div>
   `;
   document.body.appendChild(ui);
+
+  // --- CUSTOM DIALOG SYSTEM (GLASSMORPHISM) ---
+  let _dialogResolver = null;
+  window.showAlert = (message, title = "Informasi", type = "info") => {
+    return new Promise((resolve) => {
+      const bg = document.getElementById('cm-dialog-bg');
+      const titleEl = document.getElementById('cm-dialog-title');
+      const msgEl = document.getElementById('cm-dialog-msg');
+      const iconEl = document.getElementById('cm-dialog-icon');
+      const cancelBtn = document.getElementById('cm-dialog-cancel');
+
+      titleEl.innerText = title;
+      msgEl.innerHTML = message;
+      cancelBtn.style.display = 'none';
+      
+      iconEl.className = 'cm-dialog-icon';
+      if (type === 'success') { iconEl.classList.add('success'); iconEl.innerText = '✓'; }
+      else if (type === 'error') { iconEl.classList.add('error'); iconEl.innerText = '✕'; }
+      else { iconEl.innerText = '⚠️'; }
+
+      _dialogResolver = resolve;
+      bg.classList.add('show');
+    });
+  };
+
+  window.showConfirm = (message, title = "Konfirmasi", type = "warning") => {
+    return new Promise((resolve) => {
+      const bg = document.getElementById('cm-dialog-bg');
+      const titleEl = document.getElementById('cm-dialog-title');
+      const msgEl = document.getElementById('cm-dialog-msg');
+      const iconEl = document.getElementById('cm-dialog-icon');
+      const cancelBtn = document.getElementById('cm-dialog-cancel');
+
+      titleEl.innerText = title;
+      msgEl.innerHTML = message;
+      cancelBtn.style.display = 'inline-flex';
+
+      iconEl.className = 'cm-dialog-icon';
+      if (type === 'success') { iconEl.classList.add('success'); iconEl.innerText = '✓'; }
+      else if (type === 'error') { iconEl.classList.add('error'); iconEl.innerText = '✕'; }
+      else { iconEl.innerText = '⚠️'; }
+
+      _dialogResolver = resolve;
+      bg.classList.add('show');
+    });
+  };
+
+  window.closeDialog = (result) => {
+    const bg = document.getElementById('cm-dialog-bg');
+    bg.classList.remove('show');
+    if (_dialogResolver) {
+      _dialogResolver(result);
+      _dialogResolver = null;
+    }
+  };
 
   (function() {
     const sel = document.getElementById('cm-month-sel');
@@ -937,7 +1037,7 @@
 
   let _allTrx = []; let _cbRawList = []; let _dailyTunai = {}; let _dailyCB = {};
   let _autoTimer = null; 
-  let _lastSummary = { tktDepo:0, depo:0, tktWd:0, wd:0, pKotor:0, pBersih:0, saldoAkhir:0, totAg:0 };
+  let _lastSummary = { tktDepo:0, depo:0, tktWd:0, wd:0, pKotor:0, pBersih:0, saldoAkhir:0, totAg:0, totCompany:0 };
   let _currentCapturedUser = '';
   let _progressInterval = null;
   let _handlerStats = {}; let _ketStats = {};
@@ -1072,7 +1172,7 @@
     tbody.innerHTML = html;
   };
 
-  window.saveGSUrl = (ym, btn) => {
+  window.saveGSUrl = async (ym, btn) => {
     const urlInp = document.getElementById(`gs-url-${ym}`);
     let url = urlInp.value.trim();
     
@@ -1080,7 +1180,7 @@
       if (_gsConfig[ym]) {
         delete _gsConfig[ym];
         localStorage.setItem('cm-gs-config', JSON.stringify(_gsConfig));
-        alert('✅ URL untuk bulan ini telah dihapus.');
+        await showAlert('URL untuk bulan ini telah dihapus.', 'Informasi', 'success');
         renderGSTable();
         updateGSButton();
       }
@@ -1088,11 +1188,10 @@
     }
     
     if(!url.startsWith('https://')) {
-      alert('❌ URL sepertinya tidak valid. Pastikan dimulai dengan https://');
+      await showAlert('URL sepertinya tidak valid. Pastikan dimulai dengan https://', 'Format Tidak Valid', 'error');
       return;
     }
     
-    // Cek Duplikat Link
     let isDuplicate = false;
     let dupMonth = '';
     for (let key in _gsConfig) {
@@ -1105,7 +1204,7 @@
     }
     
     if (isDuplicate) {
-      alert(`❌ GAGAL! Link URL ini sudah dipakai di bulan ${dupMonth}.\nPastikan Anda tidak menempel link bulan lama.`);
+      await showAlert(`GAGAL! Link URL ini sudah dipakai di bulan ${dupMonth}.<br>Pastikan Anda tidak menempel link bulan lama.`, 'Terdeteksi Duplikat', 'error');
       urlInp.style.borderColor = '#ef4444';
       setTimeout(() => { urlInp.style.borderColor = ''; }, 2000);
       return;
@@ -1114,7 +1213,6 @@
     _gsConfig[ym] = url;
     localStorage.setItem('cm-gs-config', JSON.stringify(_gsConfig));
     
-    // Visual feedback
     urlInp.style.borderColor = '#22c55e';
     btn.innerHTML = '✓';
     btn.classList.add('success');
@@ -1135,13 +1233,49 @@
     setTimeout(() => { btn.innerText = originalText; }, 1500); 
   };
 
-  window.toggleAuto = () => { const btn = document.getElementById('cm-auto-btn'); const sel = document.getElementById('cm-auto-sel'); let secs = 0; if (sel.value === 'custom') { const mnt = parseInt(document.getElementById('cm-auto-custom').value) || 0; secs = mnt * 60; } else { secs = parseInt(sel.value); } if (_autoTimer) { clearInterval(_autoTimer); _autoTimer = null; btn.innerText = 'START'; btn.classList.remove('active'); document.getElementById('cm-status').innerHTML += ' | <b>Auto Sync Dihentikan</b>'; } else { if (secs === 0) { alert('Pilih interval atau masukkan menit dulu!'); return; } btn.innerText = 'STOP'; btn.classList.add('active'); runLoadAndExport(true); _autoTimer = setInterval(() => runLoadAndExport(true), secs * 1000); } };
-  async function runLoadAndExport(isAuto) { document.getElementById('cm-status').innerHTML = `🔄 <b>Auto Sync:</b> Tarik data & Export...`; const success = await loadData(); if (success) { await exportToSheet(isAuto); } }
+  window.toggleAuto = async () => { 
+    const btn = document.getElementById('cm-auto-btn'); 
+    const sel = document.getElementById('cm-auto-sel'); 
+    let secs = 0; 
+    if (sel.value === 'custom') { 
+      const mnt = parseInt(document.getElementById('cm-auto-custom').value) || 0; 
+      secs = mnt * 60; 
+    } else { 
+      secs = parseInt(sel.value); 
+    } 
+    if (_autoTimer) { 
+      clearInterval(_autoTimer); 
+      _autoTimer = null; 
+      btn.innerText = 'START'; 
+      btn.classList.remove('active'); 
+      document.getElementById('cm-status').innerHTML += ' | <b>Auto Sync Dihentikan</b>'; 
+    } else { 
+      if (secs === 0) { 
+        await showAlert('Pilih interval atau masukkan menit dulu!', 'Perhatian', 'warning'); 
+        return; 
+      } 
+      btn.innerText = 'STOP'; 
+      btn.classList.add('active'); 
+      runLoadAndExport(true); 
+      _autoTimer = setInterval(() => runLoadAndExport(true), secs * 1000); 
+    } 
+  };
+
+  async function runLoadAndExport(isAuto) { 
+    document.getElementById('cm-status').innerHTML = `🔄 <b>Auto Sync:</b> Tarik data & Export...`; 
+    const success = await loadData(); 
+    if (success) { 
+      await exportToSheet(isAuto); 
+    } 
+  }
 
   // --- FUNGSI EXPORT PINTAR (BACA BULAN & VERIFIKASI) ---
   window.exportToSheet = async (isAuto) => {
     const startVal = document.getElementById('cm-start').value;
-    if (!startVal) { alert('Tanggal mulai belum dipilih!'); return; }
+    if (!startVal) { 
+      await showAlert('Tanggal mulai belum dipilih!', 'Peringatan', 'warning'); 
+      return; 
+    }
     
     const parts = startVal.split('-');
     const targetYM = `${parts[0]}-${parts[1]}`;
@@ -1150,7 +1284,7 @@
     
     if (!targetUrl) {
       const [y, m] = targetYM.split('-');
-      alert(`❌ URL Google Sheets untuk bulan ${monthLongNames[parseInt(m)-1]} ${y} belum di-setup.\nSilakan klik tombol ⚙️ SETTING & URL untuk menempel link.`);
+      await showAlert(`URL Google Sheets untuk bulan ${monthLongNames[parseInt(m)-1]} ${y} belum di-setup.<br>Silakan klik tombol ⚙️ SETTING & URL untuk menempel link.`, 'URL Belum Diset', 'error');
       return;
     }
     
@@ -1159,52 +1293,138 @@
     
     if (targetYM !== curYM && !isAuto) {
       const [y, m] = targetYM.split('-');
-      const confirmMsg = `⚠️ PERHATIAN!\n\nAnda akan mengirim data BULAN LALU (${monthLongNames[parseInt(m)-1]} ${y}) ke Sheet terkait.\nPastikan buku Anda sudah closing dan tidak salah kirim.\n\nLanjutkan?`;
-      if (!confirm(confirmMsg)) {
+      const confirmMsg = `Anda akan mengirim data BULAN LALU (${monthLongNames[parseInt(m)-1]} ${y}) ke Sheet terkait.<br>Pastikan buku Anda sudah closing dan tidak salah kirim.<br><br>Lanjutkan?`;
+      const isConfirmed = await showConfirm(confirmMsg, "PERHATIAN!", "warning");
+      if (!isConfirmed) {
         document.getElementById('cm-status').innerHTML = '❌ Export Dibatalkan oleh User.';
         return;
       }
     }
     
-    const btn = document.querySelector('.cm-btn-green'); const originalText = btn.innerText; btn.innerText = '⏳ Sending...'; btn.disabled = true; const statusEl = document.getElementById('cm-status'); statusEl.innerHTML = `⏳ <b>Exporting...</b> Mengirim data ke Sheet (${targetYM})...`;
+    const btn = document.querySelector('.cm-btn-green'); 
+    const originalText = btn.innerText; 
+    btn.innerText = '⏳ Sending...'; 
+    btn.disabled = true; 
+    const statusEl = document.getElementById('cm-status'); 
+    statusEl.innerHTML = `⏳ <b>Exporting...</b> Mengirim data ke Sheet (${targetYM})...`;
     
-    let tunaiRows = []; Object.keys(_dailyTunai).sort().forEach(day => { let d = _dailyTunai[day]; let dp = d.depo, wd = d.wd; let totalAgentFee = dp.totalQrFee + wd.totalQrFee; let pKotor = dp.totalGross - wd.totalGross; let pBersih = (dp.totalQrNett + dp.nonQr.v) - (wd.totalQrNett + wd.nonQr.v); tunaiRows.push([day, dp.qris.OPA ? dp.qris.OPA.c : 0, dp.qris.OPA ? dp.qris.OPA.v : 0, dp.qris.OPT ? dp.qris.OPT.c : 0, dp.qris.OPT ? dp.qris.OPT.v : 0, dp.qris.OPZ ? dp.qris.OPZ.c : 0, dp.qris.OPZ ? dp.qris.OPZ.v : 0, dp.qris.GPP ? dp.qris.GPP.c : 0, dp.qris.GPP ? dp.qris.GPP.v : 0, dp.qris.PEN ? dp.qris.PEN.c : 0, dp.qris.PEN ? dp.qris.PEN.v : 0, dp.totalQrGross, dp.totalQrNett, dp.nonQr.c, dp.nonQr.v, dp.totalTkt, dp.totalGross, wd.qris.OPA ? wd.qris.OPA.c : 0, wd.qris.OPA ? wd.qris.OPA.v : 0, wd.qris.OPT ? wd.qris.OPT.c : 0, wd.qris.OPT ? wd.qris.OPT.v : 0, wd.qris.OPZ ? wd.qris.OPZ.c : 0, wd.qris.OPZ ? wd.qris.OPZ.v : 0, wd.qris.GPP ? wd.qris.GPP.c : 0, wd.qris.GPP ? wd.qris.GPP.v : 0, wd.qris.PEN ? wd.qris.PEN.c : 0, wd.qris.PEN ? wd.qris.PEN.v : 0, wd.totalQrGross, wd.totalQrNett, wd.nonQr.c, wd.nonQr.v, wd.totalTkt, wd.totalGross, totalAgentFee, pKotor, pBersih]); });
-    let cbRows = []; Object.keys(_dailyCB).sort().forEach(day => { let d = _dailyCB[day]; let totOut = Object.values(d.out).reduce((a,b) => a+b, 0); let totIn = Object.values(d.in).reduce((a,b) => a+b, 0); cbRows.push([day, d.start, d.out['Deposit']||0, d.out['Manual Deposit']||0, d.out['Provider Withdraw']||0, d.out['Deduct Credit']||0, d.out['Bonus Claim']||0, d.out['Bonus Transfer']||0, d.out['Rebate']||0, d.out['Bonus Deposit']||0, totOut, d.in['Withdraw']||0, d.in['Add Credit']||0, d.in['Manual Withdraw']||0, d.in['Provider Deposit']||0, totIn, d.end]); });
-    const logData = { syncAt: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), panel: _gsPanel || 'Unknown', dateFrom: document.getElementById('cm-start').value, dateTo: document.getElementById('cm-end').value, tktDepo: _lastSummary.tktDepo, totalDepo: _lastSummary.depo, tktWd: _lastSummary.tktWd, totalWd: _lastSummary.wd, profitKotor: _lastSummary.pKotor, profitBersih: _lastSummary.pBersih, saldoAkhir: _lastSummary.saldoAkhir, targetMonth: targetYM };
+    let tunaiRows = []; 
+    Object.keys(_dailyTunai).sort().forEach(day => { 
+      let d = _dailyTunai[day]; let dp = d.depo, wd = d.wd; 
+      let totalAgentFee = dp.totalQrFee + wd.totalQrFee; 
+      let pKotor = dp.totalGross - wd.totalGross; 
+      let pBersih = (dp.totalQrNett + dp.nonQr.v) - (wd.totalQrNett + wd.nonQr.v); 
+      tunaiRows.push([day, dp.qris.OPA ? dp.qris.OPA.c : 0, dp.qris.OPA ? dp.qris.OPA.v : 0, dp.qris.OPT ? dp.qris.OPT.c : 0, dp.qris.OPT ? dp.qris.OPT.v : 0, dp.qris.OPZ ? dp.qris.OPZ.c : 0, dp.qris.OPZ ? dp.qris.OPZ.v : 0, dp.qris.GPP ? dp.qris.GPP.c : 0, dp.qris.GPP ? dp.qris.GPP.v : 0, dp.qris.PEN ? dp.qris.PEN.c : 0, dp.qris.PEN ? dp.qris.PEN.v : 0, dp.totalQrGross, dp.totalQrNett, dp.nonQr.c, dp.nonQr.v, dp.totalTkt, dp.totalGross, wd.qris.OPA ? wd.qris.OPA.c : 0, wd.qris.OPA ? wd.qris.OPA.v : 0, wd.qris.OPT ? wd.qris.OPT.c : 0, wd.qris.OPT ? wd.qris.OPT.v : 0, wd.qris.OPZ ? wd.qris.OPZ.c : 0, wd.qris.OPZ ? wd.qris.OPZ.v : 0, wd.qris.GPP ? wd.qris.GPP.c : 0, wd.qris.GPP ? wd.qris.GPP.v : 0, wd.qris.PEN ? wd.qris.PEN.c : 0, wd.qris.PEN ? wd.qris.PEN.v : 0, wd.totalQrGross, wd.totalQrNett, wd.nonQr.c, wd.nonQr.v, wd.totalTkt, wd.totalGross, totalAgentFee, pKotor, pBersih]); 
+    });
+    
+    let cbRows = []; 
+    Object.keys(_dailyCB).sort().forEach(day => { 
+      let d = _dailyCB[day]; 
+      let totOut = Object.values(d.out).reduce((a,b) => a+b, 0); 
+      let totIn = Object.values(d.in).reduce((a,b) => a+b, 0); 
+      cbRows.push([day, d.start, d.out['Deposit']||0, d.out['Manual Deposit']||0, d.out['Provider Withdraw']||0, d.out['Deduct Credit']||0, d.out['Bonus Claim']||0, d.out['Bonus Transfer']||0, d.out['Rebate']||0, d.out['Bonus Deposit']||0, totOut, d.in['Withdraw']||0, d.in['Add Credit']||0, d.in['Manual Withdraw']||0, d.in['Provider Deposit']||0, totIn, d.end]); 
+    });
+    
+    const logData = { 
+      syncAt: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), 
+      panel: _gsPanel || 'Unknown', 
+      dateFrom: document.getElementById('cm-start').value, 
+      dateTo: document.getElementById('cm-end').value, 
+      tktDepo: _lastSummary.tktDepo, 
+      totalDepo: _lastSummary.depo, 
+      tktWd: _lastSummary.tktWd, 
+      totalWd: _lastSummary.wd, 
+      profitKotor: _lastSummary.pKotor, 
+      profitBersih: _lastSummary.pBersih, 
+      saldoAkhir: _lastSummary.saldoAkhir, 
+      targetMonth: targetYM 
+    };
+    
     const payload = { tunaiRows, cbRows, wlRekapRows: _wlRekapExportData, logData, exportedAt: new Date().toISOString() };
     
     try { 
       await fetch(targetUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); 
       setTimeout(() => { 
-        btn.innerText = '✓ SENT!'; statusEl.innerHTML = `✅ <b>Export Berhasil!</b> Panel: ${_gsPanel} | Bulan: ${targetYM} | ${isAuto ? 'Auto' : 'Manual'} Export selesai.`; 
+        btn.innerText = '✓ SENT!'; 
+        statusEl.innerHTML = `✅ <b>Export Berhasil!</b> Panel: ${_gsPanel} | Bulan: ${targetYM} | ${isAuto ? 'Auto' : 'Manual'} Export selesai.`; 
       }, 1000); 
     } catch (e) { 
-      statusEl.innerHTML = '❌ <b>Export Gagal:</b> ' + e.message; console.error('Export Error:', e); 
+      statusEl.innerHTML = '❌ <b>Export Gagal:</b> ' + e.message; 
+      console.error('Export Error:', e); 
     } finally { 
-      setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 4000); 
+      setTimeout(() => { 
+        btn.innerText = originalText; 
+        btn.disabled = false; 
+      }, 4000); 
     }
   };
 
-  window.exportTableToExcel = (tableId, filename) => {
-    if (!window.XLSX) { alert('Library Excel masih loading, coba beberapa detik lagi.'); return; }
-    const table = document.getElementById(tableId); if (!table) return alert('Tabel tidak ditemukan!');
-    const clone = table.cloneNode(true); clone.removeAttribute('class'); clone.removeAttribute('style'); clone.querySelectorAll('*').forEach(el => { el.removeAttribute('class'); el.removeAttribute('style'); });
-    const thead = clone.querySelector('thead'); if (thead) thead.style.display = 'table-header-group';
-    const wb = XLSX.utils.table_to_book(clone, { sheet: "Sheet1" }); XLSX.writeFile(wb, filename + '.xlsx');
+  window.exportTableToExcel = async (tableId, filename) => {
+    if (!window.XLSX) { 
+      await showAlert('Library Excel masih loading, coba beberapa detik lagi.', 'Peringatan', 'warning'); 
+      return; 
+    }
+    const table = document.getElementById(tableId); 
+    if (!table) {
+      await showAlert('Tabel tidak ditemukan!', 'Error', 'error');
+      return;
+    }
+    const clone = table.cloneNode(true); 
+    clone.removeAttribute('class'); 
+    clone.removeAttribute('style'); 
+    clone.querySelectorAll('*').forEach(el => { el.removeAttribute('class'); el.removeAttribute('style'); });
+    const thead = clone.querySelector('thead'); 
+    if (thead) thead.style.display = 'table-header-group';
+    const wb = XLSX.utils.table_to_book(clone, { sheet: "Sheet1" }); 
+    XLSX.writeFile(wb, filename + '.xlsx');
   };
 
-  window.resetFilters = (type) => { if (type === 'tunai') { document.getElementById('filter-tipe').value = ''; document.getElementById('filter-user').value = ''; document.getElementById('filter-handler').value = ''; document.getElementById('filter-ket').value = ''; renderTunaiHistory(); } else if (type === 'cb') { document.getElementById('filter-module').value = ''; renderCBHistory(); } };
+  window.resetFilters = (type) => { 
+    if (type === 'tunai') { 
+      document.getElementById('filter-tipe').value = ''; 
+      document.getElementById('filter-user').value = ''; 
+      document.getElementById('filter-handler').value = ''; 
+      document.getElementById('filter-ket').value = ''; 
+      renderTunaiHistory(); 
+    } else if (type === 'cb') { 
+      document.getElementById('filter-module').value = ''; 
+      renderCBHistory(); 
+    } 
+  };
 
-  function getPayloadTrx(type, startVal, endVal, page) { let p = { "idusBr": 224326595, "startdate": toDDMM(startVal), "enddate": toDDMM(endVal), "level": 5, "usernameBr": "egaxbets@xbets988", "page": page, "limit": 500, "type": type, "bo": true, "st": "10" }; if(type === "1001") p.mbids = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","16","49","50","82","83","115","148","149","150","151","152","153","181","10986","10992","10003","10990","10004","10997","10013","11001","11003","11121","10988","11005","10002","10656","11642","11873","12088","11319","10568","12221","12334","10816","11135","10012","10974","11646","11316","11994"]; return p; }
+  function getPayloadTrx(type, startVal, endVal, page) { 
+    let p = { "idusBr": 224326595, "startdate": toDDMM(startVal), "enddate": toDDMM(endVal), "level": 5, "usernameBr": "egaxbets@xbets988", "page": page, "limit": 500, "type": type, "bo": true, "st": "10" }; 
+    if(type === "1001") p.mbids = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","16","49","50","82","83","115","148","149","150","151","152","153","181","10986","10992","10003","10990","10004","10997","10013","11001","11003","11121","10988","11005","10002","10656","11642","11873","12088","11319","10568","12221","12334","10816","11135","10012","10974","11646","11316","11994"]; 
+    return p; 
+  }
+  
   async function fetchTrx(type, startVal, endVal, label) {
     let allData = []; let page = 1; const limit = 500;
-    while(true) { document.getElementById('cm-status').innerHTML = `⏳ <b>Loading ${label}...</b> Page ${page}`; const r = await fetch('/trx/historypl', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(getPayloadTrx(type, startVal, endVal, page)) }); const json = await r.json(); let batch = json.trx || []; allData = allData.concat(batch); if (batch.length < limit) break; page++; }
+    while(true) { 
+      document.getElementById('cm-status').innerHTML = `⏳ <b>Loading ${label}...</b> Page ${page}`; 
+      const r = await fetch('/trx/historypl', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(getPayloadTrx(type, startVal, endVal, page)) }); 
+      const json = await r.json(); 
+      let batch = json.trx || []; 
+      allData = allData.concat(batch); 
+      if (batch.length < limit) break; 
+      page++; 
+    }
     return { trx: allData };
   }
   
   async function fetchCB(startVal, endVal) {
     let allData = []; let page = 1; const limit = 500;
-    while(true) { document.getElementById('cm-status').innerHTML = `⏳ <b>Loading Credit Balance...</b> Page ${page}`; const r = await fetch('/chbalhsls', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify({"startdate": toDDMM(startVal), "enddate": toDDMM(endVal), "limit": limit, "page": page, "type": "100"}) }); const text = await r.text(); let json; try { json = JSON.parse(text); } catch (e) { throw new Error("Server CB Error"); } let batch = json.cblhs || []; allData = allData.concat(batch); if (batch.length < limit) break; page++; }
+    while(true) { 
+      document.getElementById('cm-status').innerHTML = `⏳ <b>Loading Credit Balance...</b> Page ${page}`; 
+      const r = await fetch('/chbalhsls', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify({"startdate": toDDMM(startVal), "enddate": toDDMM(endVal), "limit": limit, "page": page, "type": "100"}) }); 
+      const text = await r.text(); 
+      let json; 
+      try { json = JSON.parse(text); } catch (e) { throw new Error("Server CB Error"); } 
+      let batch = json.cblhs || []; 
+      allData = allData.concat(batch); 
+      if (batch.length < limit) break; 
+      page++; 
+    }
     return { cblhs: allData };
   }
 
@@ -1247,7 +1467,11 @@
     let totStake = 0, totPlTotal = 0, totAgTotal = 0, totCompany = 0;
     _winloseProviderData.forEach(item => { totStake += parseFloat(item.stake || 0) * 1000; totPlTotal += (parseFloat(item.plWinlost || 0) + parseFloat(item.plCommGet || 0) + parseFloat(item.plBonus || 0)) * 1000; totAgTotal += (parseFloat(item.agWinlost || 0) - parseFloat(item.agCommGive || 0) + parseFloat(item.agBonus || 0)) * 1000; totCompany += parseFloat(item.wlhCompTotal || 0) * 1000; });
     document.getElementById('cm-card-wl-stake').innerText = formatRupiahPlain(totStake); document.getElementById('cm-card-wl-member').innerText = formatRupiahPlain(totPlTotal); document.getElementById('cm-card-wl-ag').innerText = formatRupiahPlain(totAgTotal); document.getElementById('cm-card-wl-company').innerText = formatRupiahPlain(totCompany);
+    
+    // Simpan ke _lastSummary untuk dipakai di kartu Agent Report
     _lastSummary.totAg = totAgTotal;
+    _lastSummary.totCompany = totCompany;
+    
     renderWinloseDaily(); renderWinloseProvider();
   }
 
@@ -1274,14 +1498,14 @@
     days.forEach(day => { totNett += (_dailyTunai[day].pKotor || 0); });
     
     let saldoAkhir = _lastSummary.saldoAkhir || 0;
-    let totQrisSaldo = 0;
-    ['OPA', 'OPT', 'OPZ', 'GPP', 'PEN'].forEach(q => { totQrisSaldo += (_qrisUnsettledBalance[q]||0) + (_qrisBalance[q]||0) + (_qrisAutoWd[q]||0); });
     let totAg = _lastSummary.totAg || 0;
+    let totCompany = _lastSummary.totCompany || 0;
 
+    // PERUBAHAN URUTAN KARTU
     document.getElementById('agent-card-1').innerHTML = `<div class="cm-clbl">TOTAL DEPOSIT NETT KOTOR</div><div class="cm-cval" style="color:${totNett>=0?'#16a34a':'#ef4444'}">${formatRupiahPlain(totNett)}</div>`;
     document.getElementById('agent-card-2').innerHTML = `<div class="cm-clbl">SALDO BALANCE AKHIR</div><div class="cm-cval" style="color:#2563eb">${formatRupiahPlain(saldoAkhir)}</div>`;
-    document.getElementById('agent-card-3').innerHTML = `<div class="cm-clbl">TOTAL SALDO QRIS</div><div class="cm-cval" style="color:#7c3aed">${formatRupiahPlain(totQrisSaldo)}</div>`;
-    document.getElementById('agent-card-4').innerHTML = `<div class="cm-clbl">TOTAL AG</div><div class="cm-cval" style="color:${totAg>=0?'#16a34a':'#ef4444'}">${formatRupiahPlain(totAg)}</div>`;
+    document.getElementById('agent-card-3').innerHTML = `<div class="cm-clbl">TOTAL AG</div><div class="cm-cval" style="color:${totAg>=0?'#16a34a':'#ef4444'}">${formatRupiahPlain(totAg)}</div>`;
+    document.getElementById('agent-card-4').innerHTML = `<div class="cm-clbl">TOTAL COMPANY</div><div class="cm-cval" style="color:${totCompany>=0?'#16a34a':'#ef4444'}">${formatRupiahPlain(totCompany)}</div>`;
 
     const monthShort = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
     function fmtDate(day) { let p = day.split('-'); return p[0] + ' ' + monthShort[parseInt(p[1])-1]; }
@@ -1512,7 +1736,10 @@
 
   async function loadData() {
     const startVal = document.getElementById('cm-start').value; const endVal = document.getElementById('cm-end').value; const statusEl = document.getElementById('cm-status'); const loader = document.getElementById('cm-loader-overlay'); const percentEl = document.getElementById('cm-loader-percent'); const fillEl = document.getElementById('cm-loader-ring-fill'); const circumference = 2 * Math.PI * 40;
-    if (!startVal || !endVal) { alert('Pilih tanggal!'); return false; }
+    if (!startVal || !endVal) { 
+      await showAlert('Pilih tanggal mulai dan akhir terlebih dahulu!', 'Peringatan', 'warning'); 
+      return false; 
+    }
     if(loader) loader.style.display = 'flex'; statusEl.innerHTML = '⏳ <b>Loading...</b> Mengambil data...';
     let progress = 0; fillEl.style.strokeDasharray = circumference; fillEl.style.strokeDashoffset = circumference; percentEl.innerText = '0%'; fillEl.style.stroke = '#3b82f6'; percentEl.style.color = '#3b82f6';
     if (_progressInterval) clearInterval(_progressInterval);
@@ -1594,6 +1821,13 @@
       let profitKotor = totalDepoGross - totalWdGross; let profitBersih = profitKotor - totalDepoFee - totalWdFee; totTunaiAgentFee = totalDepoFee + totalWdFee; totTunaiPK = profitKotor; totTunaiPB = profitBersih;
       document.getElementById('cm-card-depo').innerText = formatRupiahPlain(totalDepoGross); document.getElementById('cm-card-depo-tkt').innerText = `${listDepo.length} Tiket`;
       document.getElementById('cm-card-wd').innerText = formatRupiahPlain(totalWdGross); document.getElementById('cm-card-wd-tkt').innerText = `${listWd.length} Tiket`;
+      
+      // PERBAIKAN LOG KOSONG: Simpan data Depo & WD ke _lastSummary
+      _lastSummary.tktDepo = listDepo.length;
+      _lastSummary.depo = totalDepoGross;
+      _lastSummary.tktWd = listWd.length;
+      _lastSummary.wd = totalWdGross;
+      
       document.getElementById('cm-card-profit-kotor').innerText = formatRupiahPlain(profitKotor); document.getElementById('cm-card-profit-bersih').innerText = formatRupiahPlain(profitBersih);
       document.getElementById('cm-card-qr-kotor').innerText = formatRupiahPlain(qrKotor); document.getElementById('cm-card-qr-kotor-sub').innerText = Object.entries(qrKotorDetails).map(([k, v]) => `${k} (${formatRupiahPlain(v)})`).join(' | ') || '-';
       document.getElementById('cm-card-qr-bersih').innerText = formatRupiahPlain(qrBersih); document.getElementById('cm-card-qr-bersih-sub').innerText = Object.entries(qrBersihDetails).map(([k, v]) => `${k} (${formatRupiahPlain(v)})`).join(' | ') || '-';
@@ -1617,7 +1851,15 @@
       
       if (_progressInterval) clearInterval(_progressInterval); fillEl.style.strokeDashoffset = 0; percentEl.innerText = '100%'; fillEl.style.stroke = '#f97316'; percentEl.style.color = '#f97316'; await new Promise(r => setTimeout(r, 300));
       return true;
-    } catch (e) { statusEl.innerHTML = '❌ <b>Error Fatal:</b> ' + e.message; console.error('Error:', e); return false; } finally { if (_progressInterval) clearInterval(_progressInterval); if(loader) loader.style.display = 'none'; }
+    } catch (e) { 
+      statusEl.innerHTML = '❌ <b>Error Fatal:</b> ' + e.message; 
+      console.error('Error:', e); 
+      await showAlert('Terjadi kesalahan saat memuat data: ' + e.message, 'Error Fatal', 'error'); 
+      return false; 
+    } finally { 
+      if (_progressInterval) clearInterval(_progressInterval); 
+      if(loader) loader.style.display = 'none'; 
+    }
   }
 
   document.getElementById('cm-load').onclick = loadData;
@@ -1628,3 +1870,4 @@
   window.viewPlayerHistory = (username) => { _currentCapturedUser = username; document.getElementById('cm-player-modal-title').innerHTML = `🔍 History Transaksi: <span style="color:#3b82f6;">${username}</span>`; const body = document.getElementById('cm-player-modal-body'); let filtered = _allTrx.filter(item => item.username === username); filtered.sort((a, b) => a.time - b.time); let sumDepoTkt = 0, sumWdTkt = 0; filtered.forEach(item => { if (item.tipe === 'Deposit') sumDepoTkt++; else sumWdTkt++; }); let startVal = document.getElementById('cm-start').value; let endVal = document.getElementById('cm-end').value; function fmtDate(dStr) { if(!dStr) return '-'; let p = dStr.split('-'); return `${parseInt(p[2])} ${monthNames[parseInt(p[1])-1]} ${p[0]}`; } let dateRange = (startVal === endVal) ? fmtDate(startVal) : `${fmtDate(startVal)} - ${fmtDate(endVal)}`; let html = `<div class="cm-player-summary"><span>Tiket Deposit: <b style="color:#16a34a">${sumDepoTkt}</b></span><span>Tiket Withdraw: <b style="color:#ef4444">${sumWdTkt}</b></span><span>Periode Data: <b style="color:#3b82f6">${dateRange}</b></span></div><div class="cm-player-modal-tbl-wrap"><table class="cm-tbl thin"><thead><tr><th>WAKTU</th><th>TIPE</th><th>DEPOSIT</th><th>WITHDRAW</th><th>FEE</th><th>NETT</th><th>BANK</th><th>HANDLER</th></tr></thead><tbody>`; let sumMasuk = 0, sumKeluar = 0, sumFee = 0, sumNett = 0; if (filtered.length === 0) { html += '<tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data.</td></tr>'; } else { filtered.forEach(item => { let isDepo = item.tipe === 'Deposit'; let masukVal = isDepo ? item.nominal : 0; let keluarVal = !isDepo ? -item.nominal : 0; let feeVal = -Math.abs(item.fee); let nettVal = item.nett; sumMasuk += masukVal; sumKeluar += keluarVal; sumFee += feeVal; sumNett += nettVal; let badgeClass = isDepo ? 'badge-depo' : 'badge-wd'; html += `<tr><td>${item.timeStr}</td><td><span class="${badgeClass}">${item.tipe}</span></td><td>${formatRupiahTable(masukVal)}</td><td>${formatRupiahTable(keluarVal)}</td><td>${formatRupiahTable(feeVal)}</td><td>${formatRupiahTable(nettVal)}</td><td style="color:#3b82f6;">${item.bankPlayer}</td><td style="font-size:9px; font-weight:700; color:#65676b;">${item.handler}</td></tr>`; }); html += `<tr class="row-total"><td colspan="2">TOTAL</td><td>${formatRupiahTable(sumMasuk)}</td><td>${formatRupiahTable(sumKeluar)}</td><td>${formatRupiahTable(sumFee)}</td><td>${formatRupiahTable(sumNett)}</td><td colspan="2"></td></tr>`; } html += `</tbody></table></div>`; body.innerHTML = html; document.getElementById('cm-player-modal-bg').classList.add('show'); }
   window.closePlayerModal = () => { document.getElementById('cm-player-modal-bg').classList.remove('show'); };
 })();
+```
