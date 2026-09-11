@@ -97,10 +97,10 @@
     .cm-btn-glass:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.3); }
     .cm-btn-blue { background: rgba(59, 130, 246, 0.5); border-color: rgba(59, 130, 246, 0.6); color:#fff; }
     .cm-btn-blue:hover { background: rgba(59, 130, 246, 0.7); }
-    .cm-btn-green { background: rgba(22, 163, 74, 0.5); border-color: rgba(22, 163, 74, 0.6); color:#fff; }
-    .cm-btn-green:hover { background: rgba(22, 163, 74, 0.7); }
-    .cm-btn-red { background: rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 0.6); color:#fff; }
-    .cm-btn-red:hover { background: rgba(239, 68, 68, 0.7); }
+    .cm-btn-green { background: rgba(22, 163, 74, 0.35); border-color: rgba(22, 163, 74, 0.5); color:#fff; backdrop-filter: blur(8px) saturate(150%); }
+    .cm-btn-green:hover { background: rgba(22, 163, 74, 0.5); }
+    .cm-btn-red { background: rgba(239, 68, 68, 0.35); border-color: rgba(239, 68, 68, 0.5); color:#fff; backdrop-filter: blur(8px) saturate(150%); }
+    .cm-btn-red:hover { background: rgba(239, 68, 68, 0.5); }
     .cm-btn-grey { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.3); color:#fff; }
     .cm-btn-grey:hover { background: rgba(255, 255, 255, 0.25); }
     
@@ -233,7 +233,6 @@
     .cm-mini-bar { width: 100%; max-width: 10px; border-radius: 2px 2px 0 0; transition: height 0.3s ease; position: relative; cursor: pointer; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
     .cm-mini-bar-overlap { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 80%; max-width: 8px; border-radius: 2px 2px 0 0; transition: height 0.3s ease; cursor: pointer; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
     
-    /* PERBAAIKAN WARNANYA AGAR KELIHATAN DI LIGHT & DARK MODE */
     .cm-mini-bar.rg, .cm-mini-bar-overlap.rg { background: rgba(59, 130, 246, 0.65); box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 0 2px 4px rgba(59, 130, 246, 0.2); z-index: 1; }
     .cm-mini-bar.nd, .cm-mini-bar-overlap.nd { background: rgba(245, 158, 11, 0.65); box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 0 2px 4px rgba(245, 158, 11, 0.2); z-index: 2; }
     .cm-mini-bar.depo, .cm-mini-bar-overlap.depo { background: rgba(22, 163, 74, 0.65); box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 0 2px 4px rgba(22, 163, 74, 0.2); z-index: 1; }
@@ -278,7 +277,7 @@
     
     .gs-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; }
     .gs-modal-bg.show { display:flex; }
-    .gs-modal { background:rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; padding:24px; width:480px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); }
+    .gs-modal { background:rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; padding:24px; width:800px; max-width:95vw; max-height:90vh; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); display:flex; flex-direction:column; }
     .dark .gs-modal { background:rgba(15, 23, 42, 0.65); }
     .gs-modal h3 { font-size:14px; font-weight:900; margin:0 0 4px; color:var(--text-main); }
     .gs-modal p { font-size:11px; color:var(--text-sub); margin:0 0 16px; }
@@ -286,6 +285,24 @@
     .gs-btns { display:flex; gap:8px; margin-top:16px; justify-content:flex-end; }
     .gs-modal .cm-btn-glass { color: #1c1e21; }
     .dark .gs-modal .cm-btn-glass { color: #fff; }
+    
+    .gs-table-wrap { flex: 1; min-height: 0; overflow-y: auto; border: 1px solid var(--tbl-border); border-radius: 8px; margin-bottom: 12px; }
+    .gs-table-wrap table.cm-tbl th { font-size: 10px; padding: 6px; }
+    .gs-table-wrap table.cm-tbl td { padding: 4px 6px; font-size: 10px; text-align: left; }
+    .gs-url-inp { width: 100%; height: 30px; padding: 0 8px; border: 1px solid var(--tbl-border); border-radius: 4px; font-size: 10px; background: rgba(255,255,255,0.9); color: #000; outline: none; }
+    .dark .gs-url-inp { background: rgba(15, 23, 42, 0.8); color: #fff; }
+    
+    /* CUSTOM SAVE ICON BUTTON (GLASSMORPHISM) */
+    .gs-save-btn { 
+      width: 32px; height: 28px; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.4); 
+      background: rgba(59, 130, 246, 0.2); color: var(--text-main); cursor: pointer; 
+      backdrop-filter: blur(8px) saturate(150%); -webkit-backdrop-filter: blur(8px) saturate(150%); 
+      display: flex; align-items: center; justify-content: center; font-size: 14px; 
+      transition: all 0.3s ease; margin: 0 auto; box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
+    }
+    .dark .gs-save-btn { color: #bfdbfe; }
+    .gs-save-btn:hover { background: rgba(59, 130, 246, 0.5); transform: translateY(-1px); color: #fff; }
+    .gs-save-btn.success { background: rgba(22, 163, 74, 0.5); border-color: rgba(22, 163, 74, 0.6); color: #fff; }
   `;
   document.head.appendChild(st);
 
@@ -302,9 +319,13 @@
   }
   const _t = getLocalYMD(new Date());
   
-  let _gsUrl = localStorage.getItem('cm-gs-url') || '';
+  let _gsConfig = JSON.parse(localStorage.getItem('cm-gs-config') || '{}');
   let _gsPanel = localStorage.getItem('cm-gs-panel') || '';
-  const gsBtnTxt = _gsUrl ? '✓ LINKED' : 'LINK GSHEET';
+  
+  const curDate = new Date();
+  const curYM = `${curDate.getFullYear()}-${String(curDate.getMonth() + 1).padStart(2, '0')}`;
+  const gsBtnTxt = _gsConfig[curYM] ? '⚙️ SETTING & URL' : '⚠️ SET URL BULAN INI';
+  const gsBtnClass = _gsConfig[curYM] ? 'cm-btn-grey' : 'cm-btn-red';
   const themeIcon = ui.classList.contains('dark') ? '☀️' : '🌙';
 
   ui.innerHTML = `
@@ -366,7 +387,7 @@
       </div>
       
       <div class="cm-tabs-right">
-        <button class="cm-btn-glass cm-btn-grey" onclick="openGSModal()">${gsBtnTxt}</button>
+        <button class="cm-btn-glass ${gsBtnClass}" id="btn-open-gs-modal" onclick="openGSModal()">${gsBtnTxt}</button>
         <button class="cm-btn-glass cm-btn-green" onclick="exportToSheet(false)">EXPORT</button>
         <button class="cm-theme-btn" onclick="toggleTheme()">${themeIcon}</button>
         <button class="cm-btn-glass cm-btn-red" onclick="document.getElementById('${ID}').remove()">EXIT</button>
@@ -861,14 +882,37 @@
 
     <div class="gs-modal-bg" id="gs-modal-bg" onclick="if(event.target===this)closeGSModal()">
       <div class="gs-modal">
-        <h3>🔗 Setup Google Sheets</h3>
-        <p>Paste URL Google Apps Script Web App deployment:</p>
-        <input class="gs-inp" id="gs-url-inp" placeholder="https://script.google.com/macros/s/.../exec" value="${_gsUrl}">
-        <p style="margin-top:12px; margin-bottom:4px;">Nama Panel / Operator:</p>
-        <input class="gs-inp" id="gs-panel-inp" placeholder="Contoh: Budi / Sinta / dll" value="${_gsPanel}" style="font-family:sans-serif;">
-        <div class="gs-btns">
-          <button class="cm-btn-glass cm-btn-grey" onclick="closeGSModal()">Batal</button>
-          <button class="cm-btn-glass cm-btn-green" onclick="saveGSUrl()">Simpan</button>
+        <h3>🔗 Setup URL Google Sheets per Bulan</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:12px; flex-wrap:wrap;">
+          <p style="margin:0;">Pilih tahun untuk filter list bulan:</p>
+          <select id="gs-year-sel" class="cm-auto-sel" style="height:32px; min-width:100px;" onchange="renderGSTable()">
+            <option value="ALL">ALL</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+          </select>
+        </div>
+        
+        <div class="gs-table-wrap">
+          <table class="cm-tbl" style="width:100%; border-collapse:collapse; font-size:11px;">
+            <thead>
+              <tr>
+                <th style="width:25%; text-align:left; padding:8px;">Bulan</th>
+                <th style="text-align:left; padding:8px;">Link URL GAS Web App</th>
+                <th style="width:60px; text-align:center; padding:8px;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="gs-table-body"></tbody>
+          </table>
+        </div>
+        
+        <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--tbl-border);">
+          <p style="margin:0 0 4px;">Nama Panel / Operator (untuk log history):</p>
+          <input class="gs-inp" id="gs-panel-inp" placeholder="Contoh: Budi / Sinta / dll" value="${_gsPanel}" style="font-family:sans-serif;">
+          <div class="gs-btns">
+            <button class="cm-btn-glass cm-btn-red" onclick="closeGSModal()">Tutup</button>
+            <button class="cm-btn-glass cm-btn-green" onclick="saveGSPanel(this)">Simpan Panel</button>
+          </div>
         </div>
       </div>
     </div>
@@ -910,6 +954,7 @@
   const cbOutMods = ["Deposit", "Manual Deposit", "Provider Withdraw", "Deduct Credit", "Bonus Claim", "Bonus Transfer", "Rebate", "Bonus Deposit"];
   const cbInMods = ["Withdraw", "Add Credit", "Manual Withdraw", "Provider Deposit"];
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+  const monthLongNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
   function toDDMM_ymd(ymd) { if (!ymd) return ''; const p = ymd.split('-'); return (p.length === 3 && p[0].length === 4) ? `${p[2]}-${p[1]}-${p[0]}` : ymd; }
   function toDDMM(ymd) { const [y, m, d] = ymd.split('-'); return `${d}-${m}-${y}`; }
@@ -919,16 +964,48 @@
   function parseTrxTime(dateStr) { if (!dateStr || dateStr === '-') return new Date(0); const [d, m, y] = dateStr.split(' ')[0].split('-'); const t = dateStr.split(' ')[1] || '00:00:00'; return new Date(`${y}-${m}-${d}T${t}`); }
   
   window.toggleTheme = () => { const el = document.getElementById(ID); const btn = document.querySelector('.cm-theme-btn'); el.classList.toggle('dark'); if (el.classList.contains('dark')) { localStorage.setItem('cm-theme', 'dark'); btn.innerText = '☀️'; } else { localStorage.setItem('cm-theme', 'light'); btn.innerText = '🌙'; } };
-  window.setDateRange = (type, val) => { const today = new Date(); today.setHours(0, 0, 0, 0); document.querySelectorAll('.cm-qb').forEach(b => b.classList.remove('act')); if (type !== 'month') { document.getElementById('cm-month-sel').value = ""; } if (type === 'today') { document.querySelector('.cm-qb[onclick="setDateRange(\'today\')"]').classList.add('act'); const t = getLocalYMD(today); document.getElementById('cm-start').value = t; document.getElementById('cm-end').value = t; } else if (type === 'yesterday') { document.querySelector('.cm-qb[onclick="setDateRange(\'yesterday\')"]').classList.add('act'); const yDay = new Date(today); yDay.setDate(today.getDate() - 1); const t = getLocalYMD(yDay); document.getElementById('cm-start').value = t; document.getElementById('cm-end').value = t; } else if (type === 'thisMonth') { document.querySelector('.cm-qb[onclick="setDateRange(\'thisMonth\')"]').classList.add('act'); const firstDay = new Date(today.getFullYear(), today.getMonth(), 1); document.getElementById('cm-start').value = getLocalYMD(firstDay); document.getElementById('cm-end').value = getLocalYMD(today); } else if (type === 'month' && val) { const [y, m] = val.split('-').map(Number); document.getElementById('cm-start').value = getLocalYMD(new Date(y, m - 1, 1)); document.getElementById('cm-end').value = getLocalYMD(new Date(y, m, 0)); } };
+  
+  window.setDateRange = (type, val) => {
+    const today = new Date(); today.setHours(0, 0, 0, 0); 
+    const qbs = document.querySelectorAll('.cm-qb');
+    qbs.forEach(b => b.classList.remove('act')); 
+    if (type !== 'month') { document.getElementById('cm-month-sel').value = ""; }
+    if (type === 'today') {
+      const t = getLocalYMD(today);
+      document.getElementById('cm-start').value = t;
+      document.getElementById('cm-end').value = t;
+      const btn = Array.from(qbs).find(b => b.textContent.includes('HARI INI'));
+      if(btn) btn.classList.add('act');
+    } else if (type === 'yesterday') {
+      const yDay = new Date(today); yDay.setDate(today.getDate() - 1);
+      const t = getLocalYMD(yDay);
+      document.getElementById('cm-start').value = t;
+      document.getElementById('cm-end').value = t;
+      const btn = Array.from(qbs).find(b => b.textContent.includes('KEMARIN'));
+      if(btn) btn.classList.add('act');
+    } else if (type === 'thisMonth') {
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      document.getElementById('cm-start').value = getLocalYMD(firstDay);
+      document.getElementById('cm-end').value = getLocalYMD(today);
+      const btn = Array.from(qbs).find(b => b.textContent.includes('BULAN INI'));
+      if(btn) btn.classList.add('act');
+    } else if (type === 'month' && val) {
+      const [y, m] = val.split('-').map(Number);
+      document.getElementById('cm-start').value = getLocalYMD(new Date(y, m - 1, 1));
+      document.getElementById('cm-end').value = getLocalYMD(new Date(y, m, 0));
+    }
+  };
 
   window.switchMainTab = (tab) => {
     document.querySelectorAll('.cm-sw-btn').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.cm-pane').forEach(e => e.classList.remove('active'));
-    if(tab === 'agent') { document.querySelector('.cm-sw-btn[onclick="switchMainTab(\'agent\')"]').classList.add('active'); document.getElementById('pane-agent').classList.add('active'); setTimeout(renderAgentDashboard, 50); }
-    else if(tab === 'tunai') { document.querySelector('.cm-sw-btn[onclick="switchMainTab(\'tunai\')"]').classList.add('active'); document.getElementById('pane-tunai').classList.add('active'); switchSubTab('tunai-rekap'); }
-    else if(tab === 'cb') { document.querySelector('.cm-sw-btn[onclick="switchMainTab(\'cb\')"]').classList.add('active'); document.getElementById('pane-cb').classList.add('active'); switchSubTab('cb-rekap'); }
-    else if(tab === 'qris') { document.querySelector('.cm-sw-btn[onclick="switchMainTab(\'qris\')"]').classList.add('active'); document.getElementById('pane-qris').classList.add('active'); switchSubTab('qris-rekap'); }
-    else if(tab === 'winlose') { document.querySelector('.cm-sw-btn[onclick="switchMainTab(\'winlose\')"]').classList.add('active'); document.getElementById('pane-winlose').classList.add('active'); switchSubTab('wl-rekap'); }
+    let btn = Array.from(document.querySelectorAll('.cm-sw-btn')).find(b => b.textContent.includes(tab.toUpperCase()));
+    if(btn) btn.classList.add('active');
+    if(tab === 'agent') { document.getElementById('pane-agent').classList.add('active'); setTimeout(renderAgentDashboard, 50); }
+    else if(tab === 'tunai') { document.getElementById('pane-tunai').classList.add('active'); switchSubTab('tunai-rekap'); }
+    else if(tab === 'cb') { document.getElementById('pane-cb').classList.add('active'); switchSubTab('cb-rekap'); }
+    else if(tab === 'qris') { document.getElementById('pane-qris').classList.add('active'); switchSubTab('qris-rekap'); }
+    else if(tab === 'winlose') { document.getElementById('pane-winlose').classList.add('active'); switchSubTab('wl-rekap'); }
   };
 
   window.switchSubTab = (sub) => {
@@ -944,22 +1021,168 @@
     if(qrisTpFilters) qrisTpFilters.style.display = (sub === 'qris-topup') ? 'flex' : 'none';
   };
 
-  window.openGSModal = () => { document.getElementById('gs-url-inp').value = _gsUrl; document.getElementById('gs-panel-inp').value = _gsPanel; document.getElementById('gs-modal-bg').classList.add('show'); };
+  // --- FUNGSI SETTING & URL GAS BULANAN ---
+  function updateGSButton() {
+    const curD = new Date();
+    const cYM = `${curD.getFullYear()}-${String(curD.getMonth() + 1).padStart(2, '0')}`;
+    const btn = document.getElementById('btn-open-gs-modal');
+    if (_gsConfig[cYM]) {
+      btn.innerText = '⚙️ SETTING & URL';
+      btn.classList.remove('cm-btn-red');
+      btn.classList.add('cm-btn-grey');
+    } else {
+      btn.innerText = '⚠️ SET URL BULAN INI';
+      btn.classList.remove('cm-btn-grey');
+      btn.classList.add('cm-btn-red');
+    }
+  }
+
+  window.openGSModal = () => {
+    document.getElementById('gs-panel-inp').value = _gsPanel;
+    renderGSTable();
+    document.getElementById('gs-modal-bg').classList.add('show');
+  };
   window.closeGSModal = () => { document.getElementById('gs-modal-bg').classList.remove('show'); };
-  window.saveGSUrl = () => { _gsUrl = document.getElementById('gs-url-inp').value.trim(); _gsPanel = document.getElementById('gs-panel-inp').value.trim(); localStorage.setItem('cm-gs-url', _gsUrl); localStorage.setItem('cm-gs-panel', _gsPanel); document.querySelector('.cm-btn-glass.cm-btn-grey').innerText = _gsUrl ? '✓ LINKED' : 'LINK GSHEET'; closeGSModal(); };
+  
+  window.renderGSTable = () => {
+    const yearSel = document.getElementById('gs-year-sel').value;
+    const tbody = document.getElementById('gs-table-body');
+    let html = '';
+    const years = yearSel === 'ALL' ? ['2026', '2027', '2028'] : [yearSel];
+    
+    years.forEach(y => {
+      for(let m=0; m<12; m++) {
+        const ym = `${y}-${String(m+1).padStart(2,'0')}`;
+        const currentUrl = _gsConfig[ym] || '';
+        const isLinked = currentUrl ? '<span style="color:#22c55e; font-weight:900;">✓ LINKED</span>' : '<span style="color:#ef4444; font-weight:800;">NOT SET</span>';
+        html += `<tr>
+          <td style="padding:6px 8px; white-space:nowrap;">
+            <div style="font-weight:800; font-size:11px;">${monthLongNames[m]} ${y}</div>
+            <div style="font-size:9px; margin-top:2px;">${isLinked}</div>
+          </td>
+          <td style="padding:6px 8px;">
+            <input type="text" class="gs-url-inp" id="gs-url-${ym}" value="${currentUrl}" placeholder="https://script.google.com/macros/s/.../exec">
+          </td>
+          <td style="padding:6px 8px; text-align:center;">
+            <button class="gs-save-btn" onclick="saveGSUrl('${ym}', this)">💾</button>
+          </td>
+        </tr>`;
+      }
+    });
+    tbody.innerHTML = html;
+  };
+
+  window.saveGSUrl = (ym, btn) => {
+    const urlInp = document.getElementById(`gs-url-${ym}`);
+    let url = urlInp.value.trim();
+    
+    if (!url) {
+      if (_gsConfig[ym]) {
+        delete _gsConfig[ym];
+        localStorage.setItem('cm-gs-config', JSON.stringify(_gsConfig));
+        alert('✅ URL untuk bulan ini telah dihapus.');
+        renderGSTable();
+        updateGSButton();
+      }
+      return;
+    }
+    
+    if(!url.startsWith('https://')) {
+      alert('❌ URL sepertinya tidak valid. Pastikan dimulai dengan https://');
+      return;
+    }
+    
+    // Cek Duplikat Link
+    let isDuplicate = false;
+    let dupMonth = '';
+    for (let key in _gsConfig) {
+      if (_gsConfig[key] === url && key !== ym) {
+        isDuplicate = true;
+        const [dy, dm] = key.split('-');
+        dupMonth = `${monthLongNames[parseInt(dm)-1]} ${dy}`;
+        break;
+      }
+    }
+    
+    if (isDuplicate) {
+      alert(`❌ GAGAL! Link URL ini sudah dipakai di bulan ${dupMonth}.\nPastikan Anda tidak menempel link bulan lama.`);
+      urlInp.style.borderColor = '#ef4444';
+      setTimeout(() => { urlInp.style.borderColor = ''; }, 2000);
+      return;
+    }
+    
+    _gsConfig[ym] = url;
+    localStorage.setItem('cm-gs-config', JSON.stringify(_gsConfig));
+    
+    // Visual feedback
+    urlInp.style.borderColor = '#22c55e';
+    btn.innerHTML = '✓';
+    btn.classList.add('success');
+    setTimeout(() => { 
+      btn.innerHTML = '💾'; 
+      btn.classList.remove('success');
+    }, 1500);
+    
+    renderGSTable();
+    updateGSButton();
+  };
+
+  window.saveGSPanel = (btn) => { 
+    _gsPanel = document.getElementById('gs-panel-inp').value.trim(); 
+    localStorage.setItem('cm-gs-panel', _gsPanel); 
+    const originalText = btn.innerText; 
+    btn.innerText = '✓ Tersimpan!'; 
+    setTimeout(() => { btn.innerText = originalText; }, 1500); 
+  };
 
   window.toggleAuto = () => { const btn = document.getElementById('cm-auto-btn'); const sel = document.getElementById('cm-auto-sel'); let secs = 0; if (sel.value === 'custom') { const mnt = parseInt(document.getElementById('cm-auto-custom').value) || 0; secs = mnt * 60; } else { secs = parseInt(sel.value); } if (_autoTimer) { clearInterval(_autoTimer); _autoTimer = null; btn.innerText = 'START'; btn.classList.remove('active'); document.getElementById('cm-status').innerHTML += ' | <b>Auto Sync Dihentikan</b>'; } else { if (secs === 0) { alert('Pilih interval atau masukkan menit dulu!'); return; } btn.innerText = 'STOP'; btn.classList.add('active'); runLoadAndExport(true); _autoTimer = setInterval(() => runLoadAndExport(true), secs * 1000); } };
   async function runLoadAndExport(isAuto) { document.getElementById('cm-status').innerHTML = `🔄 <b>Auto Sync:</b> Tarik data & Export...`; const success = await loadData(); if (success) { await exportToSheet(isAuto); } }
 
+  // --- FUNGSI EXPORT PINTAR (BACA BULAN & VERIFIKASI) ---
   window.exportToSheet = async (isAuto) => {
-    if (!_gsUrl) { alert('Setup Link Google Sheets dulu!'); return; }
-    if (Object.keys(_dailyTunai).length === 0 && Object.keys(_dailyCB).length === 0) { if (!isAuto) alert('Data masih kosong! Klik TARIK DATA dulu sebelum EXPORT.'); return; }
-    const btn = document.querySelector('.cm-btn-green'); const originalText = btn.innerText; btn.innerText = '⏳ Sending...'; btn.disabled = true; const statusEl = document.getElementById('cm-status'); statusEl.innerHTML = '⏳ <b>Exporting...</b> Mengirim data ke Google Sheets...';
+    const startVal = document.getElementById('cm-start').value;
+    if (!startVal) { alert('Tanggal mulai belum dipilih!'); return; }
+    
+    const parts = startVal.split('-');
+    const targetYM = `${parts[0]}-${parts[1]}`;
+    
+    const targetUrl = _gsConfig[targetYM];
+    
+    if (!targetUrl) {
+      const [y, m] = targetYM.split('-');
+      alert(`❌ URL Google Sheets untuk bulan ${monthLongNames[parseInt(m)-1]} ${y} belum di-setup.\nSilakan klik tombol ⚙️ SETTING & URL untuk menempel link.`);
+      return;
+    }
+    
+    const curDate = new Date();
+    const curYM = `${curDate.getFullYear()}-${String(curDate.getMonth() + 1).padStart(2, '0')}`;
+    
+    if (targetYM !== curYM && !isAuto) {
+      const [y, m] = targetYM.split('-');
+      const confirmMsg = `⚠️ PERHATIAN!\n\nAnda akan mengirim data BULAN LALU (${monthLongNames[parseInt(m)-1]} ${y}) ke Sheet terkait.\nPastikan buku Anda sudah closing dan tidak salah kirim.\n\nLanjutkan?`;
+      if (!confirm(confirmMsg)) {
+        document.getElementById('cm-status').innerHTML = '❌ Export Dibatalkan oleh User.';
+        return;
+      }
+    }
+    
+    const btn = document.querySelector('.cm-btn-green'); const originalText = btn.innerText; btn.innerText = '⏳ Sending...'; btn.disabled = true; const statusEl = document.getElementById('cm-status'); statusEl.innerHTML = `⏳ <b>Exporting...</b> Mengirim data ke Sheet (${targetYM})...`;
+    
     let tunaiRows = []; Object.keys(_dailyTunai).sort().forEach(day => { let d = _dailyTunai[day]; let dp = d.depo, wd = d.wd; let totalAgentFee = dp.totalQrFee + wd.totalQrFee; let pKotor = dp.totalGross - wd.totalGross; let pBersih = (dp.totalQrNett + dp.nonQr.v) - (wd.totalQrNett + wd.nonQr.v); tunaiRows.push([day, dp.qris.OPA ? dp.qris.OPA.c : 0, dp.qris.OPA ? dp.qris.OPA.v : 0, dp.qris.OPT ? dp.qris.OPT.c : 0, dp.qris.OPT ? dp.qris.OPT.v : 0, dp.qris.OPZ ? dp.qris.OPZ.c : 0, dp.qris.OPZ ? dp.qris.OPZ.v : 0, dp.qris.GPP ? dp.qris.GPP.c : 0, dp.qris.GPP ? dp.qris.GPP.v : 0, dp.qris.PEN ? dp.qris.PEN.c : 0, dp.qris.PEN ? dp.qris.PEN.v : 0, dp.totalQrGross, dp.totalQrNett, dp.nonQr.c, dp.nonQr.v, dp.totalTkt, dp.totalGross, wd.qris.OPA ? wd.qris.OPA.c : 0, wd.qris.OPA ? wd.qris.OPA.v : 0, wd.qris.OPT ? wd.qris.OPT.c : 0, wd.qris.OPT ? wd.qris.OPT.v : 0, wd.qris.OPZ ? wd.qris.OPZ.c : 0, wd.qris.OPZ ? wd.qris.OPZ.v : 0, wd.qris.GPP ? wd.qris.GPP.c : 0, wd.qris.GPP ? wd.qris.GPP.v : 0, wd.qris.PEN ? wd.qris.PEN.c : 0, wd.qris.PEN ? wd.qris.PEN.v : 0, wd.totalQrGross, wd.totalQrNett, wd.nonQr.c, wd.nonQr.v, wd.totalTkt, wd.totalGross, totalAgentFee, pKotor, pBersih]); });
     let cbRows = []; Object.keys(_dailyCB).sort().forEach(day => { let d = _dailyCB[day]; let totOut = Object.values(d.out).reduce((a,b) => a+b, 0); let totIn = Object.values(d.in).reduce((a,b) => a+b, 0); cbRows.push([day, d.start, d.out['Deposit']||0, d.out['Manual Deposit']||0, d.out['Provider Withdraw']||0, d.out['Deduct Credit']||0, d.out['Bonus Claim']||0, d.out['Bonus Transfer']||0, d.out['Rebate']||0, d.out['Bonus Deposit']||0, totOut, d.in['Withdraw']||0, d.in['Add Credit']||0, d.in['Manual Withdraw']||0, d.in['Provider Deposit']||0, totIn, d.end]); });
-    const logData = { syncAt: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), panel: _gsPanel || 'Unknown', dateFrom: document.getElementById('cm-start').value, dateTo: document.getElementById('cm-end').value, tktDepo: _lastSummary.tktDepo, totalDepo: _lastSummary.depo, tktWd: _lastSummary.tktWd, totalWd: _lastSummary.wd, profitKotor: _lastSummary.pKotor, profitBersih: _lastSummary.pBersih, saldoAkhir: _lastSummary.saldoAkhir };
+    const logData = { syncAt: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), panel: _gsPanel || 'Unknown', dateFrom: document.getElementById('cm-start').value, dateTo: document.getElementById('cm-end').value, tktDepo: _lastSummary.tktDepo, totalDepo: _lastSummary.depo, tktWd: _lastSummary.tktWd, totalWd: _lastSummary.wd, profitKotor: _lastSummary.pKotor, profitBersih: _lastSummary.pBersih, saldoAkhir: _lastSummary.saldoAkhir, targetMonth: targetYM };
     const payload = { tunaiRows, cbRows, wlRekapRows: _wlRekapExportData, logData, exportedAt: new Date().toISOString() };
-    try { await fetch(_gsUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); setTimeout(() => { btn.innerText = '✓ SENT!'; statusEl.innerHTML = `✅ <b>Export Berhasil!</b> Panel: ${_gsPanel} | ${isAuto ? 'Auto' : 'Manual'} Export selesai.`; }, 1000); } catch (e) { statusEl.innerHTML = '❌ <b>Export Gagal:</b> ' + e.message; console.error('Export Error:', e); } finally { setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 4000); }
+    
+    try { 
+      await fetch(targetUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); 
+      setTimeout(() => { 
+        btn.innerText = '✓ SENT!'; statusEl.innerHTML = `✅ <b>Export Berhasil!</b> Panel: ${_gsPanel} | Bulan: ${targetYM} | ${isAuto ? 'Auto' : 'Manual'} Export selesai.`; 
+      }, 1000); 
+    } catch (e) { 
+      statusEl.innerHTML = '❌ <b>Export Gagal:</b> ' + e.message; console.error('Export Error:', e); 
+    } finally { 
+      setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 4000); 
+    }
   };
 
   window.exportTableToExcel = (tableId, filename) => {
@@ -1047,7 +1270,6 @@
     let days = Object.keys(_dailyTunai).sort();
     if (days.length === 0) return;
     
-    // 1. Summary Cards
     let totNett = 0;
     days.forEach(day => { totNett += (_dailyTunai[day].pKotor || 0); });
     
@@ -1061,11 +1283,9 @@
     document.getElementById('agent-card-3').innerHTML = `<div class="cm-clbl">TOTAL SALDO QRIS</div><div class="cm-cval" style="color:#7c3aed">${formatRupiahPlain(totQrisSaldo)}</div>`;
     document.getElementById('agent-card-4').innerHTML = `<div class="cm-clbl">TOTAL AG</div><div class="cm-cval" style="color:${totAg>=0?'#16a34a':'#ef4444'}">${formatRupiahPlain(totAg)}</div>`;
 
-    // Date format helper
     const monthShort = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
     function fmtDate(day) { let p = day.split('-'); return p[0] + ' ' + monthShort[parseInt(p[1])-1]; }
 
-    // 2. Chart A: Deposit Nett
     let maxNett = 1; days.forEach(day => { let pK = _dailyTunai[day].pKotor || 0; if (Math.abs(pK) > maxNett) maxNett = Math.abs(pK); });
     let htmlA = days.map(day => {
         let d = _dailyTunai[day]; let dp = d.depo, wd = d.wd;
@@ -1076,7 +1296,6 @@
         return `<div class="cm-mini-col"><div class="cm-mini-bars"><div class="cm-mini-bar ${cls}" style="height:${h}%;" data-tt="${tt.replace(/"/g, '&quot;')}"></div></div><div class="cm-mini-label">${fmtDate(day)}</div></div>`;
     }).join('');
 
-    // 3. Chart B: WLB WIN
     let maxWlb = 1; days.forEach(day => { let wl = _winloseDailyData.find(d => d.date === day); let val = wl ? ((wl.agWinlost - wl.agCommGive + wl.agBonus) * 1000) : 0; if (Math.abs(val) > maxWlb) maxWlb = Math.abs(val); });
     let htmlB = days.map(day => {
         let wl = _winloseDailyData.find(d => d.date === day);
@@ -1090,7 +1309,6 @@
         return `<div class="cm-mini-col"><div class="cm-mini-bars"><div class="cm-mini-bar ${cls}" style="height:${h}%;" data-tt="${tt.replace(/"/g, '&quot;')}"></div></div><div class="cm-mini-label">${fmtDate(day)}</div></div>`;
     }).join('');
 
-    // 4. Chart C: RG & ND (Overlap)
     let maxRgNd = 1; days.forEach(day => { let m = _dailyMemberStats[day] || { rg: 0, nd: 0 }; if (m.rg > maxRgNd) maxRgNd = m.rg; if (m.nd > maxRgNd) maxRgNd = m.nd; });
     let htmlC = days.map(day => {
         let m = _dailyMemberStats[day] || { rg: 0, nd: 0 };
@@ -1100,7 +1318,6 @@
         return `<div class="cm-mini-col"><div class="cm-mini-bars-overlap"><div class="cm-mini-bar-overlap rg" style="height:${hRg}%;" data-tt="${tt.replace(/"/g, '&quot;')}"></div><div class="cm-mini-bar-overlap nd" style="height:${hNd}%;" data-tt="${tt.replace(/"/g, '&quot;')}"></div></div><div class="cm-mini-label">${fmtDate(day)}</div></div>`;
     }).join('');
 
-    // 5. Chart D: TK Depo & WD (Overlap)
     let maxTkt = 1; days.forEach(day => { let d = _dailyTunai[day]; let dpT = d.depo?.totalTkt || 0; let wdT = d.wd?.totalTkt || 0; if (dpT > maxTkt) maxTkt = dpT; if (wdT > maxTkt) maxTkt = wdT; });
     let htmlD = days.map(day => {
         let d = _dailyTunai[day]; let dpT = d.depo?.totalTkt || 0; let wdT = d.wd?.totalTkt || 0; let allT = dpT + wdT;
@@ -1115,7 +1332,6 @@
     document.getElementById('chart-c').innerHTML = htmlC;
     document.getElementById('chart-d').innerHTML = htmlD;
 
-    // Bind Tooltip
     document.querySelectorAll('#pane-agent .cm-mini-bar, #pane-agent .cm-mini-bar-overlap').forEach(el => {
         el.addEventListener('mousemove', (e) => {
             const tt = document.getElementById('cm-agent-tooltip');
@@ -1129,23 +1345,19 @@
         });
     });
 
-    // 6. Stats E
     let totalDays = days.length; let sumPB = 0; let topProfit = { day: '-', val: -Infinity }; let bottomProfit = { day: '-', val: Infinity };
     days.forEach(day => { let pB = _dailyTunai[day].pKotor || 0; sumPB += pB; if (pB > topProfit.val) topProfit = { day: day, val: pB }; if (pB < bottomProfit.val) bottomProfit = { day: day, val: pB }; });
     let avgPB = sumPB / totalDays;
     document.getElementById('stat-e').innerHTML = `<div class="cm-stat-row"><span class="cm-stat-label">Total Hari</span><span class="cm-stat-val">${totalDays} Hari</span></div><div class="cm-stat-row"><span class="cm-stat-label">Rata-rata Profit</span><span class="cm-stat-val ${avgPB >= 0 ? 'pos' : 'neg'}">${formatRupiahPlain(avgPB)}</span></div><div class="cm-stat-row"><span class="cm-stat-label">Top Profit (Tgl)</span><span class="cm-stat-val pos">${topProfit.day}</span></div><div class="cm-stat-row"><span class="cm-stat-label">Nominal Top</span><span class="cm-stat-val pos">${formatRupiahPlain(topProfit.val)}</span></div><div class="cm-stat-row"><span class="cm-stat-label">Bottom Profit (Tgl)</span><span class="cm-stat-val neg">${bottomProfit.day}</span></div><div class="cm-stat-row"><span class="cm-stat-label">Nominal Bottom</span><span class="cm-stat-val neg">${formatRupiahPlain(bottomProfit.val)}</span></div>`;
 
-    // 7. Stats F
     let sumWlb = 0; let topWlb = { day: '-', val: -Infinity }; let bottomWlb = { day: '-', val: Infinity };
     days.forEach(day => { let wl = _winloseDailyData.find(d => d.date === day); let val = wl ? ((wl.agWinlost - wl.agCommGive + wl.agBonus) * 1000) : 0; sumWlb += val; if (val > topWlb.val) topWlb = { day: day, val: val }; if (val < bottomWlb.val) bottomWlb = { day: day, val: val }; });
     let avgWlb = sumWlb / totalDays;
     document.getElementById('stat-f').innerHTML = `<div class="cm-stat-row"><span class="cm-stat-label">Total Hari</span><span class="cm-stat-val">${totalDays} Hari</span></div><div class="cm-stat-row"><span class="cm-stat-label">Rata-rata WLB</span><span class="cm-stat-val ${avgWlb >= 0 ? 'pos' : 'neg'}">${formatRupiahPlain(avgWlb)}</span></div><div class="cm-stat-row"><span class="cm-stat-label">Top WLB (Tgl)</span><span class="cm-stat-val pos">${topWlb.day}</span></div><div class="cm-stat-row"><span class="cm-stat-label">Nominal Top</span><span class="cm-stat-val pos">${formatRupiahPlain(topWlb.val)}</span></div><div class="cm-stat-row"><span class="cm-stat-label">Bottom WLB (Tgl)</span><span class="cm-stat-val neg">${bottomWlb.day}</span></div><div class="cm-stat-row"><span class="cm-stat-label">Nominal Bottom</span><span class="cm-stat-val neg">${formatRupiahPlain(bottomWlb.val)}</span></div>`;
 
-    // 8. Stats G
     let handlerRows = Object.keys(_handlerStats).sort((a,b) => ((_handlerStats[b].depo + _handlerStats[b].wd) - (_handlerStats[a].depo + _handlerStats[a].wd))).map(h => { let d = _handlerStats[h].depo; let w = _handlerStats[h].wd; return `<tr><td>${h}</td><td class="num-d ${d === 0 ? 'num-0' : ''}">${d || 0}</td><td class="num-w ${w === 0 ? 'num-0' : ''}">${w || 0}</td></tr>`; }).join('');
     document.getElementById('stat-g').innerHTML = `<table class="cm-stats-table"><thead><tr><th>NAMA</th><th style="text-align:right;">DEPO</th><th style="text-align:right;">WD</th></tr></thead><tbody>${handlerRows || '<tr><td colspan="3" style="text-align:center; color:#aaa;">No Data</td></tr>'}</tbody></table>`;
 
-    // 9. Stats H
     let ketRows = Object.keys(_ketStats).sort((a,b) => ((_ketStats[b].depo + _ketStats[b].wd) - (_ketStats[a].depo + _ketStats[a].wd))).map(k => { let d = _ketStats[k].depo; let w = _ketStats[k].wd; return `<tr><td>${k}</td><td class="num-d ${d === 0 ? 'num-0' : ''}">${d || 0}</td><td class="num-w ${w === 0 ? 'num-0' : ''}">${w || 0}</td></tr>`; }).join('');
     document.getElementById('stat-h').innerHTML = `<table class="cm-stats-table"><thead><tr><th>METODE</th><th style="text-align:right;">DEPO</th><th style="text-align:right;">WD</th></tr></thead><tbody>${ketRows || '<tr><td colspan="3" style="text-align:center; color:#aaa;">No Data</td></tr>'}</tbody></table>`;
   };
