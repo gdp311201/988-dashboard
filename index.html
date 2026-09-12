@@ -13,28 +13,38 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         
         body {
+            position: relative;
             min-height: 100vh;
-            /* Background Naga Baru - Diperjelas efek glassmorphismnya */
-            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.65)), url('https://i.ibb.co/4wmgVsYV/fb9f602efa6bf0c63d3e62e24fe4c877.jpg') no-repeat center center fixed;
-            background-size: cover;
             color: #fff;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             overflow-x: hidden;
+            /* Background Gradient Overlay + Glow Effect */
+            background: radial-gradient(circle at 50% 30%, rgba(251, 191, 36, 0.15) 0%, transparent 70%), linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.75));
+        }
+
+        /* BACKGROUND BLUR LAYER */
+        body::before {
+            content: '';
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://i.ibb.co/4wmgVsYV/fb9f602efa6bf0c63d3e62e24fe4c877.jpg') no-repeat center center fixed;
+            background-size: cover;
+            filter: blur(1.5px) brightness(0.8);
+            z-index: -1;
         }
 
         /* LOGIN SCREEN */
-        .login-container { display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 2; }
+        .login-container { display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 2; width: 100%; }
         .login-box {
             background: rgba(255, 255, 255, 0.08); 
-            backdrop-filter: blur(30px) saturate(180%); 
-            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            backdrop-filter: blur(20px) saturate(180%); 
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.12); 
             padding: 48px 40px; border-radius: 32px; 
             box-shadow: 0 24px 64px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2);
-            width: 380px; display: flex; flex-direction: column; gap: 18px;
+            width: 380px; max-width: 90vw; display: flex; flex-direction: column; gap: 18px;
         }
         
-        /* ANIMASI LOGO: FLOATING & GLOWING (BREATHING) */
+        /* ANIMASI LOGO */
         .login-logo { width: 90px; height: 90px; margin: 0 auto 15px; display: block; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5)); animation: floatGlow 4s ease-in-out infinite; }
         .gallery-logo { width: 60px; height: 60px; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5)); animation: floatGlow 4s ease-in-out infinite; animation-delay: 1s; }
         
@@ -80,38 +90,54 @@
         .nav-hint span { color: #fbbf24; font-weight: 700; }
 
         /* GRID KARTU */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 700px; margin: 0 auto; width: 100%; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 700px; margin: 0 auto; width: 100%; }
         
-        /* DRAGGABLE CARD */
-        .card-link { text-decoration: none; color: inherit; display: block; }
         .card {
             background: rgba(255, 255, 255, 0.08); 
-            backdrop-filter: blur(24px) saturate(180%); 
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            backdrop-filter: blur(20px) saturate(180%); 
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.12); 
             border-radius: 20px; padding: 24px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
             box-shadow: 0 16px 40px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15);
-            cursor: grab; /* Menandakan bisa di-drag */
         }
-        .card:active { cursor: grabbing; }
         .card:hover { transform: translateY(-8px) scale(1.02); border-color: rgba(251, 191, 36, 0.4); box-shadow: 0 24px 64px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.25); }
         
-        /* HEADER KARTU (EMOJI + TITLE SEJAJAR) */
         .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
         .card-icon { font-size: 28px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
         .card-title { font-size: 18px; font-weight: 800; font-family: 'Space Grotesk'; letter-spacing: 1px; }
-        
         .card-desc { font-size: 13px; color: #cbd5e1; margin-bottom: 24px; line-height: 1.6; }
         
-        .btn-copy { 
-            display: block; width: 100%; text-align: center;
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px dashed rgba(255, 255, 255, 0.2); color: #fff; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; 
+        /* SPLIT BUTTONS CONTAINER */
+        .btn-group-card { display: flex; gap: 12px; }
+        
+        /* DRAG BUTTON */
+        .btn-drag { 
+            flex: 1; text-align: center; cursor: grab; user-select: none;
+            background: rgba(251, 191, 36, 0.1); border: 1px dashed rgba(251, 191, 36, 0.4);
+            color: #fbbf24; padding: 12px; border-radius: 12px; font-weight: 700; transition: 0.3s; 
             font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
-            text-decoration: none;
+            text-decoration: none; display: block;
         }
-        .btn-copy:hover { background: rgba(251, 191, 36, 0.15); border-color: rgba(251, 191, 36, 0.4); color: #fbbf24; }
-        .btn-copy.copied { background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.4); color: #4ade80; border-style: solid; }
+        .btn-drag:hover { background: rgba(251, 191, 36, 0.2); border-style: solid; }
+        .btn-drag:active { cursor: grabbing; }
+
+        /* COPY BUTTON */
+        .btn-salin { 
+            flex: 1; cursor: pointer; transition: 0.3s; 
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff; padding: 12px; border-radius: 12px; font-weight: 700; 
+            font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .btn-salin:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.4); }
+
+        /* COPY BUTTON GLOWING NEON GREEN */
+        .btn-salin.copied { 
+            background: rgba(34, 197, 94, 0.15); 
+            border: 1px solid rgba(74, 222, 128, 0.8); 
+            color: #4ade80; 
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.6), inset 0 0 10px rgba(74, 222, 128, 0.2);
+            text-shadow: 0 0 8px rgba(74, 222, 128, 0.8);
+        }
 
         .footer { text-align: center; margin-top: 60px; color: #94a3b8; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; padding-bottom: 40px; }
         .footer span { color: #fbbf24; font-weight: 700; }
@@ -153,7 +179,7 @@
         </div>
 
         <div class="nav-hint">
-            ℹ️ <span>Tarik (Drag)</span> tombol di bawah ini ke <span>Bookmark Bar</span> browser Anda, atau klik tombol untuk <span>Salin Manual</span>.<br>
+            ℹ️ <span>Tarik (Drag)</span> tombol kuning ke <span>Bookmark Bar</span> browser Anda, atau klik tombol <span>Salin</span>.<br>
             <small style="opacity: 0.8;">Cache-buster otomatis aktif: <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">?t=Date.now()</code></small>
         </div>
         
@@ -165,9 +191,11 @@
                     <div class="card-title">INFINI DASHBOARD</div>
                 </div>
                 <div class="card-desc">Universal Dashboard for Winlose, CB, QRIS, and Transactions. Zero-click auto-detect & Parallel Fetching included.</div>
-                <a href="#" id="drag-dashboard" class="btn-copy" draggable="true" onclick="copyScript('dashboard', event); return false;">
-                    📌 DRAG / SALIN MANUAL
-                </a>
+                <div class="btn-group-card">
+                    <!-- title="INFINI DASHBOARD" akan menjadi nama bookmark saat di drag -->
+                    <a href="#" title="INFINI DASHBOARD" id="drag-dashboard" class="btn-drag" draggable="true" onclick="event.preventDefault();">↔️ DRAG</a>
+                    <button class="btn-salin" onclick="copyScript('dashboard', event)">📋 SALIN</button>
+                </div>
             </div>
 
             <!-- SCRAPPER CARD -->
@@ -177,9 +205,11 @@
                     <div class="card-title">HOURLY REPORT</div>
                 </div>
                 <div class="card-desc">Auto-Run Hourly Report Scrapper. Premium UI, Auto-scrape every hour, and Push Now feature.</div>
-                <a href="#" id="drag-scrapper" class="btn-copy" draggable="true" onclick="copyScript('scrapper', event); return false;">
-                    📌 DRAG / SALIN MANUAL
-                </a>
+                <div class="btn-group-card">
+                    <!-- title="HOURLY REPORT" akan menjadi nama bookmark saat di drag -->
+                    <a href="#" title="HOURLY REPORT" id="drag-scrapper" class="btn-drag" draggable="true" onclick="event.preventDefault();">↔️ DRAG</a>
+                    <button class="btn-salin" onclick="copyScript('scrapper', event)">📋 SALIN</button>
+                </div>
             </div>
         </div>
 
@@ -224,7 +254,6 @@
         updateTimestamp();
 
         // --- BOOKMARKLET LOADER LOGIC ---
-        // GANTI URL INI DENGAN URL RAW GITHUB KAMU
         const scripts = {
             dashboard: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/dashboard.js',
             scrapper: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/hourlyreport.js'
@@ -250,20 +279,13 @@
 
         // Fungsi Salin Manual
         function copyScript(type, e) {
-            if(e) e.preventDefault();
             const url = scripts[type];
-            
-            if (url.includes('USERNAME_KAMU')) {
-                alert('HALT!\n\nSilakan edit file index.html dan ganti URL GitHub Raw terlebih dahulu.');
-                return;
-            }
-
             const bookmarklet = buildBookmarklet(url);
 
             navigator.clipboard.writeText(bookmarklet).then(() => {
-                const btn = e.target;
+                const btn = e.currentTarget; // Menggunakan currentTarget agar pasti mendapat tombolnya
                 const originalText = btn.innerText;
-                btn.innerText = '✓ TERSALIN! PASTE KE BOOKMARK';
+                btn.innerText = '✅ TERSALIN!';
                 btn.classList.add('copied');
                 
                 setTimeout(() => {
