@@ -122,8 +122,13 @@
   if (isDark) ui.classList.add('dark');
   else ui.classList.add('light');
 
+  // Ambil config dari localStorage, kalau kosong pakai default punya lu
   const _scrapUrl = localStorage.getItem('cm-scrap-url') || '';
   const _scrapPanel = localStorage.getItem('cm-scrap-panel') || '';
+  const _idus = localStorage.getItem('cm-scrap-idus') || '233598653';
+  const _usnm = localStorage.getItem('cm-scrap-usnm') || 'billybet@xbets988';
+  const _idusBr = localStorage.getItem('cm-scrap-idusBr') || '224326595';
+  const _usernameBr = localStorage.getItem('cm-scrap-usernameBr') || 'egaxbets@xbets988';
   const themeIcon = isDark ? '☀️' : '🌙';
 
   ui.innerHTML = `
@@ -195,6 +200,28 @@
             <label class="config-lbl">Nama Panel / Operator (Opsional)</label>
             <input type="text" class="config-inp" id="inp-panel" placeholder="Contoh: Budi" value="${_scrapPanel}" style="font-family:sans-serif;">
           </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="config-inp-grp">
+              <label class="config-lbl">ID Agent (idus)</label>
+              <input type="text" class="config-inp" id="inp-idus" placeholder="233598653" value="${_idus}">
+            </div>
+            <div class="config-inp-grp">
+              <label class="config-lbl">Username Agent (usnm)</label>
+              <input type="text" class="config-inp" id="inp-usnm" placeholder="billybet@xbets988" value="${_usnm}">
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="config-inp-grp">
+              <label class="config-lbl">ID Brand (idusBr)</label>
+              <input type="text" class="config-inp" id="inp-idusBr" placeholder="224326595" value="${_idusBr}">
+            </div>
+            <div class="config-inp-grp">
+              <label class="config-lbl">Username Brand (usernameBr)</label>
+              <input type="text" class="config-inp" id="inp-usernameBr" placeholder="egaxbets@xbets988" value="${_usernameBr}">
+            </div>
+          </div>
           
           <button class="btn-control start" style="width:100%; margin-top:16px;" onclick="saveConfig()">💾 SIMPAN KONFIGURASI</button>
         </div>
@@ -230,6 +257,10 @@
   window.saveConfig = () => {
     localStorage.setItem('cm-scrap-url', document.getElementById('inp-url').value.trim());
     localStorage.setItem('cm-scrap-panel', document.getElementById('inp-panel').value.trim());
+    localStorage.setItem('cm-scrap-idus', document.getElementById('inp-idus').value.trim());
+    localStorage.setItem('cm-scrap-usnm', document.getElementById('inp-usnm').value.trim());
+    localStorage.setItem('cm-scrap-idusBr', document.getElementById('inp-idusBr').value.trim());
+    localStorage.setItem('cm-scrap-usernameBr', document.getElementById('inp-usernameBr').value.trim());
     logMsg('Konfigurasi berhasil disimpan!', 'success');
   };
 
@@ -295,18 +326,24 @@
     const yyyy = today.getFullYear();
     const ddmm = `${dd}-${mm}-${yyyy}`;
     
-    const payloadRG = { filter: { fs: [ddmm, ddmm] }, idus: 233598653, limit: 500, page: 1, sort: { usnm: ["asc"] } };
+    // Ambil ID dari localStorage
+    const idus = localStorage.getItem('cm-scrap-idus') || '233598653';
+    const usnm = localStorage.getItem('cm-scrap-usnm') || 'billybet@xbets988';
+    const idusBr = localStorage.getItem('cm-scrap-idusBr') || '224326595';
+    const usernameBr = localStorage.getItem('cm-scrap-usernameBr') || 'egaxbets@xbets988';
+    
+    const payloadRG = { filter: { fs: [ddmm, ddmm] }, idus: parseInt(idus), limit: 500, page: 1, sort: { usnm: ["asc"] } };
     const resRG = await fetchAPI('/memberlist', payloadRG);
     const rg = resRG.usls ? resRG.usls.length : 0;
 
-    const payloadND = { filter: { fs: [ddmm, ddmm], nonnewmb: [true] }, idus: 233598653, limit: 500, page: 1, sort: { usnm: ["asc"] } };
+    const payloadND = { filter: { fs: [ddmm, ddmm], nonnewmb: [true] }, idus: parseInt(idus), limit: 500, page: 1, sort: { usnm: ["asc"] } };
     const resND = await fetchAPI('/memberlist', payloadND);
     const nd = resND.usls ? resND.usls.length : 0;
 
     let trx = 0;
     let page = 1;
     while(true) {
-      const payloadTrx = { "idusBr": 224326595, "startdate": `${ddmm} 00:00:00`, "enddate": `${ddmm} 23:59:59`, "level": 5, "usernameBr": "egaxbets@xbets988", "page": page, "limit": 500, "type": "1001", "bo": true, "st": "10" };
+      const payloadTrx = { "idusBr": parseInt(idusBr), "startdate": `${ddmm} 00:00:00`, "enddate": `${ddmm} 23:59:59`, "level": 5, "usernameBr": usernameBr, "page": page, "limit": 500, "type": "1001", "bo": true, "st": "10" };
       const resTrx = await fetchAPI('/trx/historypl', payloadTrx);
       let batch = resTrx.trx || [];
       trx += batch.length;
@@ -314,7 +351,7 @@
       page++;
     }
 
-    const payloadWL = { "start": ddmm, "end": ddmm, "idus": 233598653, "usnm": "billybet@xbets988", "level": 5, "levelbr": 6, "idpv": null, "pvnm": null, "by": 1, "pg": 1, "sort": ["asc"], "limit": "100" };
+    const payloadWL = { "start": ddmm, "end": ddmm, "idus": parseInt(idus), "usnm": usnm, "level": 5, "levelbr": 6, "idpv": null, "pvnm": null, "by": 1, "pg": 1, "sort": ["asc"], "limit": "100" };
     const resWL = await fetchAPI('/t1/report', payloadWL);
     let to = 0, wl = 0;
     if (resWL.data && resWL.data.length > 0) {
