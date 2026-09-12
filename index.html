@@ -6,6 +6,7 @@
     <title>988 INFINI GALLERY</title>
     <!-- FAVICON UNTUK TAB BROWSER & BOOKMARK -->
     <link rel="icon" type="image/png" href="https://i.ibb.co/Xk66G0bC/8-logo.png">
+    <link rel="shortcut icon" href="https://i.ibb.co/Xk66G0bC/8-logo.png">
     <link rel="apple-touch-icon" href="https://i.ibb.co/Xk66G0bC/8-logo.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Grotesk:wght@500;700&display=swap');
@@ -18,18 +19,35 @@
             color: #fff;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             overflow-x: hidden;
-            /* Background Gradient Overlay + Glow Effect */
-            background: radial-gradient(circle at 50% 30%, rgba(251, 191, 36, 0.15) 0%, transparent 70%), linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.75));
+            /* Background Gradient Overlay Dasar */
+            background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.8));
         }
 
-        /* BACKGROUND BLUR LAYER */
+        /* BACKGROUND BLUR LAYER (Naga/Harimau) */
         body::before {
             content: '';
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url('https://i.ibb.co/4wmgVsYV/fb9f602efa6bf0c63d3e62e24fe4c877.jpg') no-repeat center center fixed;
             background-size: cover;
-            filter: blur(1.5px) brightness(0.8);
+            filter: blur(4px) brightness(0.7); /* Blur dinaikkan menjadi 4px */
+            z-index: -2;
+        }
+
+        /* EFEK CAHAYA SILUET BERGERAK (SPOTLIGHT GLOW) */
+        body::after {
+            content: '';
+            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(251, 191, 36, 0.12) 0%, transparent 40%);
             z-index: -1;
+            animation: spotlightMove 15s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes spotlightMove {
+            0% { transform: translate(0%, 0%); }
+            25% { transform: translate(15%, 10%); }
+            50% { transform: translate(-10%, 15%); }
+            75% { transform: translate(10%, -10%); }
+            100% { transform: translate(0%, 0%); }
         }
 
         /* LOGIN SCREEN */
@@ -108,14 +126,14 @@
         .card-desc { font-size: 13px; color: #cbd5e1; margin-bottom: 24px; line-height: 1.6; }
         
         /* SPLIT BUTTONS CONTAINER */
-        .btn-group-card { display: flex; gap: 12px; }
+        .btn-group-card { display: flex; flex-direction: column; gap: 12px; }
         
-        /* DRAG BUTTON */
+        /* DRAG BUTTON (Berisi Nama Lengkap agar terbawa saat drag) */
         .btn-drag { 
-            flex: 1; text-align: center; cursor: grab; user-select: none;
+            text-align: center; cursor: grab; user-select: none;
             background: rgba(251, 191, 36, 0.1); border: 1px dashed rgba(251, 191, 36, 0.4);
-            color: #fbbf24; padding: 12px; border-radius: 12px; font-weight: 700; transition: 0.3s; 
-            font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
+            color: #fbbf24; padding: 14px; border-radius: 12px; font-weight: 700; transition: 0.3s; 
+            font-size: 14px; letter-spacing: 1px; text-transform: uppercase;
             text-decoration: none; display: block;
         }
         .btn-drag:hover { background: rgba(251, 191, 36, 0.2); border-style: solid; }
@@ -123,7 +141,7 @@
 
         /* COPY BUTTON */
         .btn-salin { 
-            flex: 1; cursor: pointer; transition: 0.3s; 
+            cursor: pointer; transition: 0.3s; 
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff; padding: 12px; border-radius: 12px; font-weight: 700; 
             font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
@@ -192,9 +210,9 @@
                 </div>
                 <div class="card-desc">Universal Dashboard for Winlose, CB, QRIS, and Transactions. Zero-click auto-detect & Parallel Fetching included.</div>
                 <div class="btn-group-card">
-                    <!-- title="INFINI DASHBOARD" akan menjadi nama bookmark saat di drag -->
-                    <a href="#" title="INFINI DASHBOARD" id="drag-dashboard" class="btn-drag" draggable="true" onclick="event.preventDefault();">↔️ DRAG</a>
-                    <button class="btn-salin" onclick="copyScript('dashboard', event)">📋 SALIN</button>
+                    <!-- Teks di dalam link ini akan menjadi NAMA BOOKMARK saat di drag -->
+                    <a href="#" id="drag-dashboard" class="btn-drag" draggable="true" onclick="event.preventDefault();">📊 INFINI DASHBOARD</a>
+                    <button class="btn-salin" onclick="copyScript('dashboard', event)">📋 SALIN MANUAL</button>
                 </div>
             </div>
 
@@ -206,9 +224,9 @@
                 </div>
                 <div class="card-desc">Auto-Run Hourly Report Scrapper. Premium UI, Auto-scrape every hour, and Push Now feature.</div>
                 <div class="btn-group-card">
-                    <!-- title="HOURLY REPORT" akan menjadi nama bookmark saat di drag -->
-                    <a href="#" title="HOURLY REPORT" id="drag-scrapper" class="btn-drag" draggable="true" onclick="event.preventDefault();">↔️ DRAG</a>
-                    <button class="btn-salin" onclick="copyScript('scrapper', event)">📋 SALIN</button>
+                    <!-- Teks di dalam link ini akan menjadi NAMA BOOKMARK saat di drag -->
+                    <a href="#" id="drag-scrapper" class="btn-drag" draggable="true" onclick="event.preventDefault();">⏰ HOURLY REPORT</a>
+                    <button class="btn-salin" onclick="copyScript('scrapper', event)">📋 SALIN MANUAL</button>
                 </div>
             </div>
         </div>
@@ -283,7 +301,7 @@
             const bookmarklet = buildBookmarklet(url);
 
             navigator.clipboard.writeText(bookmarklet).then(() => {
-                const btn = e.currentTarget; // Menggunakan currentTarget agar pasti mendapat tombolnya
+                const btn = e.currentTarget;
                 const originalText = btn.innerText;
                 btn.innerText = '✅ TERSALIN!';
                 btn.classList.add('copied');
