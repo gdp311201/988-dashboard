@@ -5,6 +5,25 @@
   // Inject Library untuk Export Excel
   if (!window.XLSX) { const s1 = document.createElement('script'); s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; document.head.appendChild(s1); }
 
+  // === AUTO DOMAIN & DOM SCRAPER (ZERO-CLICK UNIVERSAL) ===
+  const currentDomain = window.location.hostname.replace('www.', '');
+  const rawHTML = document.documentElement.outerHTML;
+  
+  // Cari ID User & Username langsung dari HTML Panel
+  const idusMatch = rawHTML.match(/var\s+idus\s*=\s*"?(\d+)"?;/);
+  const usernameMatch = rawHTML.match(/Username\s*:\s*([a-zA-Z0-9_@.-]+)/);
+  
+  window._cmIds = {
+    idusBr: idusMatch ? idusMatch[1] : 224326595,
+    usernameBr: usernameMatch ? usernameMatch[1] : 'egaxbets@xbets988',
+    agentId: idusMatch ? idusMatch[1] : 233598653,
+    idus: idusMatch ? idusMatch[1] : 233598653,
+    usnm: usernameMatch ? usernameMatch[1] : 'billybet@xbets988'
+  };
+
+  // === DYNAMIC QRIS FEE RATES ===
+  let _qrisFeeRates = { OPA: 0.011, OPT: 0.01, OPZ: 0.01, GPP: 0.011, PEN: 0.011 };
+
   // ── STYLE ──────────────────────────────────────────────────────────────────
   const st = document.createElement('style');
   st.textContent = `
@@ -417,7 +436,7 @@
       </div>
     </div>
     
-    <div class="cm-sbar" id="cm-status">Siap. Pilih periode lalu klik TARIK DATA.</div>
+    <div class="cm-sbar" id="cm-status">${currentDomain} | Siap. Pilih periode lalu klik TARIK DATA.</div>
     
     <div class="cm-content">
       <div class="cm-main-switcher">
@@ -1254,7 +1273,7 @@
   };
 
   async function runLoadAndExport(isAuto) { 
-    document.getElementById('cm-status').innerHTML = `🔄 <b>Auto Sync:</b> Tarik data & Export...`; 
+    document.getElementById('cm-status').innerHTML = `${currentDomain} | 🔄 <b>Auto Sync:</b> Tarik data & Export...`; 
     const success = await loadData(); 
     if (success) { 
       await exportToSheet(isAuto); 
@@ -1288,7 +1307,7 @@
       const confirmMsg = `Anda akan mengirim data BULAN LALU (${monthLongNames[parseInt(m)-1]} ${y}) ke Sheet terkait.<br>Pastikan buku Anda sudah closing dan tidak salah kirim.<br><br>Lanjutkan?`;
       const isConfirmed = await showConfirm(confirmMsg, "PERHATIAN!", "warning");
       if (!isConfirmed) {
-        document.getElementById('cm-status').innerHTML = '❌ Export Dibatalkan oleh User.';
+        document.getElementById('cm-status').innerHTML = `${currentDomain} | ❌ Export Dibatalkan oleh User.`;
         return;
       }
     }
@@ -1298,7 +1317,7 @@
     btn.innerText = '⏳ Sending...'; 
     btn.disabled = true; 
     const statusEl = document.getElementById('cm-status'); 
-    statusEl.innerHTML = `⏳ <b>Exporting...</b> Mengirim data ke Sheet (${targetYM})...`;
+    statusEl.innerHTML = `${currentDomain} | ⏳ <b>Exporting...</b> Mengirim data ke Sheet (${targetYM})...`;
     
     let tunaiRows = []; 
     Object.keys(_dailyTunai).sort().forEach(day => { 
@@ -1338,10 +1357,10 @@
       await fetch(targetUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); 
       setTimeout(() => { 
         btn.innerText = '✓ SENT!'; 
-        statusEl.innerHTML = `✅ <b>Export Berhasil!</b> Panel: ${_gsPanel} | Bulan: ${targetYM} | ${isAuto ? 'Auto' : 'Manual'} Export selesai.`; 
+        statusEl.innerHTML = `${currentDomain} | ✅ <b>Export Berhasil!</b> Panel: ${_gsPanel} | Bulan: ${targetYM} | ${isAuto ? 'Auto' : 'Manual'} Export selesai.`; 
       }, 1000); 
     } catch (e) { 
-      statusEl.innerHTML = '❌ <b>Export Gagal:</b> ' + e.message; 
+      statusEl.innerHTML = `${currentDomain} | ❌ <b>Export Gagal:</b> ` + e.message; 
       console.error('Export Error:', e); 
     } finally { 
       setTimeout(() => { 
@@ -1384,8 +1403,35 @@
     } 
   };
 
+  // === DYNAMIC FETCH QRIS FEE RATES ===
+  async function fetchQrisFeeRates() {
+    document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading QRIS Fee Rates...</b>`;
+    const qrisAccounts = ['OPA', 'OPT', 'OPZ', 'GPP', 'PEN'];
+    try {
+        const promises = qrisAccounts.map(async (q) => {
+            const payload = { "pygtcd": q };
+            const res = await fetch('/paymentgateway/agent/setting/list', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, 
+                body: JSON.stringify(payload) 
+            });
+            if (res.ok) {
+                const json = await res.json();
+                if (json.settingls && json.settingls.length > 0) {
+                    let feeStr = json.settingls[0].fee || "0%"; // e.g., "1.10 %"
+                    let feeNum = parseFloat(feeStr.replace('%', '').trim()) / 100; // 0.011
+                    if (!isNaN(feeNum)) _qrisFeeRates[q] = feeNum;
+                }
+            }
+        });
+        await Promise.allSettled(promises);
+    } catch (e) {
+        console.error('Error fetching QRIS fee rates:', e);
+    }
+  }
+
   function getPayloadTrx(type, startVal, endVal, page) { 
-    let p = { "idusBr": 224326595, "startdate": toDDMM(startVal), "enddate": toDDMM(endVal), "level": 5, "usernameBr": "egaxbets@xbets988", "page": page, "limit": 500, "type": type, "bo": true, "st": "10" }; 
+    let p = { "idusBr": window._cmIds.idusBr, "startdate": toDDMM(startVal), "enddate": toDDMM(endVal), "level": 5, "usernameBr": window._cmIds.usernameBr, "page": page, "limit": 500, "type": type, "bo": true, "st": "10" }; 
     if(type === "1001") p.mbids = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","16","49","50","82","83","115","148","149","150","151","152","153","181","10986","10992","10003","10990","10004","10997","10013","11001","11003","11121","10988","11005","10002","10656","11642","11873","12088","11319","10568","12221","12334","10816","11135","10012","10974","11646","11316","11994"]; 
     return p; 
   }
@@ -1393,7 +1439,7 @@
   async function fetchTrx(type, startVal, endVal, label) {
     let allData = []; let page = 1; const limit = 500;
     while(true) { 
-      document.getElementById('cm-status').innerHTML = `⏳ <b>Loading ${label}...</b> Page ${page}`; 
+      document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading ${label}...</b> Page ${page}`; 
       const r = await fetch('/trx/historypl', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(getPayloadTrx(type, startVal, endVal, page)) }); 
       const json = await r.json(); 
       let batch = json.trx || []; 
@@ -1407,7 +1453,7 @@
   async function fetchCB(startVal, endVal) {
     let allData = []; let page = 1; const limit = 500;
     while(true) { 
-      document.getElementById('cm-status').innerHTML = `⏳ <b>Loading Credit Balance...</b> Page ${page}`; 
+      document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading Credit Balance...</b> Page ${page}`; 
       const r = await fetch('/chbalhsls', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify({"startdate": toDDMM(startVal), "enddate": toDDMM(endVal), "limit": limit, "page": page, "type": "100"}) }); 
       const text = await r.text(); 
       let json; 
@@ -1421,63 +1467,139 @@
   }
 
   async function fetchQRISData(startVal, endVal) {
-    document.getElementById('cm-status').innerHTML = `⏳ <b>Loading QRIS Report...</b>`;
+    document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading QRIS Report...</b>`;
     const qrisAccounts = ['OPA', 'OPT', 'OPZ', 'GPP', 'PEN'];
     _qrisDisburse = []; _qrisTopup = []; 
     _qrisBalance = { OPA:0, OPT:0, OPZ:0, GPP:0, PEN:0 }; 
     _qrisUnsettledBalance = { OPA:0, OPT:0, OPZ:0, GPP:0, PEN:0 }; 
     _qrisAutoWd = { OPA:0, OPT:0, OPZ:0, GPP:0, PEN:0 };
     for (let q of qrisAccounts) {
-        document.getElementById('cm-status').innerHTML = `⏳ <b>Loading QRIS ${q}...</b>`;
+        document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading QRIS ${q}...</b>`;
         try { let payloadBal = { code: q }; let resBal = await fetch('/virtualacc/disbursement/balance', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadBal) }); if (resBal.ok) { let jsonBal = await resBal.json(); if(jsonBal.data) { _qrisBalance[q] = parseFloat(jsonBal.data.balance || 0) * 1000; _qrisUnsettledBalance[q] = parseFloat(jsonBal.data.unsettle || 0) * 1000; } } } catch (e) { console.error(`Error Balance ${q}:`, e); }
         try { let payloadAw = { pgCode: q }; let resAw = await fetch('/autowd/checkbalance', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadAw) }); if (resAw.ok) { let jsonAw = await resAw.json(); if(jsonAw.data) { _qrisAutoWd[q] = parseFloat(jsonAw.data.amount || 0) * 1000; } } } catch (e) { console.error(`Error AutoWD ${q}:`, e); }
         try { let page = 1; while(true) { let payloadDis = { page: page, limit: 100, startDate: startVal, endDate: endVal, st: "10", pygtcd: q }; let resDis = await fetch('/virtualacc/disbursement/trx/history/list', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadDis) }); if (resDis.ok) { let jsonDis = await resDis.json(); let disData = jsonDis.disbtrxls || []; if(disData.length === 0) break; disData.forEach(item => { let bankName = item.companyBankVa?.masterBank?.name || '-'; _qrisDisburse.push({ time: item.doneTime, qris: q, bank: `${bankName} - ${item.accountName} (${item.accountNo})`, amount: parseFloat(item.amount || 0) * 1000, fee: parseFloat(item.fee || 0) * 1000, status: 'DONE' }); }); page++; if (page > 100) break; } else { break; } } } catch (e) { console.error(`Error Disbursement Trx ${q}:`, e); }
-        try { let page = 1; while(true) { let payloadTp = { pgCode: q, startDate: startVal, endDate: endVal, page: page, limit: 100, agentId: 233598653 }; let resTp = await fetch('/autowd/topup/history/list', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadTp) }); if (resTp.ok) { let jsonTp = await resTp.json(); let tpData = jsonTp.data?.topupCreditBalanceHistoryLists || []; if(tpData.length === 0) break; tpData.forEach(item => { if (item.moduleInfo.includes('Send balance')) { _qrisTopup.push({ time: item.entryTime, qris: q, prev: parseFloat(item.startAmount || 0) * 1000, amount: parseFloat(item.updateAmount || 0) * 1000, curr: parseFloat(item.endAmount || 0) * 1000, status: 'SETTLED' }); } }); page++; if (page > 100) break; } else { break; } } } catch (e) { console.error(`Error Topup Trx ${q}:`, e); }
+        try { let page = 1; while(true) { let payloadTp = { pgCode: q, startDate: startVal, endDate: endVal, page: page, limit: 100, agentId: window._cmIds.agentId }; let resTp = await fetch('/autowd/topup/history/list', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadTp) }); if (resTp.ok) { let jsonTp = await resTp.json(); let tpData = jsonTp.data?.topupCreditBalanceHistoryLists || []; if(tpData.length === 0) break; tpData.forEach(item => { if (item.moduleInfo.includes('Send balance')) { _qrisTopup.push({ time: item.entryTime, qris: q, prev: parseFloat(item.startAmount || 0) * 1000, amount: parseFloat(item.updateAmount || 0) * 1000, curr: parseFloat(item.endAmount || 0) * 1000, status: 'SETTLED' }); } }); page++; if (page > 100) break; } else { break; } } } catch (e) { console.error(`Error Topup Trx ${q}:`, e); }
     }
     _qrisDisburse.sort((a, b) => parseTrxTime(a.time) - parseTrxTime(b.time));
     _qrisTopup.sort((a, b) => parseTrxTime(a.time) - parseTrxTime(b.time));
     renderQrisRekap(); renderQrisDisburse(); renderQrisTopup();
   }
 
+  // === PARALLEL BATCHING FOR WINLOSE DATA ===
   async function fetchWinloseData(startVal, endVal) {
-    document.getElementById('cm-status').innerHTML = `⏳ <b>Loading Winlose Provider...</b>`;
-    const payloadPeriod = { "start": toDDMM(startVal), "end": toDDMM(endVal), "idus": 233598653, "usnm": "billybet@xbets988", "level": 5, "levelbr": 6, "idpv": null, "pvnm": null, "by": 1, "pg": 1, "sort": ["asc"], "limit": "100" };
+    document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading Winlose Provider...</b>`;
+    const payloadPeriod = { "start": toDDMM(startVal), "end": toDDMM(endVal), "idus": window._cmIds.idus, "usnm": window._cmIds.usnm, "level": 5, "levelbr": 6, "idpv": null, "pvnm": null, "by": 1, "pg": 1, "sort": ["asc"], "limit": "100" };
     try { const res = await fetch('/t1/report', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadPeriod) }); if (res.ok) { const json = await res.json(); _winloseProviderData = json.data || []; } } catch (e) { console.error('Error Winlose Period:', e); }
-    document.getElementById('cm-status').innerHTML = `⏳ <b>Loading Winlose Daily...</b>`;
+    
+    document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading Winlose Daily (Parallel)...</b>`;
     _winloseDailyData = [];
     let sParts = startVal.split('-'), eParts = endVal.split('-'), start = new Date(sParts[0], sParts[1]-1, sParts[2]), end = new Date(eParts[0], eParts[1]-1, eParts[2]);
     let diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-    if (diffDays > 31) { document.getElementById('cm-status').innerHTML = '❌ <b>Error:</b> Maksimal 31 hari untuk Winlose Report.'; return; }
-    let loop = new Date(start);
-    while (loop <= end) {
-        let dd = String(loop.getDate()).padStart(2,'0'), mm = String(loop.getMonth()+1).padStart(2,'0'), yyyy = loop.getFullYear(), ddmm = `${dd}-${mm}-${yyyy}`; 
-        document.getElementById('cm-status').innerHTML = `⏳ <b>Loading Winlose ${ddmm}...</b>`;
-        const payload = { "start": ddmm, "end": ddmm, "idus": 233598653, "usnm": "billybet@xbets988", "level": 5, "levelbr": 6, "idpv": null, "pvnm": null, "by": 1, "pg": 1, "sort": ["asc"], "limit": "100" };
-        try { const res = await fetch('/t1/report', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payload) }); if (res.ok) { const json = await res.json(); let providers = json.data || []; let dailyTotals = { date: ddmm, stake: 0, plWinlost: 0, plCommGet: 0, plBonus: 0, agWinlost: 0, agCommGive: 0, agBonus: 0, wlhCompTotal: 0, providers: providers }; providers.forEach(item => { dailyTotals.stake += parseFloat(item.stake || 0); dailyTotals.plWinlost += parseFloat(item.plWinlost || 0); dailyTotals.plCommGet += parseFloat(item.plCommGet || 0); dailyTotals.plBonus += parseFloat(item.plBonus || 0); dailyTotals.agWinlost += parseFloat(item.agWinlost || 0); dailyTotals.agCommGive += parseFloat(item.agCommGive || 0); dailyTotals.agBonus += parseFloat(item.agBonus || 0); dailyTotals.wlhCompTotal += parseFloat(item.wlhCompTotal || 0); }); _winloseDailyData.push(dailyTotals); } } catch (e) { console.error(`Error Winlose ${ddmm}:`, e); }
-        loop.setDate(loop.getDate() + 1);
+    if (diffDays > 31) { document.getElementById('cm-status').innerHTML = `${currentDomain} | ❌ <b>Error:</b> Maksimal 31 hari untuk Winlose Report.`; return; }
+
+    const dates = [];
+    let tempDate = new Date(start);
+    while (tempDate <= end) {
+        let dd = String(tempDate.getDate()).padStart(2,'0'), mm = String(tempDate.getMonth()+1).padStart(2,'0'), yyyy = tempDate.getFullYear(), ddmm = `${dd}-${mm}-${yyyy}`;
+        dates.push(ddmm);
+        tempDate.setDate(tempDate.getDate() + 1);
     }
+
+    const BATCH_SIZE = 5; 
+    for (let i = 0; i < dates.length; i += BATCH_SIZE) {
+        const batchDates = dates.slice(i, i + BATCH_SIZE);
+        document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading Winlose (Batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(dates.length/BATCH_SIZE)})...</b>`;
+        
+        const promises = batchDates.map(ddmm => {
+            const payload = { "start": ddmm, "end": ddmm, "idus": window._cmIds.idus, "usnm": window._cmIds.usnm, "level": 5, "levelbr": 6, "idpv": null, "pvnm": null, "by": 1, "pg": 1, "sort": ["asc"], "limit": "100" };
+            return fetch('/t1/report', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payload) })
+                .then(res => res.ok ? res.json() : null)
+                .then(json => {
+                    if (!json) return { date: ddmm, error: true };
+                    let providers = json.data || [];
+                    let dailyTotals = { date: ddmm, stake: 0, plWinlost: 0, plCommGet: 0, plBonus: 0, agWinlost: 0, agCommGive: 0, agBonus: 0, wlhCompTotal: 0, providers: providers };
+                    providers.forEach(item => { 
+                        dailyTotals.stake += parseFloat(item.stake || 0); 
+                        dailyTotals.plWinlost += parseFloat(item.plWinlost || 0); 
+                        dailyTotals.plCommGet += parseFloat(item.plCommGet || 0); 
+                        dailyTotals.plBonus += parseFloat(item.plBonus || 0); 
+                        dailyTotals.agWinlost += parseFloat(item.agWinlost || 0); 
+                        dailyTotals.agCommGive += parseFloat(item.agCommGive || 0); 
+                        dailyTotals.agBonus += parseFloat(item.agBonus || 0); 
+                        dailyTotals.wlhCompTotal += parseFloat(item.wlhCompTotal || 0); 
+                    });
+                    return dailyTotals;
+                })
+                .catch(e => { console.error(`Error Winlose ${ddmm}:`, e); return { date: ddmm, error: true }; });
+        });
+
+        const results = await Promise.allSettled(promises);
+        results.forEach(res => {
+            if (res.status === 'fulfilled' && !res.value.error) {
+                _winloseDailyData.push(res.value);
+            }
+        });
+    }
+
+    _winloseDailyData.sort((a, b) => {
+        let da = a.date.split('-'); let db = b.date.split('-');
+        return new Date(da[2], da[1]-1, da[0]) - new Date(db[2], db[1]-1, db[0]);
+    });
+
     let totStake = 0, totPlTotal = 0, totAgTotal = 0, totCompany = 0;
     _winloseProviderData.forEach(item => { totStake += parseFloat(item.stake || 0) * 1000; totPlTotal += (parseFloat(item.plWinlost || 0) + parseFloat(item.plCommGet || 0) + parseFloat(item.plBonus || 0)) * 1000; totAgTotal += (parseFloat(item.agWinlost || 0) - parseFloat(item.agCommGive || 0) + parseFloat(item.agBonus || 0)) * 1000; totCompany += parseFloat(item.wlhCompTotal || 0) * 1000; });
     document.getElementById('cm-card-wl-stake').innerText = formatRupiahPlain(totStake); document.getElementById('cm-card-wl-member').innerText = formatRupiahPlain(totPlTotal); document.getElementById('cm-card-wl-ag').innerText = formatRupiahPlain(totAgTotal); document.getElementById('cm-card-wl-company').innerText = formatRupiahPlain(totCompany);
     
-    // Simpan ke _lastSummary untuk dipakai di kartu Agent Report
     _lastSummary.totAg = totAgTotal;
     _lastSummary.totCompany = totCompany;
     
     renderWinloseDaily(); renderWinloseProvider();
   }
 
+  // === PARALLEL BATCHING FOR MEMBER STATS ===
   async function fetchMemberStats(startVal, endVal) {
-    document.getElementById('cm-status').innerHTML = `⏳ <b>Loading Member Stats...</b>`;
+    document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading Member Stats (Parallel)...</b>`;
     _dailyMemberStats = {};
     let sParts = startVal.split('-'), eParts = endVal.split('-'), start = new Date(sParts[0], sParts[1]-1, sParts[2]), end = new Date(eParts[0], eParts[1]-1, eParts[2]);
-    let loop = new Date(start);
-    while (loop <= end) {
-        let dd = String(loop.getDate()).padStart(2,'0'), mm = String(loop.getMonth()+1).padStart(2,'0'), yyyy = loop.getFullYear(), ddmm = `${dd}-${mm}-${yyyy}`;
-        document.getElementById('cm-status').innerHTML = `⏳ <b>Loading Member Stats ${ddmm}...</b>`;
-        try { const payloadRG = { filter: { fs: [ddmm, ddmm] }, idus: 233598653, limit: 500, page: 1, sort: { usnm: ["asc"] } }; const resRG = await fetch('/memberlist', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadRG) }); if (resRG.ok) { const jsonRG = await resRG.json(); if(!_dailyMemberStats[ddmm]) _dailyMemberStats[ddmm] = { rg: 0, nd: 0 }; _dailyMemberStats[ddmm].rg = jsonRG.usls ? jsonRG.usls.length : 0; } } catch(e) { console.error(`Error RG ${ddmm}:`, e); }
-        try { const payloadND = { filter: { fs: [ddmm, ddmm], nonnewmb: [true] }, idus: 233598653, limit: 500, page: 1, sort: { usnm: ["asc"] } }; const resND = await fetch('/memberlist', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadND) }); if (resND.ok) { const jsonND = await resND.json(); if(!_dailyMemberStats[ddmm]) _dailyMemberStats[ddmm] = { rg: 0, nd: 0 }; _dailyMemberStats[ddmm].nd = jsonND.usls ? jsonND.usls.length : 0; } } catch(e) { console.error(`Error ND ${ddmm}:`, e); }
-        loop.setDate(loop.getDate() + 1);
+    
+    const dates = [];
+    let tempDate = new Date(start);
+    while (tempDate <= end) {
+        let dd = String(tempDate.getDate()).padStart(2,'0'), mm = String(tempDate.getMonth()+1).padStart(2,'0'), yyyy = tempDate.getFullYear(), ddmm = `${dd}-${mm}-${yyyy}`;
+        dates.push(ddmm);
+        tempDate.setDate(tempDate.getDate() + 1);
+    }
+
+    const BATCH_SIZE = 5; 
+    for (let i = 0; i < dates.length; i += BATCH_SIZE) {
+        const batchDates = dates.slice(i, i + BATCH_SIZE);
+        document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading Member Stats (Batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(dates.length/BATCH_SIZE)})...</b>`;
+        
+        const promises = batchDates.map(ddmm => {
+            return (async () => {
+                let stats = { rg: 0, nd: 0 };
+                try {
+                    const payloadRG = { filter: { fs: [ddmm, ddmm] }, idus: window._cmIds.idus, limit: 500, page: 1, sort: { usnm: ["asc"] } }; 
+                    const resRG = await fetch('/memberlist', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadRG) }); 
+                    if (resRG.ok) { const jsonRG = await resRG.json(); stats.rg = jsonRG.usls ? jsonRG.usls.length : 0; } 
+                } catch(e) { console.error(`Error RG ${ddmm}:`, e); }
+                
+                try {
+                    const payloadND = { filter: { fs: [ddmm, ddmm], nonnewmb: [true] }, idus: window._cmIds.idus, limit: 500, page: 1, sort: { usnm: ["asc"] } }; 
+                    const resND = await fetch('/memberlist', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadND) }); 
+                    if (resND.ok) { const jsonND = await resND.json(); stats.nd = jsonND.usls ? jsonND.usls.length : 0; } 
+                } catch(e) { console.error(`Error ND ${ddmm}:`, e); }
+                
+                return { date: ddmm, stats };
+            })();
+        });
+
+        const results = await Promise.allSettled(promises);
+        results.forEach(res => {
+            if (res.status === 'fulfilled') {
+                _dailyMemberStats[res.value.date] = res.value.stats;
+            }
+        });
     }
   }
 
@@ -1493,7 +1615,6 @@
     let totAg = _lastSummary.totAg || 0;
     let totCompany = _lastSummary.totCompany || 0;
 
-    // PERUBAHAN URUTAN KARTU
     document.getElementById('agent-card-1').innerHTML = `<div class="cm-clbl">TOTAL DEPOSIT NETT KOTOR</div><div class="cm-cval" style="color:${totNett>=0?'#16a34a':'#ef4444'}">${formatRupiahPlain(totNett)}</div>`;
     document.getElementById('agent-card-2').innerHTML = `<div class="cm-clbl">SALDO BALANCE AKHIR</div><div class="cm-cval" style="color:#2563eb">${formatRupiahPlain(saldoAkhir)}</div>`;
     document.getElementById('agent-card-3').innerHTML = `<div class="cm-clbl">TOTAL AG</div><div class="cm-cval" style="color:${totAg>=0?'#16a34a':'#ef4444'}">${formatRupiahPlain(totAg)}</div>`;
@@ -1732,12 +1853,16 @@
       await showAlert('Pilih tanggal mulai dan akhir terlebih dahulu!', 'Peringatan', 'warning'); 
       return false; 
     }
-    if(loader) loader.style.display = 'flex'; statusEl.innerHTML = '⏳ <b>Loading...</b> Mengambil data...';
+
+    if(loader) loader.style.display = 'flex'; statusEl.innerHTML = `${currentDomain} | ⏳ <b>Loading...</b> Mengambil data...`;
     let progress = 0; fillEl.style.strokeDasharray = circumference; fillEl.style.strokeDashoffset = circumference; percentEl.innerText = '0%'; fillEl.style.stroke = '#3b82f6'; percentEl.style.color = '#3b82f6';
     if (_progressInterval) clearInterval(_progressInterval);
     _progressInterval = setInterval(() => { progress += Math.random() * 3 + 1; if (progress >= 99.5) progress = 99.5; let offset = circumference - (progress / 100) * circumference; fillEl.style.strokeDashoffset = offset; percentEl.innerText = Math.floor(progress) + '%'; let color = '#3b82f6'; if (progress > 33 && progress <= 66) color = '#8b5cf6'; else if (progress > 66) color = '#f97316'; fillEl.style.stroke = color; percentEl.style.color = color; }, 100);
 
     try {
+      // Fetch QRIS Fee Rates FIRST so it can be used during transaction processing
+      await fetchQrisFeeRates();
+
       const [depoJson, wdJson, cbJson] = await Promise.all([ fetchTrx("1001", startVal, endVal, "Deposit"), fetchTrx("1002", startVal, endVal, "Withdraw"), fetchCB(startVal, endVal).catch(() => null) ]);
       await fetchQRISData(startVal, endVal); await fetchWinloseData(startVal, endVal); await fetchMemberStats(startVal, endVal);
 
@@ -1752,7 +1877,13 @@
         let nominal = parseFloat(item.amt) * 1000;
         let isQris = item.cmb && item.cmb.bank && item.cmb.bank.name.toLowerCase() === 'qris';
         let qrisType = isQris ? (item.cmb.accno || 'QRIS').toUpperCase() : null;
-        let feeRate = 0; if (isQris) { if (qrisType === 'OPT' || qrisType === 'OPZ') { feeRate = 0.01; } else { feeRate = 0.011; } }
+        
+        // Menggunakan fee dinamis yang sudah di-fetch
+        let feeRate = 0;
+        if (isQris) {
+          feeRate = _qrisFeeRates[qrisType] || 0;
+        }
+        
         let fee = isQris ? Math.round(nominal * feeRate) : 0;
         let nett = nominal - fee; totalDepoGross += nominal; totalDepoFee += fee;
         let rawDay = item.prctm.split(' ')[0]; let day = toDDMM_ymd(rawDay);
@@ -1814,7 +1945,6 @@
       document.getElementById('cm-card-depo').innerText = formatRupiahPlain(totalDepoGross); document.getElementById('cm-card-depo-tkt').innerText = `${listDepo.length} Tiket`;
       document.getElementById('cm-card-wd').innerText = formatRupiahPlain(totalWdGross); document.getElementById('cm-card-wd-tkt').innerText = `${listWd.length} Tiket`;
       
-      // PERBAIKAN LOG KOSONG: Simpan data Depo & WD ke _lastSummary
       _lastSummary.tktDepo = listDepo.length;
       _lastSummary.depo = totalDepoGross;
       _lastSummary.tktWd = listWd.length;
@@ -1824,7 +1954,14 @@
       document.getElementById('cm-card-qr-kotor').innerText = formatRupiahPlain(qrKotor); document.getElementById('cm-card-qr-kotor-sub').innerText = Object.entries(qrKotorDetails).map(([k, v]) => `${k} (${formatRupiahPlain(v)})`).join(' | ') || '-';
       document.getElementById('cm-card-qr-bersih').innerText = formatRupiahPlain(qrBersih); document.getElementById('cm-card-qr-bersih-sub').innerText = Object.entries(qrBersihDetails).map(([k, v]) => `${k} (${formatRupiahPlain(v)})`).join(' | ') || '-';
       document.getElementById('cm-card-depo-nonqr').innerText = formatRupiahPlain(depoNonQris); document.getElementById('cm-card-wd-nonqr').innerText = formatRupiahPlain(wdNonQris);
-      let feeText = Object.entries(feeDetails).map(([k, v]) => `${k} (${formatRupiahPlain(v)})`).join(' | ') + ` | TOTAL: ${formatRupiahPlain(totalDepoFee + totalWdFee)}`; document.getElementById('cm-fee-details').innerHTML = feeText;
+      
+      // Update UI RINCIAN FEE QRIS dengan menampilkan Rate yang sedang berlaku
+      let feeText = Object.entries(feeDetails).map(([k, v]) => {
+          let rateVal = _qrisFeeRates[k] ? (_qrisFeeRates[k] * 100) : 0;
+          let rateStr = rateVal.toFixed(2).replace(/\.?0+$/, '') + '%';
+          return `<b>${k}</b> (${rateStr}) = ${formatRupiahPlain(v)}`;
+      }).join(' | ') + ` | <b>TOTAL: ${formatRupiahPlain(totalDepoFee + totalWdFee)}</b>`;
+      document.getElementById('cm-fee-details').innerHTML = feeText;
 
       let htmlRekapTunai = Object.keys(_dailyTunai).sort().map(day => { let d = _dailyTunai[day]; let dp = d.depo, wd = d.wd; let totalAgentFee = dp.totalQrFee + wd.totalQrFee; let pKotor = dp.totalGross - wd.totalGross; let pBersih = (dp.totalQrNett + dp.nonQr.v) - (wd.totalQrNett + wd.nonQr.v); _dailyTunai[day].pBersih = pBersih; _dailyTunai[day].pKotor = pKotor; return `<tr><td>${day}</td><td>${formatTK(dp.qris.OPA?.c)}</td><td>${formatRupiahTable(dp.qris.OPA?.v)}</td><td>${formatTK(dp.qris.OPT?.c)}</td><td>${formatRupiahTable(dp.qris.OPT?.v)}</td><td>${formatTK(dp.qris.OPZ?.c)}</td><td>${formatRupiahTable(dp.qris.OPZ?.v)}</td><td>${formatTK(dp.qris.GPP?.c)}</td><td>${formatRupiahTable(dp.qris.GPP?.v)}</td><td>${formatTK(dp.qris.PEN?.c)}</td><td>${formatRupiahTable(dp.qris.PEN?.v)}</td><td>${formatRupiahTable(dp.totalQrGross)}</td><td>${formatRupiahTable(dp.totalQrNett)}</td><td>${formatTK(dp.nonQr.c)}</td><td>${formatRupiahTable(dp.nonQr.v)}</td><td>${formatTK(dp.totalTkt)}</td><td>${formatRupiahTable(dp.totalGross)}</td><td>${formatTK(wd.qris.OPA?.c)}</td><td>${formatRupiahTable(wd.qris.OPA?.v)}</td><td>${formatTK(wd.qris.OPT?.c)}</td><td>${formatRupiahTable(wd.qris.OPT?.v)}</td><td>${formatTK(wd.qris.OPZ?.c)}</td><td>${formatRupiahTable(wd.qris.OPZ?.v)}</td><td>${formatTK(wd.qris.GPP?.c)}</td><td>${formatRupiahTable(wd.qris.GPP?.v)}</td><td>${formatTK(wd.qris.PEN?.c)}</td><td>${formatRupiahTable(wd.qris.PEN?.v)}</td><td>${formatRupiahTable(wd.totalQrGross)}</td><td>${formatRupiahTable(wd.totalQrNett)}</td><td>${formatTK(wd.nonQr.c)}</td><td>${formatRupiahTable(wd.nonQr.v)}</td><td>${formatTK(wd.totalTkt)}</td><td>${formatRupiahTable(wd.totalGross)}</td><td>${formatRupiahTable(totalAgentFee)}</td><td>${formatRupiahTable(pKotor)}</td><td>${formatRupiahTable(pBersih)}</td></tr>`; }).join('');
       htmlRekapTunai += `<tr class="row-total"><td>TOTAL</td><td>${formatTK(totTunai.depo.qris.OPA?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPA?.v)}</td><td>${formatTK(totTunai.depo.qris.OPT?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPT?.v)}</td><td>${formatTK(totTunai.depo.qris.OPZ?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPZ?.v)}</td><td>${formatTK(totTunai.depo.qris.GPP?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.GPP?.v)}</td><td>${formatTK(totTunai.depo.qris.PEN?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.PEN?.v)}</td><td>${formatRupiahTable(totTunai.depo.totalQrGross)}</td><td>${formatRupiahTable(totTunai.depo.totalQrNett)}</td><td>${formatTK(totTunai.depo.nonQr.c)}</td><td>${formatRupiahTable(totTunai.depo.nonQr.v)}</td><td>${formatTK(totTunai.depo.totalTkt)}</td><td>${formatRupiahTable(totTunai.depo.totalGross)}</td><td>${formatTK(totTunai.wd.qris.OPA?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPA?.v)}</td><td>${formatTK(totTunai.wd.qris.OPT?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPT?.v)}</td><td>${formatTK(totTunai.wd.qris.OPZ?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPZ?.v)}</td><td>${formatTK(totTunai.wd.qris.GPP?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.GPP?.v)}</td><td>${formatTK(totTunai.wd.qris.PEN?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.PEN?.v)}</td><td>${formatRupiahTable(totTunai.wd.totalQrGross)}</td><td>${formatRupiahTable(totTunai.wd.totalQrNett)}</td><td>${formatTK(totTunai.wd.nonQr.c)}</td><td>${formatRupiahTable(totTunai.wd.nonQr.v)}</td><td>${formatTK(totTunai.wd.totalTkt)}</td><td>${formatRupiahTable(totTunai.wd.totalGross)}</td><td>${formatRupiahTable(totTunaiAgentFee)}</td><td>${formatRupiahTable(totTunaiPK)}</td><td>${formatRupiahTable(totTunaiPB)}</td></tr>`;
@@ -1839,12 +1976,12 @@
       htmlRekapCB += `<tr class="row-total"><td>TOTAL</td><td>-</td><td>${formatRupiahTable(totCB.out['Deposit'])}</td><td>${formatRupiahTable(totCB.out['Manual Deposit'])}</td><td>${formatRupiahTable(totCB.out['Provider Withdraw'])}</td><td>${formatRupiahTable(totCB.out['Deduct Credit'])}</td><td>${formatRupiahTable(totCB.out['Bonus Claim'])}</td><td>${formatRupiahTable(totCB.out['Bonus Transfer'])}</td><td>${formatRupiahTable(totCB.out['Rebate'])}</td><td>${formatRupiahTable(totCB.out['Bonus Deposit'])}</td><td>${formatRupiahTable(totCBOutAll)}</td><td>${formatRupiahTable(totCB.in['Withdraw'])}</td><td>${formatRupiahTable(totCB.in['Add Credit'])}</td><td>${formatRupiahTable(totCB.in['Manual Withdraw'])}</td><td>${formatRupiahTable(totCB.in['Provider Deposit'])}</td><td>${formatRupiahTable(totCBInAll)}</td><td>-</td></tr>`;
       document.getElementById('cm-table-cb-rekap').innerHTML = htmlRekapCB || '<tr><td colspan="18" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data.</td></tr>';
 
-      if (cbJson) statusEl.innerHTML = `✅ <b>OK</b> | Depo: ${listDepo.length} | WD: ${listWd.length} | CB: ${listCb.length} | Profit: ${formatRupiahPlain(profitBersih)}`;
+      if (cbJson) statusEl.innerHTML = `${currentDomain} | ✅ <b>OK</b> | Depo: ${listDepo.length} | WD: ${listWd.length} | CB: ${listCb.length} | Profit: ${formatRupiahPlain(profitBersih)}`;
       
       if (_progressInterval) clearInterval(_progressInterval); fillEl.style.strokeDashoffset = 0; percentEl.innerText = '100%'; fillEl.style.stroke = '#f97316'; percentEl.style.color = '#f97316'; await new Promise(r => setTimeout(r, 300));
       return true;
     } catch (e) { 
-      statusEl.innerHTML = '❌ <b>Error Fatal:</b> ' + e.message; 
+      statusEl.innerHTML = `${currentDomain} | ❌ <b>Error Fatal:</b> ` + e.message; 
       console.error('Error:', e); 
       await showAlert('Terjadi kesalahan saat memuat data: ' + e.message, 'Error Fatal', 'error'); 
       return false; 
