@@ -1,5 +1,5 @@
 (async () => {
-  const SCRAP_ID = 'cm-hourly-scrapper-v14';
+  const SCRAP_ID = 'cm-hourly-scrapper-v15';
   if (document.getElementById(SCRAP_ID)) { document.getElementById(SCRAP_ID).remove(); return; }
 
   // === AUTO DOMAIN & DOM SCRAPER (ZERO-CLICK UNIVERSAL) ===
@@ -16,6 +16,30 @@
   if (usernameMatch) {
       localStorage.setItem('cm-scrap-usnm_' + currentDomain, usernameMatch[1]);
       localStorage.setItem('cm-scrap-usernameBr_' + currentDomain, usernameMatch[1]); 
+  }
+
+  // === SERVER TIME SYNC LOGIC ===
+  let _serverTimeOffset = 0; // Selisih antara waktu server dan waktu lokal (ms)
+  
+  async function syncServerTime() {
+    try {
+      // Tembak HEAD request ke root domain untuk ambil HTTP Header Date
+      const res = await fetch(window.location.origin + '/?t=' + Date.now(), { method: 'HEAD' });
+      const serverDateStr = res.headers.get('Date');
+      if (serverDateStr) {
+        const serverTime = new Date(serverDateStr).getTime();
+        const localTime = Date.now();
+        _serverTimeOffset = serverTime - localTime;
+        logMsg(`Server time synced. Offset: ${Math.round(_serverTimeOffset/1000)}s`, 'info');
+      }
+    } catch (e) {
+      logMsg('Gagal sync waktu server, memakai waktu lokal.', 'wait');
+    }
+  }
+
+  // Helper untuk dapat waktu yang sudah disesuaikan dengan server
+  function getServerDate() {
+    return new Date(Date.now() + _serverTimeOffset);
   }
 
   // ── PREMIUM STYLE ───────────────────────────────────────────────────────────
@@ -52,7 +76,7 @@
     }
     @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    .scrap-header { padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
+    .scrap-header { padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); flex-shrink: 0; }
     #${SCRAP_ID}.dark .scrap-header { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
     .scrap-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
     .scrap-logo img { width: 28px; height: 28px; filter: drop-shadow(0 0 8px rgba(251,191,36,0.6)); }
@@ -102,10 +126,13 @@
     #${SCRAP_ID}.dark .scrap-btn-icon:hover { background: rgba(255,255,255,0.05); }
     .scrap-exit:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
 
-    .scrap-body { padding: 28px; overflow-y: auto; flex: 1; }
+    .scrap-body { padding: 0; overflow-y: auto; flex: 1; }
     .scrap-body::-webkit-scrollbar { width: 6px; }
     .scrap-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
     #${SCRAP_ID}.dark .scrap-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+    /* HOME TAB PADDING */
+    #tab-home { padding: 28px; }
 
     /* PREMIUM CLOCK CARD */
     .clock-card { 
@@ -165,8 +192,11 @@
     .console-line.err { color: #ef4444; }
     .console-line.info { color: #3b82f6; }
 
+    /* HISTORY TAB - PADDING ATAS DIHILANGKAN AGAR NEMPEL KE HEADER MODAL */
+    #tab-history { padding: 0 28px 28px 28px; }
+
     /* PREMIUM TABLE */
-    .history-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-family: 'Space Grotesk', sans-serif; }
+    .history-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-family: 'Space Grotesk', sans-serif; margin-top: -8px; }
     
     /* FIX STICKY HEADER SAAT DI SCROLL (TANPA BOCOR) */
     .history-table th { 
@@ -225,7 +255,7 @@
             <div class="live-date" id="live-date">--</div>
             <div class="live-clock" id="live-clock">00:00:00</div>
             <div class="next-run" id="next-run">Next auto-scrape at 01:00:00</div>
-            <div class="auto-status"><div class="dot"></div> AUTO-SCRAPE ACTIVE</div>
+            <div class="auto-status"><div class="dot"></div> AUTO-SCRAPE ACTIVE (SERVER TIME)</div>
           </div>
           
           <button class="btn-control" id="btn-push" onclick="pushNow()">PUSH NOW</button>
@@ -259,7 +289,7 @@
   `;
   document.body.appendChild(ui);
 
-  let _lastHour = new Date().getHours();
+  let _lastHour = -1; // Init dengan -1 agar trigger scrape pertama kali
 
   window.toggleTheme = () => { 
     const el = document.getElementById(SCRAP_ID); 
@@ -294,9 +324,10 @@
     return (neg ? '-Rp ' : 'Rp ') + abs.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
 
-  // --- HISTORY DATA MANAGEMENT (PER DOMAIN) ---
+  // --- HISTORY DATA MANAGEMENT (PER DOMAIN & PER SERVER DATE) ---
   function getTodayKey() {
-    const today = new Date();
+    // Pakai waktu server agar penentuan tanggal akurat
+    const today = getServerDate();
     return `cm-scrap-hist-${currentDomain}-${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`;
   }
 
@@ -348,9 +379,9 @@
     return h === 0 ? 24 : h;
   }
 
-  // --- LIVE CLOCK & AUTO RUN (ALWAYS ACTIVE) ---
+  // --- LIVE CLOCK & AUTO RUN (MENGGUNAKAN SERVER TIME) ---
   setInterval(() => {
-    const now = new Date();
+    const now = getServerDate(); // Gunakan waktu server
     const h = String(now.getHours()).padStart(2, '0');
     const m = String(now.getMinutes()).padStart(2, '0');
     const s = String(now.getSeconds()).padStart(2, '0');
@@ -362,9 +393,14 @@
     if (nextH > 24) nextH = 1;
     document.getElementById('next-run').innerText = `Next auto-scrape at ${String(nextH).padStart(2, '0')}:00:00`;
 
-    if (now.getHours() !== _lastHour) {
-      _lastHour = now.getHours();
-      executeScrape(false);
+    // Cek pergantian jam
+    const currentHour = now.getHours();
+    if (currentHour !== _lastHour) {
+      _lastHour = currentHour;
+      // Hanya scrape jika bukan jam 00:00:0x (karena data server biasanya belum fix di detik awal)
+      if (currentHour !== 0) {
+        executeScrape(false);
+      }
     }
   }, 1000);
 
@@ -379,7 +415,8 @@
   }
 
   async function getData() {
-    const today = new Date();
+    // Gunakan waktu server untuk menentukan hari pengambilan data
+    const today = getServerDate();
     const dd = String(today.getDate()).padStart(2, '0');
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const yyyy = today.getFullYear();
@@ -445,7 +482,7 @@
   }
 
   async function executeScrape(isPush) {
-    const now = new Date();
+    const now = getServerDate(); // Gunakan waktu server
     let targetHour = getDisplayHour(now); 
     
     if (isPush) {
@@ -475,6 +512,12 @@
     btn.innerText = 'PUSH NOW'; btn.disabled = false;
   };
 
-  logMsg('Auto-Scrapper Active. Memuat data awal...', 'info');
-  fetchSnapshot();
+  // === INITIALIZATION ===
+  logMsg('Auto-Scrapper Active. Menginisialisasi...', 'info');
+  // Sinkronisasi waktu server terlebih dahulu, lalu ambil snapshot
+  syncServerTime().then(() => {
+    _lastHour = getServerDate().getHours(); // Set jam awal setelah sync
+    fetchSnapshot();
+  });
+
 })();
