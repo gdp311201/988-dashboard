@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>988 INFINI GALLERY</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Grotesk:wght@500;700&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        
+        body {
+            min-height: 100vh;
+            /* Background Naga Aesthetic Dark Fantasy */
+            background: linear-gradient(rgba(5, 5, 10, 0.85), rgba(10, 5, 15, 0.9)), url('https://images.unsplash.com/photo-1604079628040-94301bb21b91?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow-x: hidden;
+        }
+
+        /* LOGIN SCREEN */
+        .login-container { display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 2; }
+        .login-box {
+            background: rgba(255, 255, 255, 0.04); 
+            backdrop-filter: blur(24px) saturate(180%); 
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            padding: 48px 40px; border-radius: 32px; 
+            box-shadow: 0 24px 64px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1);
+            width: 380px; display: flex; flex-direction: column; gap: 18px;
+        }
+        .login-logo { width: 90px; height: 90px; margin: 0 auto 15px; display: block; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.3)); }
+        .login-title { text-align: center; font-family: 'Space Grotesk'; font-size: 22px; font-weight: 700; letter-spacing: 2px; margin-bottom: 15px; color: #ffffff; text-transform: uppercase; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-label { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .input-field { 
+            background: rgba(0,0,0,0.3); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            border-radius: 14px; padding: 16px; color: #fff; font-size: 15px; outline: none; transition: 0.3s; 
+        }
+        .input-field:focus { border-color: rgba(251, 191, 36, 0.5); box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1); background: rgba(0,0,0,0.5); }
+        .btn-login { 
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.9), rgba(217, 119, 6, 0.9)); 
+            color: #000; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; font-size: 15px; transition: 0.3s; margin-top: 15px; 
+            box-shadow: 0 8px 24px rgba(251, 191, 36, 0.2);
+        }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(251, 191, 36, 0.35); }
+        .error-msg { color: #ef4444; font-size: 13px; text-align: center; display: none; background: rgba(239, 68, 68, 0.1); padding: 8px; border-radius: 8px; }
+
+        /* GALLERY SCREEN */
+        .gallery-container { display: none; flex-direction: column; width: 100%; min-height: 100vh; padding: 60px 20px; z-index: 2; }
+        .gallery-header { text-align: center; margin-bottom: 50px; }
+        .gallery-logo { width: 70px; height: 70px; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.3)); }
+        .gallery-title { display: inline-block; vertical-align: middle; font-family: 'Space Grotesk'; font-size: 38px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+        .gallery-sub { color: #94a3b8; margin-top: 15px; font-size: 15px; letter-spacing: 1px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; max-width: 1100px; margin: 0 auto; }
+        .card {
+            background: rgba(255, 255, 255, 0.04); 
+            backdrop-filter: blur(20px) saturate(180%); 
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 24px; padding: 32px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1);
+        }
+        .card:hover { transform: translateY(-8px); border-color: rgba(251, 191, 36, 0.3); box-shadow: 0 24px 64px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2); }
+        .card-icon { width: 60px; height: 60px; margin-bottom: 24px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); }
+        .card-title { font-size: 22px; font-weight: 800; margin-bottom: 12px; font-family: 'Space Grotesk'; letter-spacing: 1px; }
+        .card-desc { font-size: 14px; color: #94a3b8; margin-bottom: 28px; line-height: 1.6; }
+        .btn-copy { 
+            width: 100%; background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: 0.3s; 
+            font-size: 14px; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .btn-copy:hover { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3); color: #fbbf24; }
+        .btn-copy.copied { background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); color: #4ade80; }
+
+        .footer { text-align: center; margin-top: 60px; color: #64748b; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; }
+        .footer span { color: #fbbf24; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <img src="https://i.ibb.co/Xk66G0bC/8-logo.png" alt="Logo" class="login-logo">
+            <div class="login-title">988 INFINI ACCESS</div>
+            <div class="error-msg" id="errorMsg">Invalid credentials. Please try again.</div>
+            
+            <div class="input-group">
+                <label class="input-label">Username</label>
+                <input type="text" id="loginUser" class="input-field" placeholder="Enter Username" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Password</label>
+                <input type="password" id="loginPass" class="input-field" placeholder="Enter Password">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Security PIN</label>
+                <input type="password" id="loginPin" class="input-field" placeholder="Enter 6-digit PIN">
+            </div>
+            
+            <button class="btn-login" onclick="checkLogin()">UNLOCK GALLERY</button>
+        </div>
+    </div>
+
+    <!-- GALLERY SCREEN -->
+    <div id="galleryScreen" class="gallery-container">
+        <div class="gallery-header">
+            <img src="https://i.ibb.co/Xk66G0bC/8-logo.png" alt="Logo" class="gallery-logo">
+            <div class="gallery-title">988 INFINI GALLERY</div>
+            <div class="gallery-sub">Master Bookmarklet Loader for Panel Operations</div>
+        </div>
+        
+        <div class="grid">
+            <!-- DASHBOARD CARD -->
+            <div class="card">
+                <img src="https://i.ibb.co/Xk66G0bC/8-logo.png" class="card-icon">
+                <div class="card-title">INFINI DASHBOARD</div>
+                <div class="card-desc">Universal Dashboard for Winlose, CB, QRIS, and Transactions. Zero-click auto-detect & Parallel Fetching included.</div>
+                <button class="btn-copy" onclick="copyScript('dashboard')">SALIN BOOKMARKLET</button>
+            </div>
+
+            <!-- SCRAPPER CARD -->
+            <div class="card">
+                <img src="https://i.ibb.co/Xk66G0bC/8-logo.png" class="card-icon">
+                <div class="card-title">HOURLY REPORT</div>
+                <div class="card-desc">Auto-Run Hourly Report Scrapper. Premium UI, Auto-scrape every hour, and Push Now feature.</div>
+                <button class="btn-copy" onclick="copyScript('scrapper')">SALIN BOOKMARKLET</button>
+            </div>
+        </div>
+
+        <div class="footer">988 INFINI GALLERY · <span>© 2026</span> · ALL RIGHTS RESERVED</div>
+    </div>
+
+    <script>
+        // --- LOGIN LOGIC ---
+        function checkLogin() {
+            // Trim digunakan untuk menghapus spasi yang tidak sengaja ikut ter-copy
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            const pin = document.getElementById('loginPin').value.trim();
+            const errEl = document.getElementById('errorMsg');
+
+            if (user === '988' && pass === '888888' && pin === '888888') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('galleryScreen').style.display = 'flex';
+            } else {
+                errEl.style.display = 'block';
+                setTimeout(() => { errEl.style.display = 'none'; }, 3000);
+            }
+        }
+
+        // Enter key support for login
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') checkLogin();
+        });
+
+        // --- BOOKMARKLET LOADER LOGIC ---
+        // Ganti URL di bawah ini dengan URL Raw GitHub kamu
+        const scripts = {
+            dashboard: 'https://raw.githubusercontent.com/USERNAME_KAMU/NAMA_REPO/main/dashboard.js',
+            scrapper: 'https://raw.githubusercontent.com/USERNAME_KAMU/NAMA_REPO/main/scrapper.js'
+        };
+
+        function copyScript(type) {
+            const url = scripts[type];
+            
+            // Jika URL belum diganti (masih pakai placeholder), blokir proses
+            if (url.includes('USERNAME_KAMU')) {
+                alert('HALT!\n\nSilakan edit file index.html dan ganti URL GitHub Raw terlebih dahulu.');
+                return;
+            }
+
+            // Format Loader Bookmarklet
+            const bookmarklet = `javascript:(async()=>{try{const r=await fetch('${url}',{cache:'no-cache'});if(!r.ok)throw new Error('HTTP '+r.status);const c=await r.text();eval(c);}catch(e){alert('Gagal memuat script dari GitHub. Cek koneksi atau URL GitHub Raw kamu.\\nError: '+e.message);}})();`;
+
+            // Copy ke clipboard
+            navigator.clipboard.writeText(bookmarklet).then(() => {
+                const btn = event.target;
+                const originalText = btn.innerText;
+                btn.innerText = '✓ TERSALIN! PASTE KE BOOKMARK';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.classList.remove('copied');
+                }, 3000);
+            }).catch(err => {
+                alert('Gagal menyalin. Pastikan browser mengizinkan clipboard.');
+            });
+        }
+    </script>
+</body>
+</html>
