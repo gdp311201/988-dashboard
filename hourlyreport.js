@@ -1,5 +1,5 @@
 (async () => {
-  const SCRAP_ID = 'cm-hourly-scrapper-v12';
+  const SCRAP_ID = 'cm-hourly-scrapper-v13';
   if (document.getElementById(SCRAP_ID)) { document.getElementById(SCRAP_ID).remove(); return; }
 
   // === AUTO DOMAIN & DOM SCRAPER (ZERO-CLICK UNIVERSAL) ===
@@ -167,8 +167,21 @@
 
     /* PREMIUM TABLE */
     .history-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-family: 'Space Grotesk', sans-serif; }
-    .history-table th { text-align: center; padding: 8px; font-size: 11px; font-weight: 600; color: #65676b; text-transform: uppercase; letter-spacing: 1px; }
-    #${SCRAP_ID}.dark .history-table th { color: #94a3b8; }
+    
+    /* FIX STICKY HEADER SAAT DI SCROLL */
+    .history-table th { 
+      text-align: center; padding: 12px 8px; font-size: 11px; font-weight: 600; color: #65676b; 
+      text-transform: uppercase; letter-spacing: 1px; 
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(248, 250, 252, 0.95);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    #${SCRAP_ID}.dark .history-table th { 
+      color: #e2e8f0; 
+      background: rgba(15, 23, 42, 0.95);
+    }
+    
     .history-table td { text-align: center; padding: 14px; font-size: 13px; font-weight: 500; border: none; }
     .history-table tr.row-filled td { background: rgba(255,255,255,0.6); }
     #${SCRAP_ID}.dark .history-table tr.row-filled td { background: rgba(255,255,255,0.05); }
