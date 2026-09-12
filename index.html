@@ -11,8 +11,8 @@
         
         body {
             min-height: 100vh;
-            /* Background Naga Aesthetic Dark Fantasy */
-            background: linear-gradient(rgba(5, 5, 10, 0.85), rgba(10, 5, 15, 0.9)), url('https://images.unsplash.com/photo-1604079628040-94301bb21b91?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            /* Background Naga Aesthetic - DIPERJELAS (Lebih Glassmorphism) */
+            background: linear-gradient(rgba(5, 5, 10, 0.55), rgba(10, 5, 15, 0.65)), url('https://images.unsplash.com/photo-1604079628040-94301bb21b91?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
             background-size: cover;
             color: #fff;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -22,62 +22,84 @@
         /* LOGIN SCREEN */
         .login-container { display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 2; }
         .login-box {
-            background: rgba(255, 255, 255, 0.04); 
-            backdrop-filter: blur(24px) saturate(180%); 
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
+            background: rgba(255, 255, 255, 0.08); 
+            backdrop-filter: blur(30px) saturate(180%); 
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12); 
             padding: 48px 40px; border-radius: 32px; 
-            box-shadow: 0 24px 64px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2);
             width: 380px; display: flex; flex-direction: column; gap: 18px;
         }
-        .login-logo { width: 90px; height: 90px; margin: 0 auto 15px; display: block; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.3)); }
+        .login-logo { width: 90px; height: 90px; margin: 0 auto 15px; display: block; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5)); }
         .login-title { text-align: center; font-family: 'Space Grotesk'; font-size: 22px; font-weight: 700; letter-spacing: 2px; margin-bottom: 15px; color: #ffffff; text-transform: uppercase; }
         .input-group { display: flex; flex-direction: column; gap: 8px; }
-        .input-label { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .input-label { font-size: 11px; font-weight: 600; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px; }
         .input-field { 
-            background: rgba(0,0,0,0.3); 
-            border: 1px solid rgba(255,255,255,0.08); 
+            background: rgba(0,0,0,0.4); 
+            border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 14px; padding: 16px; color: #fff; font-size: 15px; outline: none; transition: 0.3s; 
         }
-        .input-field:focus { border-color: rgba(251, 191, 36, 0.5); box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1); background: rgba(0,0,0,0.5); }
+        .input-field:focus { border-color: rgba(251, 191, 36, 0.6); box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.15); background: rgba(0,0,0,0.6); }
         .btn-login { 
             background: linear-gradient(135deg, rgba(251, 191, 36, 0.9), rgba(217, 119, 6, 0.9)); 
             color: #000; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; font-size: 15px; transition: 0.3s; margin-top: 15px; 
-            box-shadow: 0 8px 24px rgba(251, 191, 36, 0.2);
+            box-shadow: 0 8px 24px rgba(251, 191, 36, 0.3);
         }
-        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(251, 191, 36, 0.35); }
-        .error-msg { color: #ef4444; font-size: 13px; text-align: center; display: none; background: rgba(239, 68, 68, 0.1); padding: 8px; border-radius: 8px; }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(251, 191, 36, 0.45); }
+        .error-msg { color: #ef4444; font-size: 13px; text-align: center; display: none; background: rgba(239, 68, 68, 0.1); padding: 8px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2); }
 
         /* GALLERY SCREEN */
         .gallery-container { display: none; flex-direction: column; width: 100%; min-height: 100vh; padding: 60px 20px; z-index: 2; }
-        .gallery-header { text-align: center; margin-bottom: 50px; }
-        .gallery-logo { width: 70px; height: 70px; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.3)); }
+        .gallery-header { text-align: center; margin-bottom: 30px; }
+        .gallery-logo { width: 70px; height: 70px; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5)); }
         .gallery-title { display: inline-block; vertical-align: middle; font-family: 'Space Grotesk'; font-size: 38px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
-        .gallery-sub { color: #94a3b8; margin-top: 15px; font-size: 15px; letter-spacing: 1px; }
+        .gallery-sub { color: #cbd5e1; margin-top: 15px; font-size: 15px; letter-spacing: 1px; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; max-width: 1100px; margin: 0 auto; }
+        /* NAVIGATION HINT */
+        .nav-hint {
+            background: rgba(255, 255, 255, 0.08); 
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12); 
+            padding: 16px 24px; border-radius: 16px; 
+            margin: 0 auto 40px auto; max-width: 800px; width: 100%; 
+            text-align: center; font-size: 14px; color: #e2e8f0; line-height: 1.6;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
+        }
+        .nav-hint span { color: #fbbf24; font-weight: 700; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; max-width: 1100px; margin: 0 auto; width: 100%; }
+        
+        /* DRAGGABLE CARD */
+        .card-link { text-decoration: none; color: inherit; display: block; }
         .card {
-            background: rgba(255, 255, 255, 0.04); 
-            backdrop-filter: blur(20px) saturate(180%); 
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
+            background: rgba(255, 255, 255, 0.08); 
+            backdrop-filter: blur(24px) saturate(180%); 
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12); 
             border-radius: 24px; padding: 32px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15);
+            cursor: grab; /* Menandakan bisa di-drag */
         }
-        .card:hover { transform: translateY(-8px); border-color: rgba(251, 191, 36, 0.3); box-shadow: 0 24px 64px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2); }
-        .card-icon { width: 60px; height: 60px; margin-bottom: 24px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); }
+        .card:active { cursor: grabbing; }
+        .card:hover { transform: translateY(-8px) scale(1.02); border-color: rgba(251, 191, 36, 0.4); box-shadow: 0 24px 64px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.25); }
+        
+        .card-icon { font-size: 52px; margin-bottom: 20px; display: inline-block; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); }
         .card-title { font-size: 22px; font-weight: 800; margin-bottom: 12px; font-family: 'Space Grotesk'; letter-spacing: 1px; }
-        .card-desc { font-size: 14px; color: #94a3b8; margin-bottom: 28px; line-height: 1.6; }
+        .card-desc { font-size: 14px; color: #cbd5e1; margin-bottom: 28px; line-height: 1.6; }
+        
         .btn-copy { 
-            width: 100%; background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: 0.3s; 
+            display: block; width: 100%; text-align: center;
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px dashed rgba(255, 255, 255, 0.2); color: #fff; padding: 14px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: 0.3s; 
             font-size: 14px; letter-spacing: 1px; text-transform: uppercase;
+            text-decoration: none;
         }
-        .btn-copy:hover { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3); color: #fbbf24; }
-        .btn-copy.copied { background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); color: #4ade80; }
+        .btn-copy:hover { background: rgba(251, 191, 36, 0.15); border-color: rgba(251, 191, 36, 0.4); color: #fbbf24; }
+        .btn-copy.copied { background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.4); color: #4ade80; border-style: solid; }
 
-        .footer { text-align: center; margin-top: 60px; color: #64748b; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; }
+        .footer { text-align: center; margin-top: 60px; color: #94a3b8; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; padding-bottom: 40px; }
         .footer span { color: #fbbf24; font-weight: 700; }
+        .timestamp { font-variant-numeric: tabular-nums; margin-top: 8px; font-size: 12px; color: #64748b; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -113,32 +135,43 @@
             <div class="gallery-title">988 INFINI GALLERY</div>
             <div class="gallery-sub">Master Bookmarklet Loader for Panel Operations</div>
         </div>
+
+        <div class="nav-hint">
+            ℹ️ <span>Tarik (Drag)</span> tombol di bawah ini ke <span>Bookmark Bar</span> browser Anda, atau klik tombol untuk <span>Salin Manual</span>.<br>
+            <small style="opacity: 0.8;">Cache-buster otomatis aktif: <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">?t=Date.now()</code></small>
+        </div>
         
         <div class="grid">
             <!-- DASHBOARD CARD -->
             <div class="card">
-                <img src="https://i.ibb.co/Xk66G0bC/8-logo.png" class="card-icon">
+                <div class="card-icon">📊</div>
                 <div class="card-title">INFINI DASHBOARD</div>
                 <div class="card-desc">Universal Dashboard for Winlose, CB, QRIS, and Transactions. Zero-click auto-detect & Parallel Fetching included.</div>
-                <button class="btn-copy" onclick="copyScript('dashboard')">SALIN BOOKMARKLET</button>
+                <a href="#" id="drag-dashboard" class="btn-copy" draggable="true" onclick="copyScript('dashboard', event); return false;">
+                    📌 DRAG / SALIN MANUAL
+                </a>
             </div>
 
             <!-- SCRAPPER CARD -->
             <div class="card">
-                <img src="https://i.ibb.co/Xk66G0bC/8-logo.png" class="card-icon">
+                <div class="card-icon">⏰</div>
                 <div class="card-title">HOURLY REPORT</div>
                 <div class="card-desc">Auto-Run Hourly Report Scrapper. Premium UI, Auto-scrape every hour, and Push Now feature.</div>
-                <button class="btn-copy" onclick="copyScript('scrapper')">SALIN BOOKMARKLET</button>
+                <a href="#" id="drag-scrapper" class="btn-copy" draggable="true" onclick="copyScript('scrapper', event); return false;">
+                    📌 DRAG / SALIN MANUAL
+                </a>
             </div>
         </div>
 
-        <div class="footer">988 INFINI GALLERY · <span>© 2026</span> · ALL RIGHTS RESERVED</div>
+        <div class="footer">
+            988 INFINI GALLERY · <span>© 2026</span> · ALL RIGHTS RESERVED
+            <div class="timestamp" id="liveTimestamp">--</div>
+        </div>
     </div>
 
     <script>
         // --- LOGIN LOGIC ---
         function checkLogin() {
-            // Trim digunakan untuk menghapus spasi yang tidak sengaja ikut ter-copy
             const user = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
             const pin = document.getElementById('loginPin').value.trim();
@@ -147,39 +180,68 @@
             if (user === '988' && pass === '888888' && pin === '888888') {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('galleryScreen').style.display = 'flex';
+                initDragLinks(); // Init draggable links saat masuk gallery
             } else {
                 errEl.style.display = 'block';
                 setTimeout(() => { errEl.style.display = 'none'; }, 3000);
             }
         }
 
-        // Enter key support for login
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') checkLogin();
+            if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') {
+                checkLogin();
+            }
         });
 
+        // --- LIVE TIMESTAMP ---
+        function updateTimestamp() {
+            const now = new Date();
+            const options = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            const timeStr = now.toLocaleDateString('id-ID', options);
+            document.getElementById('liveTimestamp').innerText = timeStr + ' WIB';
+        }
+        setInterval(updateTimestamp, 1000);
+        updateTimestamp();
+
         // --- BOOKMARKLET LOADER LOGIC ---
-        // Ganti URL di bawah ini dengan URL Raw GitHub kamu
+        // GANTI URL INI DENGAN URL RAW GITHUB KAMU
         const scripts = {
             dashboard: 'https://raw.githubusercontent.com/USERNAME_KAMU/NAMA_REPO/main/dashboard.js',
             scrapper: 'https://raw.githubusercontent.com/USERNAME_KAMU/NAMA_REPO/main/scrapper.js'
         };
 
-        function copyScript(type) {
+        function buildBookmarklet(url) {
+            // Format Loader Bookmarklet dengan Cache-Buster (?t=Date.now())
+            return `javascript:(async()=>{try{const r=await fetch('${url}?t='+Date.now(),{cache:'no-cache'});if(!r.ok)throw new Error('HTTP '+r.status);const c=await r.text();eval(c);}catch(e){alert('Gagal memuat script dari GitHub. Cek koneksi atau URL.\\nError: '+e.message);}})();`;
+        }
+
+        // Inisialisasi HREF agar bisa di-Drag ke bookmark bar
+        function initDragLinks() {
+            const dashLink = document.getElementById('drag-dashboard');
+            const scrapLink = document.getElementById('drag-scrapper');
+
+            if (!scripts.dashboard.includes('USERNAME_KAMU')) {
+                dashLink.href = buildBookmarklet(scripts.dashboard);
+            }
+            if (!scripts.scrapper.includes('USERNAME_KAMU')) {
+                scrapLink.href = buildBookmarklet(scripts.scrapper);
+            }
+        }
+
+        // Fungsi Salin Manual
+        function copyScript(type, e) {
+            if(e) e.preventDefault();
             const url = scripts[type];
             
-            // Jika URL belum diganti (masih pakai placeholder), blokir proses
             if (url.includes('USERNAME_KAMU')) {
                 alert('HALT!\n\nSilakan edit file index.html dan ganti URL GitHub Raw terlebih dahulu.');
                 return;
             }
 
-            // Format Loader Bookmarklet
-            const bookmarklet = `javascript:(async()=>{try{const r=await fetch('${url}',{cache:'no-cache'});if(!r.ok)throw new Error('HTTP '+r.status);const c=await r.text();eval(c);}catch(e){alert('Gagal memuat script dari GitHub. Cek koneksi atau URL GitHub Raw kamu.\\nError: '+e.message);}})();`;
+            const bookmarklet = buildBookmarklet(url);
 
-            // Copy ke clipboard
             navigator.clipboard.writeText(bookmarklet).then(() => {
-                const btn = event.target;
+                const btn = e.target;
                 const originalText = btn.innerText;
                 btn.innerText = '✓ TERSALIN! PASTE KE BOOKMARK';
                 btn.classList.add('copied');
