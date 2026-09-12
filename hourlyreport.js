@@ -1,5 +1,5 @@
 (async () => {
-  const SCRAP_ID = 'cm-hourly-scrapper-v13';
+  const SCRAP_ID = 'cm-hourly-scrapper-v14';
   if (document.getElementById(SCRAP_ID)) { document.getElementById(SCRAP_ID).remove(); return; }
 
   // === AUTO DOMAIN & DOM SCRAPER (ZERO-CLICK UNIVERSAL) ===
@@ -55,7 +55,7 @@
     .scrap-header { padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
     #${SCRAP_ID}.dark .scrap-header { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
     .scrap-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
-    .scrap-logo span.icon { color: #fbbf24; text-shadow: 0 0 12px rgba(251,191,36,0.8); }
+    .scrap-logo img { width: 28px; height: 28px; filter: drop-shadow(0 0 8px rgba(251,191,36,0.6)); }
     
     /* SHIMMER / GLINT EFFECT UNTUK TEKS HOURLY REPORT */
     .shimmer-text {
@@ -168,18 +168,18 @@
     /* PREMIUM TABLE */
     .history-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-family: 'Space Grotesk', sans-serif; }
     
-    /* FIX STICKY HEADER SAAT DI SCROLL */
+    /* FIX STICKY HEADER SAAT DI SCROLL (TANPA BOCOR) */
     .history-table th { 
       text-align: center; padding: 12px 8px; font-size: 11px; font-weight: 600; color: #65676b; 
       text-transform: uppercase; letter-spacing: 1px; 
       position: sticky; top: 0; z-index: 10;
-      background: rgba(248, 250, 252, 0.95);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: #f8fafc; /* Solid background agar tidak tembus */
+      box-shadow: 0 -8px 0 0 #f8fafc; /* Menutup celah 8px di atas th */
     }
     #${SCRAP_ID}.dark .history-table th { 
       color: #e2e8f0; 
-      background: rgba(15, 23, 42, 0.95);
+      background: #0f172a; 
+      box-shadow: 0 -8px 0 0 #0f172a; 
     }
     
     .history-table td { text-align: center; padding: 14px; font-size: 13px; font-weight: 500; border: none; }
@@ -204,7 +204,7 @@
     <div class="scrap-modal">
       <div class="scrap-header">
         <div class="scrap-logo">
-          <span class="icon">⚡</span> 
+          <img src="https://i.ibb.co/Xk66G0bC/8-logo.png" alt="Logo">
           <span class="shimmer-text">HOURLY REPORT</span> 
           <div class="domain-badge">${currentDomain}</div>
         </div>
