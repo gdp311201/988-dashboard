@@ -14,8 +14,8 @@
         
         body {
             min-height: 100vh;
-            /* Background Naga Aesthetic dari ImgBB kamu - Diperjelas efek glassmorphismnya */
-            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.65)), url('https://i.ibb.co/5hzzshyq/b556e0540160527de7ecf287cfe593e1.jpg') no-repeat center center fixed;
+            /* Background Naga Baru - Diperjelas efek glassmorphismnya */
+            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.65)), url('https://i.ibb.co/4wmgVsYV/fb9f602efa6bf0c63d3e62e24fe4c877.jpg') no-repeat center center fixed;
             background-size: cover;
             color: #fff;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -33,7 +33,17 @@
             box-shadow: 0 24px 64px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2);
             width: 380px; display: flex; flex-direction: column; gap: 18px;
         }
-        .login-logo { width: 90px; height: 90px; margin: 0 auto 15px; display: block; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5)); }
+        
+        /* ANIMASI LOGO: FLOATING & GLOWING (BREATHING) */
+        .login-logo { width: 90px; height: 90px; margin: 0 auto 15px; display: block; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5)); animation: floatGlow 4s ease-in-out infinite; }
+        .gallery-logo { width: 60px; height: 60px; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5)); animation: floatGlow 4s ease-in-out infinite; animation-delay: 1s; }
+        
+        @keyframes floatGlow {
+            0% { transform: translateY(0px) scale(1); filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.4)); }
+            50% { transform: translateY(-8px) scale(1.05); filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.8)); }
+            100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.4)); }
+        }
+
         .login-title { text-align: center; font-family: 'Space Grotesk'; font-size: 22px; font-weight: 700; letter-spacing: 2px; margin-bottom: 15px; color: #ffffff; text-transform: uppercase; }
         .input-group { display: flex; flex-direction: column; gap: 8px; }
         .input-label { font-size: 11px; font-weight: 600; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px; }
@@ -54,7 +64,6 @@
         /* GALLERY SCREEN */
         .gallery-container { display: none; flex-direction: column; width: 100%; min-height: 100vh; padding: 60px 20px; z-index: 2; }
         .gallery-header { text-align: center; margin-bottom: 30px; }
-        .gallery-logo { width: 60px; height: 60px; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5)); }
         .gallery-title { display: inline-block; vertical-align: middle; font-family: 'Space Grotesk'; font-size: 32px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
         .gallery-sub { color: #cbd5e1; margin-top: 15px; font-size: 14px; letter-spacing: 1px; }
 
@@ -70,7 +79,7 @@
         }
         .nav-hint span { color: #fbbf24; font-weight: 700; }
 
-        /* GRID KARTU DIKECILKAN */
+        /* GRID KARTU */
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 700px; margin: 0 auto; width: 100%; }
         
         /* DRAGGABLE CARD */
