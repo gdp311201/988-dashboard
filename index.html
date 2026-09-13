@@ -19,21 +19,18 @@
             color: #fff;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             overflow-x: hidden;
-            /* Background Gradient Overlay Dasar */
-            background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.8));
+            background: radial-gradient(circle at 50% 30%, rgba(251, 191, 36, 0.15) 0%, transparent 70%), linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.8));
         }
 
-        /* BACKGROUND BLUR LAYER (Naga/Harimau) */
         body::before {
             content: '';
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url('https://i.ibb.co/4wmgVsYV/fb9f602efa6bf0c63d3e62e24fe4c877.jpg') no-repeat center center fixed;
             background-size: cover;
-            filter: blur(4px) brightness(0.7); /* Blur dinaikkan menjadi 4px */
+            filter: blur(4px) brightness(0.7);
             z-index: -2;
         }
 
-        /* EFEK CAHAYA SILUET BERGERAK (SPOTLIGHT GLOW) */
         body::after {
             content: '';
             position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
@@ -50,7 +47,6 @@
             100% { transform: translate(0%, 0%); }
         }
 
-        /* LOGIN SCREEN */
         .login-container { display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 2; width: 100%; }
         .login-box {
             background: rgba(255, 255, 255, 0.08); 
@@ -62,7 +58,6 @@
             width: 380px; max-width: 90vw; display: flex; flex-direction: column; gap: 18px;
         }
         
-        /* ANIMASI LOGO */
         .login-logo { width: 90px; height: 90px; margin: 0 auto 15px; display: block; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5)); animation: floatGlow 4s ease-in-out infinite; }
         .gallery-logo { width: 60px; height: 60px; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5)); animation: floatGlow 4s ease-in-out infinite; animation-delay: 1s; }
         
@@ -89,13 +84,11 @@
         .btn-login:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(251, 191, 36, 0.45); }
         .error-msg { color: #ef4444; font-size: 13px; text-align: center; display: none; background: rgba(239, 68, 68, 0.1); padding: 8px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2); }
 
-        /* GALLERY SCREEN */
         .gallery-container { display: none; flex-direction: column; width: 100%; min-height: 100vh; padding: 60px 20px; z-index: 2; }
         .gallery-header { text-align: center; margin-bottom: 30px; }
         .gallery-title { display: inline-block; vertical-align: middle; font-family: 'Space Grotesk'; font-size: 32px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
         .gallery-sub { color: #cbd5e1; margin-top: 15px; font-size: 14px; letter-spacing: 1px; }
 
-        /* NAVIGATION HINT */
         .nav-hint {
             background: rgba(255, 255, 255, 0.08); 
             backdrop-filter: blur(12px);
@@ -107,8 +100,7 @@
         }
         .nav-hint span { color: #fbbf24; font-weight: 700; }
 
-        /* GRID KARTU */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 700px; margin: 0 auto; width: 100%; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; width: 100%; }
         
         .card {
             background: rgba(255, 255, 255, 0.08); 
@@ -125,10 +117,8 @@
         .card-title { font-size: 18px; font-weight: 800; font-family: 'Space Grotesk'; letter-spacing: 1px; }
         .card-desc { font-size: 13px; color: #cbd5e1; margin-bottom: 24px; line-height: 1.6; }
         
-        /* SPLIT BUTTONS CONTAINER */
         .btn-group-card { display: flex; flex-direction: column; gap: 12px; }
         
-        /* DRAG BUTTON (Berisi Nama Lengkap agar terbawa saat drag) */
         .btn-drag { 
             text-align: center; cursor: grab; user-select: none;
             background: rgba(251, 191, 36, 0.1); border: 1px dashed rgba(251, 191, 36, 0.4);
@@ -139,7 +129,6 @@
         .btn-drag:hover { background: rgba(251, 191, 36, 0.2); border-style: solid; }
         .btn-drag:active { cursor: grabbing; }
 
-        /* COPY BUTTON */
         .btn-salin { 
             cursor: pointer; transition: 0.3s; 
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2);
@@ -148,7 +137,6 @@
         }
         .btn-salin:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.4); }
 
-        /* COPY BUTTON GLOWING NEON GREEN */
         .btn-salin.copied { 
             background: rgba(34, 197, 94, 0.15); 
             border: 1px solid rgba(74, 222, 128, 0.8); 
@@ -202,7 +190,7 @@
         </div>
         
         <div class="grid">
-            <!-- DASHBOARD CARD -->
+            <!-- CARD 1: DASHBOARD -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-icon">📊</div>
@@ -210,23 +198,34 @@
                 </div>
                 <div class="card-desc">Universal Dashboard for Winlose, CB, QRIS, and Transactions. Zero-click auto-detect & Parallel Fetching included.</div>
                 <div class="btn-group-card">
-                    <!-- Teks di dalam link ini akan menjadi NAMA BOOKMARK saat di drag -->
                     <a href="#" id="drag-dashboard" class="btn-drag" draggable="true" onclick="event.preventDefault();">📊 INFINI DASHBOARD</a>
                     <button class="btn-salin" onclick="copyScript('dashboard', event)">📋 SALIN MANUAL</button>
                 </div>
             </div>
 
-            <!-- SCRAPPER CARD -->
+            <!-- CARD 2: HOURLY REPORT -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-icon">⏰</div>
                     <div class="card-title">HOURLY REPORT</div>
                 </div>
-                <div class="card-desc">Auto-Run Hourly Report Scrapper. Premium UI, Auto-scrape every hour, and Push Now feature.</div>
+                <div class="card-desc">Auto-Run Hourly Report Scrapper. Premium UI, Auto-scrape every hour using Server Time Sync, and Push Now feature.</div>
                 <div class="btn-group-card">
-                    <!-- Teks di dalam link ini akan menjadi NAMA BOOKMARK saat di drag -->
                     <a href="#" id="drag-scrapper" class="btn-drag" draggable="true" onclick="event.preventDefault();">⏰ HOURLY REPORT</a>
                     <button class="btn-salin" onclick="copyScript('scrapper', event)">📋 SALIN MANUAL</button>
+                </div>
+            </div>
+
+            <!-- CARD 3: TRANSACTION MONITORING -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">📈</div>
+                    <div class="card-title">TRX MONITORING</div>
+                </div>
+                <div class="card-desc">Staff Performance Tracker. Monitor CS process delay, fastest/slowest handler, and transaction history analysis.</div>
+                <div class="btn-group-card">
+                    <a href="#" id="drag-monitoring" class="btn-drag" draggable="true" onclick="event.preventDefault();">📈 TRX MONITORING</a>
+                    <button class="btn-salin" onclick="copyScript('monitoring', event)">📋 SALIN MANUAL</button>
                 </div>
             </div>
         </div>
@@ -248,7 +247,7 @@
             if (user === '988' && pass === '888888' && pin === '888888') {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('galleryScreen').style.display = 'flex';
-                initDragLinks(); // Init draggable links saat masuk gallery
+                initDragLinks();
             } else {
                 errEl.style.display = 'block';
                 setTimeout(() => { errEl.style.display = 'none'; }, 3000);
@@ -274,18 +273,18 @@
         // --- BOOKMARKLET LOADER LOGIC ---
         const scripts = {
             dashboard: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/dashboard.js',
-            scrapper: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/hourlyreport.js'
+            scrapper: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/hourlyreport.js',
+            monitoring: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/transactionmonitoring.js'
         };
 
         function buildBookmarklet(url) {
-            // Format Loader Bookmarklet dengan Cache-Buster (?t=Date.now())
             return `javascript:(async()=>{try{const r=await fetch('${url}?t='+Date.now(),{cache:'no-cache'});if(!r.ok)throw new Error('HTTP '+r.status);const c=await r.text();eval(c);}catch(e){alert('Gagal memuat script dari GitHub. Cek koneksi atau URL.\\nError: '+e.message);}})();`;
         }
 
-        // Inisialisasi HREF agar bisa di-Drag ke bookmark bar
         function initDragLinks() {
             const dashLink = document.getElementById('drag-dashboard');
             const scrapLink = document.getElementById('drag-scrapper');
+            const monitorLink = document.getElementById('drag-monitoring');
 
             if (!scripts.dashboard.includes('USERNAME_KAMU')) {
                 dashLink.href = buildBookmarklet(scripts.dashboard);
@@ -293,9 +292,11 @@
             if (!scripts.scrapper.includes('USERNAME_KAMU')) {
                 scrapLink.href = buildBookmarklet(scripts.scrapper);
             }
+            if (!scripts.monitoring.includes('USERNAME_KAMU')) {
+                monitorLink.href = buildBookmarklet(scripts.monitoring);
+            }
         }
 
-        // Fungsi Salin Manual
         function copyScript(type, e) {
             const url = scripts[type];
             const bookmarklet = buildBookmarklet(url);
