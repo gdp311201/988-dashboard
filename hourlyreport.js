@@ -458,7 +458,8 @@
     if (resWL.data && resWL.data.length > 0) {
       resWL.data.forEach(item => {
         to += parseFloat(item.stake || 0) * 1000;
-        wl += (parseFloat(item.agWinlost || 0) - parseFloat(item.agCommGive || 0) + parseFloat(item.agBonus || 0)) * 1000;
+        // PERUBAHAN LOGIKA WL: Ambil langsung nilai agWinlost (AG WIN LOSE)
+        wl += parseFloat(item.agWinlost || 0) * 1000;
       });
     }
 
