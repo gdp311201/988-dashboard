@@ -9,6 +9,11 @@
   const currentDomain = window.location.hostname.replace('www.', '');
   const rawHTML = document.documentElement.outerHTML;
   
+  // === DETEKSI NAMA BRAND UNTUK HEADER TABEL ===
+  let _brandName = currentDomain;
+  if (currentDomain.includes('asia88cash.com')) _brandName = '988BET';
+  else if (currentDomain.includes('asia77cash.com')) _brandName = 'TITAN777';
+  
   // Cari ID User & Username langsung dari HTML Panel
   const idusMatch = rawHTML.match(/var\s+idus\s*=\s*"?(\d+)"?;/);
   const usernameMatch = rawHTML.match(/Username\s*:\s*([a-zA-Z0-9_@.-]+)/);
@@ -370,6 +375,11 @@
   const gsBtnClass = _gsConfig[curYM] ? 'cm-btn-grey' : 'cm-btn-red';
   const themeIcon = ui.classList.contains('dark') ? '☀️' : '🌙';
 
+  // Template Header Dinamis untuk Brand & Timestamp
+  const brandBadge = `<span style="color:#fbbf24; font-size:10px; border:1px solid rgba(251, 191, 36, 0.5); background:rgba(251, 191, 36, 0.15); padding:1px 6px; border-radius:4px; font-weight:800; text-transform:uppercase;">${_brandName}</span>`;
+  const tsHtml = `<div style="font-size:9px; color:var(--text-sub); font-weight:600;">Data pulled: <span class="cm-timestamp">-</span></div>`;
+  const headerWrap = (title) => `<div style="white-space:nowrap; display:flex; flex-direction:column; gap:2px;"><div style="display:flex; align-items:center; gap:8px;"><span>${title}</span>${brandBadge}</div>${tsHtml}</div>`;
+
   ui.innerHTML = `
     <div class="cm-bg-wrap">
       <div class="cm-blob b1"></div>
@@ -552,7 +562,7 @@
         <div class="cm-sec">
           <div class="cm-shead">
             <div class="cm-shead-left">
-              <div style="white-space:nowrap;">📋 REKAPITULASI TUNAI</div>
+              ${headerWrap('📋 REKAPITULASI TUNAI')}
               <div class="cm-filters" id="tunai-filters">
                 <select id="filter-tipe" class="cm-filter-sel">
                   <option value="">Semua Tipe</option>
@@ -641,7 +651,7 @@
             <div class="cm-player-grid">
               <div class="cm-sec">
                 <div class="cm-shead">
-                  <div style="white-space:nowrap;">🔴 TOP LOSERS (HOUSE SURPLUS)</div>
+                  ${headerWrap('🔴 TOP LOSERS (HOUSE SURPLUS)')}
                   <div style="font-size:10px; font-weight:700; color:var(--text-sub);">Diurutkan dari kalahan terbesar</div>
                 </div>
                 <div class="cm-tbl-area">
@@ -653,7 +663,7 @@
               </div>
               <div class="cm-sec">
                 <div class="cm-shead">
-                  <div style="white-space:nowrap;">🟢 TOP WINNERS (HOUSE DEFICIT)</div>
+                  ${headerWrap('🟢 TOP WINNERS (HOUSE DEFICIT)')}
                   <div style="font-size:10px; font-weight:700; color:var(--text-sub);">Diurutkan dari kemenangan terbesar</div>
                 </div>
                 <div class="cm-tbl-area">
@@ -680,7 +690,7 @@
         <div class="cm-sec">
           <div class="cm-shead">
             <div class="cm-shead-left">
-              <div style="white-space:nowrap;">💳 MUTASI CREDIT BALANCE</div>
+              ${headerWrap('💳 MUTASI CREDIT BALANCE')}
               <div class="cm-filters" id="cb-filters">
                 <select id="filter-module" class="cm-filter-sel">
                   <option value="">Semua Module</option>
@@ -741,7 +751,7 @@
         <div class="cm-sec">
           <div class="cm-shead">
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%; flex-wrap:wrap; gap:8px;">
-              <div style="white-space:nowrap;">💳 QRIS PAYMENT GATEWAY REPORT</div>
+              ${headerWrap('💳 QRIS PAYMENT GATEWAY REPORT')}
               <div class="cm-subtabs">
                 <button class="cm-subtab active" onclick="switchSubTab('qris-rekap')">REKAP SALDO</button>
                 <button class="cm-subtab" onclick="switchSubTab('qris-disburse')">DISBURSEMENT</button>
@@ -808,7 +818,7 @@
         </div>
         <div class="cm-sec">
           <div class="cm-shead">
-            <div style="white-space:nowrap;">🎮 WINLOSE PROVIDER REPORT</div>
+            ${headerWrap('🎮 WINLOSE PROVIDER REPORT')}
             <div class="cm-subtabs">
               <button class="cm-subtab active" onclick="switchSubTab('wl-rekap')">REKAP HARIAN</button>
               <button class="cm-subtab" onclick="switchSubTab('wl-daily')">WL PER HARI</button>
@@ -1990,6 +2000,17 @@
       if(loader) loader.style.display = 'none'; 
     }
   }
+
+  // --- WRAPPER AMAN UNTUK UPDATE TIMESTAMP TANPA MERUBAH FUNGSI ASLI ---
+  const originalLoadData = loadData;
+  loadData = async function() {
+      const res = await originalLoadData();
+      if (res) {
+          const ts = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+          document.querySelectorAll('.cm-timestamp').forEach(el => el.innerText = ts);
+      }
+      return res;
+  };
 
   document.getElementById('cm-load').onclick = loadData;
 
