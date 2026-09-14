@@ -1125,7 +1125,7 @@
   window.switchMainTab = (tab) => {
     document.querySelectorAll('.cm-sw-btn').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.cm-pane').forEach(e => e.classList.remove('active'));
-    let btn = Array.from(document.querySelectorAll('.cm-sw-btn')).find(b => b.textContent.includes(tab.toUpperCase()));
+    let btn = Array.from(document.querySelectorAll('.cm-sw-btn')).find(b => b.getAttribute('onclick') === `switchMainTab('${tab}')`);
     if(btn) btn.classList.add('active');
     if(tab === 'agent') { document.getElementById('pane-agent').classList.add('active'); setTimeout(renderAgentDashboard, 50); }
     else if(tab === 'tunai') { document.getElementById('pane-tunai').classList.add('active'); switchSubTab('tunai-rekap'); }
