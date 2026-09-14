@@ -104,6 +104,7 @@
     
     .cm-logo { font-size:14px; font-weight:900; letter-spacing:.5px; display:flex; align-items:center; gap:4px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
     .cm-logo span.zap { color:#fbbf24; text-shadow:0 0 10px rgba(251,191,36,0.8); }
+    .cm-logo img { height: 18px; width: auto; display: inline-block; vertical-align: middle; }
     .cm-shine-text { background: linear-gradient(90deg, #fff 0%, #b1b1b1 40%, #fff 50%, #b1b1b1 60%, #fff 100%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite; }
     @keyframes shine { to { background-position: 200% center; } }
     .cm-logo em { font-style:normal; color:#22c55e; }
@@ -156,7 +157,11 @@
     .cm-csub { font-size:9px; color:var(--text-sub); margin-top:4px; text-align:right; white-space:pre-line; font-weight:600; }
     
     .cm-fee-bar { margin-top:12px; background:var(--bg-card); backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); border:var(--glass-border); box-shadow: var(--glass-shadow); color:var(--text-main); padding:10px 16px; border-radius:12px; font-size:11px; display:flex; gap:20px; flex-wrap:wrap; }
-    .cm-fee-bar b { color:#fbbf24; }
+    .cm-fee-bar b { color:#2563eb; }
+    .dark .cm-fee-bar b { color:#93c5fd; }
+    
+    .cm-brand-badge { font-size:10px; border:1px solid rgba(59, 130, 246, 0.6); background:rgba(59, 130, 246, 0.2); color:#2563eb; padding:1px 6px; border-radius:4px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; }
+    .dark .cm-brand-badge { border-color: rgba(96, 165, 250, 0.6); background: rgba(59, 130, 246, 0.3); color:#93c5fd; }
     
     .cm-main-switcher { display:flex; gap:8px; justify-content:center; padding:0 0 16px 0; flex-wrap: wrap; }
     .cm-sw-btn { padding:10px 20px; border-radius:12px; border:var(--glass-border); background:var(--bg-card); backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); color:var(--text-sub); font-weight:800; font-size:12px; cursor:pointer; transition: all 0.3s ease; flex:1; max-width:250px; text-align:center; box-shadow: var(--glass-shadow); }
@@ -376,7 +381,7 @@
   const themeIcon = ui.classList.contains('dark') ? '☀️' : '🌙';
 
   // Template Header Dinamis untuk Brand & Timestamp
-  const brandBadge = `<span style="color:#fbbf24; font-size:10px; border:1px solid rgba(251, 191, 36, 0.5); background:rgba(251, 191, 36, 0.15); padding:1px 6px; border-radius:4px; font-weight:800; text-transform:uppercase;">${_brandName}</span>`;
+  const brandBadge = `<span class="cm-brand-badge">${_brandName}</span>`;
   const tsHtml = `<div style="font-size:9px; color:var(--text-sub); font-weight:600;">Data pulled: <span class="cm-timestamp">-</span></div>`;
   const headerWrap = (title) => `<div style="white-space:nowrap; display:flex; flex-direction:column; gap:2px;"><div style="display:flex; align-items:center; gap:8px;"><span>${title}</span>${brandBadge}</div>${tsHtml}</div>`;
 
@@ -407,7 +412,7 @@
 
     <div class="cm-top">
       <div class="cm-logo">
-        <span class="zap">⚡</span>
+        <img src="https://i.ibb.co/Xk66G0bC/8-logo.png" alt="8 logo" border="0">
         <span class="cm-shine-text">CASH MARKET</span>
         <em>UNIVERSAL</em>
       </div>
