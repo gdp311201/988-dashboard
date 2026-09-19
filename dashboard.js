@@ -1495,8 +1495,28 @@
         try { let page = 1; while(true) { let payloadDis = { page: page, limit: 100, startDate: startVal, endDate: endVal, st: "10", pygtcd: q }; let resDis = await fetch('/virtualacc/disbursement/trx/history/list', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadDis) }); if (resDis.ok) { let jsonDis = await resDis.json(); let disData = jsonDis.disbtrxls || []; if(disData.length === 0) break; disData.forEach(item => { let bankName = item.companyBankVa?.masterBank?.name || '-'; _qrisDisburse.push({ time: item.doneTime, qris: q, bank: `${bankName} - ${item.accountName} (${item.accountNo})`, amount: parseFloat(item.amount || 0) * 1000, fee: parseFloat(item.fee || 0) * 1000, status: 'DONE' }); }); page++; if (page > 100) break; } else { break; } } } catch (e) { console.error(`Error Disbursement Trx ${q}:`, e); }
         try { let page = 1; while(true) { let payloadTp = { pgCode: q, startDate: startVal, endDate: endVal, page: page, limit: 100, agentId: window._cmIds.agentId }; let resTp = await fetch('/autowd/topup/history/list', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadTp) }); if (resTp.ok) { let jsonTp = await resTp.json(); let tpData = jsonTp.data?.topupCreditBalanceHistoryLists || []; if(tpData.length === 0) break; tpData.forEach(item => { if (item.moduleInfo.includes('Send balance')) { _qrisTopup.push({ time: item.entryTime, qris: q, prev: parseFloat(item.startAmount || 0) * 1000, amount: parseFloat(item.updateAmount || 0) * 1000, curr: parseFloat(item.endAmount || 0) * 1000, status: 'SETTLED' }); } }); page++; if (page > 100) break; } else { break; } } } catch (e) { console.error(`Error Topup Trx ${q}:`, e); }
     }
-    _qrisDisburse.sort((a, b) => parseTrxTime(a.time) - parseTrxTime(b.time));
-    _qrisTopup.sort((a, b) => parseTrxTime(a.time) - parseTrxTime(b.time));
+
+    // PERBAIKAN SORT V2: Parser tanggal super kebal terhadap format YYYY-MM-DD, DD-MM-YYYY, pemisah slash (/), atau titik (.)
+    const _qSortTime = (s) => { 
+      if (!s || s === '-') return 0; 
+      if (typeof s === 'number') return s; 
+      const cleanStr = String(s).replace(/[\/.]/g, '-').replace('T', ' '); 
+      const p = cleanStr.split(' '); 
+      const d = p[0].split('-'); 
+      const t = p[1] || '00:00:00'; 
+      if (d.length < 3) return 0; 
+      let dateObj; 
+      if (d[0].length === 4) { 
+        dateObj = new Date(`${d[0]}-${d[1]}-${d[2]}T${t}`); 
+      } else { 
+        dateObj = new Date(`${d[2]}-${d[1]}-${d[0]}T${t}`); 
+      } 
+      const tStamp = dateObj.getTime(); 
+      return isNaN(tStamp) ? 0 : tStamp; 
+    };
+    _qrisDisburse.sort((a, b) => _qSortTime(a.time) - _qSortTime(b.time));
+    _qrisTopup.sort((a, b) => _qSortTime(a.time) - _qSortTime(b.time));
+    
     renderQrisRekap(); renderQrisDisburse(); renderQrisTopup();
   }
 
