@@ -18,6 +18,16 @@
       localStorage.setItem('cm-scrap-usernameBr_' + currentDomain, usernameMatch[1]); 
   }
 
+  // === DETEKSI NAMA BRAND UNTUK HEADER TABEL (Berdasarkan Suffix Username / wlhun) ===
+  let _brandName = currentDomain; // Default fallback jika gagal
+  const _extractedUser = usernameMatch ? usernameMatch[1] : '';
+  if (_extractedUser && _extractedUser.includes('@')) {
+    let rawBrand = _extractedUser.split('@')[1].toLowerCase();
+    if (rawBrand === 'xbets988') _brandName = '988BET';
+    else if (rawBrand === 'wttan777') _brandName = 'TITAN777';
+    else _brandName = _extractedUser.split('@')[1].toUpperCase();
+  }
+
   // === SERVER TIME SYNC LOGIC ===
   let _serverTimeOffset = 0; // Selisih antara waktu server dan waktu lokal (ms)
   
@@ -236,7 +246,7 @@
         <div class="scrap-logo">
           <img src="https://i.ibb.co/Xk66G0bC/8-logo.png" alt="Logo">
           <span class="shimmer-text">HOURLY REPORT</span> 
-          <div class="domain-badge">${currentDomain}</div>
+          <div class="domain-badge">${_brandName}</div>
         </div>
         <div class="scrap-tabs">
           <button class="scrap-tab-btn active" onclick="switchTab('home')">HOME</button>
