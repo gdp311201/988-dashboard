@@ -26,8 +26,17 @@
     usnm: usernameMatch ? usernameMatch[1] : 'billybet@xbets988'
   };
 
-  // === DYNAMIC QRIS FEE RATES ===
+  // === DYNAMIC QRIS FEE RATES (DEPOSIT) ===
   let _qrisFeeRates = { OPA: 0.011, OPT: 0.01, OPZ: 0.01, GPP: 0.011, PEN: 0.011 };
+
+  // === SMART ADAPTIVE WD FEE CONFIG (WITHDRAW) ===
+  // Default nilai awal sesuai permintaan
+  let _wdFeeConfig = { OPA: 3500, OPT: 3500, OPZ: 3500, GPP: 3500, PEN: 1500 };
+  // Cek localStorage, jika ada update timpa nilai default
+  let savedWdFees = JSON.parse(localStorage.getItem('cm-wd-fee-config') || '{}');
+  if (Object.keys(savedWdFees).length > 0) {
+    _wdFeeConfig = Object.assign(_wdFeeConfig, savedWdFees);
+  }
 
   // ── STYLE ──────────────────────────────────────────────────────────────────
   const st = document.createElement('style');
@@ -321,6 +330,10 @@
     .gs-url-inp { width: 100%; height: 30px; padding: 0 8px; border: 1px solid var(--tbl-border); border-radius: 4px; font-size: 10px; background: rgba(255,255,255,0.9); color: #000; outline: none; }
     .dark .gs-url-inp { background: rgba(15, 23, 42, 0.8); color: #fff; }
     
+    /* SETTING MODAL TABS */
+    .gs-modal .cm-subtabs { margin-bottom: 16px; }
+    .gs-modal .cm-subpane { overflow: hidden; }
+
     /* CUSTOM SAVE ICON BUTTON (GLASSMORPHISM) */
     .gs-save-btn { 
       width: 32px; height: 28px; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.4); 
@@ -374,10 +387,6 @@
   let _gsConfig = JSON.parse(localStorage.getItem('cm-gs-config') || '{}');
   let _gsPanel = localStorage.getItem('cm-gs-panel') || '';
   
-  const curDate = new Date();
-  const curYM = `${curDate.getFullYear()}-${String(curDate.getMonth() + 1).padStart(2, '0')}`;
-  const gsBtnTxt = _gsConfig[curYM] ? '⚙️ SETTING & URL' : '⚠️ SET URL BULAN INI';
-  const gsBtnClass = _gsConfig[curYM] ? 'cm-btn-grey' : 'cm-btn-red';
   const themeIcon = ui.classList.contains('dark') ? '☀️' : '🌙';
 
   // Template Header Dinamis untuk Brand & Timestamp
@@ -444,7 +453,7 @@
       </div>
       
       <div class="cm-tabs-right">
-        <button class="cm-btn-glass ${gsBtnClass}" id="btn-open-gs-modal" onclick="openGSModal()">${gsBtnTxt}</button>
+        <button class="cm-btn-glass cm-btn-grey" id="btn-open-gs-modal" onclick="openGSModal()">⚙️ SETTING</button>
         <button class="cm-btn-glass cm-btn-green" onclick="exportToSheet(false)">EXPORT</button>
         <button class="cm-theme-btn" onclick="toggleTheme()">${themeIcon}</button>
         <button class="cm-btn-glass cm-btn-red" onclick="document.getElementById('${ID}').remove()">EXIT</button>
@@ -939,36 +948,76 @@
 
     <div class="gs-modal-bg" id="gs-modal-bg" onclick="if(event.target===this)closeGSModal()">
       <div class="gs-modal">
-        <h3>🔗 Setup URL Google Sheets per Bulan</h3>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:12px; flex-wrap:wrap;">
-          <p style="margin:0;">Pilih tahun untuk filter list bulan:</p>
-          <select id="gs-year-sel" class="cm-auto-sel" style="height:32px; min-width:100px;" onchange="renderGSTable()">
-            <option value="ALL">ALL</option>
-            <option value="2026">2026</option>
-            <option value="2027">2027</option>
-            <option value="2028">2028</option>
-          </select>
+        <div class="cm-subtabs">
+          <button class="cm-subtab active" onclick="switchSettingTab('url')">🔗 URL GOOGLE SHEETS</button>
+          <button class="cm-subtab" onclick="switchSettingTab('fee')">💸 FEE WD QRIS</button>
         </div>
-        
-        <div class="gs-table-wrap">
-          <table class="cm-tbl" style="width:100%; border-collapse:collapse; font-size:11px;">
-            <thead>
-              <tr>
-                <th style="width:25%; text-align:left; padding:8px;">Bulan</th>
-                <th style="text-align:left; padding:8px;">Link URL GAS Web App</th>
-                <th style="width:60px; text-align:center; padding:8px;">Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="gs-table-body"></tbody>
-          </table>
+
+        <div id="setting-pane-url" class="cm-subpane active" style="display:flex; flex-direction:column; gap:0; overflow:hidden;">
+          <h3>🔗 Setup URL Google Sheets per Bulan</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:12px; flex-wrap:wrap;">
+            <p style="margin:0;">Pilih tahun untuk filter list bulan:</p>
+            <select id="gs-year-sel" class="cm-auto-sel" style="height:32px; min-width:100px;" onchange="renderGSTable()">
+              <option value="ALL">ALL</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+            </select>
+          </div>
+          
+          <div class="gs-table-wrap">
+            <table class="cm-tbl" style="width:100%; border-collapse:collapse; font-size:11px;">
+              <thead>
+                <tr>
+                  <th style="width:25%; text-align:left; padding:8px;">Bulan</th>
+                  <th style="text-align:left; padding:8px;">Link URL GAS Web App</th>
+                  <th style="width:60px; text-align:center; padding:8px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="gs-table-body"></tbody>
+            </table>
+          </div>
+          
+          <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--tbl-border);">
+            <p style="margin:0 0 4px;">Nama Panel / Operator (untuk log history):</p>
+            <input class="gs-inp" id="gs-panel-inp" placeholder="Contoh: Budi / Sinta / dll" value="${_gsPanel}" style="font-family:sans-serif;">
+            <div class="gs-btns">
+              <button class="cm-btn-glass cm-btn-red" onclick="closeGSModal()">Tutup</button>
+              <button class="cm-btn-glass cm-btn-green" onclick="saveGSPanel(this)">Simpan Panel</button>
+            </div>
+          </div>
         </div>
-        
-        <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--tbl-border);">
-          <p style="margin:0 0 4px;">Nama Panel / Operator (untuk log history):</p>
-          <input class="gs-inp" id="gs-panel-inp" placeholder="Contoh: Budi / Sinta / dll" value="${_gsPanel}" style="font-family:sans-serif;">
-          <div class="gs-btns">
+
+        <div id="setting-pane-fee" class="cm-subpane" style="display:none; flex-direction:column; gap:12px;">
+          <h3>💸 Setup Fee Auto Withdraw QRIS</h3>
+          <p style="margin:0; color:var(--text-sub); font-size:11px;">Masukkan nominal fee flat per transaksi Auto WD. Klik Simpan Fee, lalu klik TARIK DATA untuk memperbarui perhitungan.</p>
+          
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS OPA (Flat)</label>
+              <input type="number" class="gs-inp" id="wd-fee-OPA" value="${_wdFeeConfig.OPA}" style="font-family:sans-serif;">
+            </div>
+            <div>
+              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS OPT (Flat)</label>
+              <input type="number" class="gs-inp" id="wd-fee-OPT" value="${_wdFeeConfig.OPT}" style="font-family:sans-serif;">
+            </div>
+            <div>
+              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS OPZ (Flat)</label>
+              <input type="number" class="gs-inp" id="wd-fee-OPZ" value="${_wdFeeConfig.OPZ}" style="font-family:sans-serif;">
+            </div>
+            <div>
+              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS GPP (Flat)</label>
+              <input type="number" class="gs-inp" id="wd-fee-GPP" value="${_wdFeeConfig.GPP}" style="font-family:sans-serif;">
+            </div>
+            <div>
+              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS PEN (Flat)</label>
+              <input type="number" class="gs-inp" id="wd-fee-PEN" value="${_wdFeeConfig.PEN}" style="font-family:sans-serif;">
+            </div>
+          </div>
+
+          <div class="gs-btns" style="margin-top:8px;">
             <button class="cm-btn-glass cm-btn-red" onclick="closeGSModal()">Tutup</button>
-            <button class="cm-btn-glass cm-btn-green" onclick="saveGSPanel(this)">Simpan Panel</button>
+            <button class="cm-btn-glass cm-btn-green" onclick="saveWdFees(this)">Simpan Fee WD</button>
           </div>
         </div>
       </div>
@@ -1147,22 +1196,20 @@
     if(qrisTpFilters) qrisTpFilters.style.display = (sub === 'qris-topup') ? 'flex' : 'none';
   };
 
-  // --- FUNGSI SETTING & URL GAS BULANAN ---
-  function updateGSButton() {
-    const curD = new Date();
-    const cYM = `${curD.getFullYear()}-${String(curD.getMonth() + 1).padStart(2, '0')}`;
-    const btn = document.getElementById('btn-open-gs-modal');
-    if (_gsConfig[cYM]) {
-      btn.innerText = '⚙️ SETTING & URL';
-      btn.classList.remove('cm-btn-red');
-      btn.classList.add('cm-btn-grey');
-    } else {
-      btn.innerText = '⚠️ SET URL BULAN INI';
-      btn.classList.remove('cm-btn-grey');
-      btn.classList.add('cm-btn-red');
+  // --- FUNGSI SETTING TABS SWITCHER ---
+  window.switchSettingTab = (tab) => {
+    document.querySelectorAll('.gs-modal .cm-subtab').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.gs-modal .cm-subpane').forEach(e => { e.classList.remove('active'); e.style.display = 'none'; });
+    let btn = document.querySelector(`.gs-modal .cm-subtab[onclick="switchSettingTab('${tab}')"]`);
+    let pane = document.getElementById(`setting-pane-${tab}`);
+    if(btn && pane) { 
+      btn.classList.add('active'); 
+      pane.classList.add('active'); 
+      pane.style.display = 'flex'; 
     }
-  }
+  };
 
+  // --- FUNGSI SETTING & URL GAS BULANAN ---
   window.openGSModal = () => {
     document.getElementById('gs-panel-inp').value = _gsPanel;
     renderGSTable();
@@ -1208,7 +1255,6 @@
         localStorage.setItem('cm-gs-config', JSON.stringify(_gsConfig));
         await showAlert('URL untuk bulan ini telah dihapus.', 'Informasi', 'success');
         renderGSTable();
-        updateGSButton();
       }
       return;
     }
@@ -1248,7 +1294,6 @@
     }, 1500);
     
     renderGSTable();
-    updateGSButton();
   };
 
   window.saveGSPanel = (btn) => { 
@@ -1257,6 +1302,19 @@
     const originalText = btn.innerText; 
     btn.innerText = '✓ Tersimpan!'; 
     setTimeout(() => { btn.innerText = originalText; }, 1500); 
+  };
+
+  // --- FUNGSI SIMPAN FEE WD QRIS ---
+  window.saveWdFees = async (btn) => {
+    ['OPA', 'OPT', 'OPZ', 'GPP', 'PEN'].forEach(q => {
+      let val = parseInt(document.getElementById(`wd-fee-${q}`).value) || 0;
+      _wdFeeConfig[q] = val;
+    });
+    localStorage.setItem('cm-wd-fee-config', JSON.stringify(_wdFeeConfig));
+    const originalText = btn.innerText; 
+    btn.innerText = '✓ Tersimpan!'; 
+    setTimeout(() => { btn.innerText = originalText; }, 1500);
+    await showAlert('Konfigurasi Fee WD QRIS berhasil disimpan!<br>Silakan klik <b>TARIK DATA</b> ulang untuk memperbarui perhitungan tabel.', 'Sukses', 'success');
   };
 
   window.toggleAuto = async () => { 
@@ -1310,7 +1368,7 @@
     
     if (!targetUrl) {
       const [y, m] = targetYM.split('-');
-      await showAlert(`URL Google Sheets untuk bulan ${monthLongNames[parseInt(m)-1]} ${y} belum di-setup.<br>Silakan klik tombol ⚙️ SETTING & URL untuk menempel link.`, 'URL Belum Diset', 'error');
+      await showAlert(`URL Google Sheets untuk bulan ${monthLongNames[parseInt(m)-1]} ${y} belum di-setup.<br>Silakan klik tombol ⚙️ SETTING untuk menempel link.`, 'URL Belum Diset', 'error');
       return;
     }
     
@@ -1418,7 +1476,7 @@
     } 
   };
 
-  // === DYNAMIC FETCH QRIS FEE RATES ===
+  // === DYNAMIC FETCH QRIS FEE RATES (DEPOSIT) ===
   async function fetchQrisFeeRates() {
     document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading QRIS Fee Rates...</b>`;
     const qrisAccounts = ['OPA', 'OPT', 'OPZ', 'GPP', 'PEN'];
@@ -1943,7 +2001,8 @@
       listWd.forEach(item => { 
         let nominal = parseFloat(item.amt) * 1000; let isAutoWd = item.trxNote && item.trxNote.includes('AutoWD'); 
         let wdType = isAutoWd ? (item.trxNote.match(/AutoWD\s*\[(.*?)\]/)?.[1] || 'AutoWD').toUpperCase() : null; 
-        let fee = isAutoWd ? 3500 : 0; let nett = nominal + fee; totalWdGross += nominal; totalWdFee += fee; 
+        // SMART ADAPTIVE FEE WD CONFIG
+        let fee = isAutoWd ? (_wdFeeConfig[wdType] || 0) : 0; let nett = nominal + fee; totalWdGross += nominal; totalWdFee += fee; 
         let rawDay = item.prctm.split(' ')[0]; let day = toDDMM_ymd(rawDay); 
         if(!_dailyTunai[day]) _dailyTunai[day] = initDayObj(); let d = _dailyTunai[day]; 
         d.wd.totalGross += nominal; d.wd.totalTkt++; totTunai.wd.totalGross += nominal; totTunai.wd.totalTkt++; 
