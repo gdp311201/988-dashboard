@@ -9,11 +9,6 @@
   const currentDomain = window.location.hostname.replace('www.', '');
   const rawHTML = document.documentElement.outerHTML;
   
-  // === DETEKSI NAMA BRAND UNTUK HEADER TABEL ===
-  let _brandName = currentDomain;
-  if (currentDomain.includes('asia88cash.com')) _brandName = '988BET';
-  else if (currentDomain.includes('asia77cash.com')) _brandName = 'TITAN777';
-  
   // Cari ID User & Username langsung dari HTML Panel
   const idusMatch = rawHTML.match(/var\s+idus\s*=\s*"?(\d+)"?;/);
   const usernameMatch = rawHTML.match(/Username\s*:\s*([a-zA-Z0-9_@.-]+)/);
@@ -25,6 +20,16 @@
     idus: idusMatch ? idusMatch[1] : 233598653,
     usnm: usernameMatch ? usernameMatch[1] : 'billybet@xbets988'
   };
+
+  // === DETEKSI NAMA BRAND UNTUK HEADER TABEL (Berdasarkan Suffix Username) ===
+  let _brandName = currentDomain; // Default fallback jika gagal
+  const _extractedUser = usernameMatch ? usernameMatch[1] : '';
+  if (_extractedUser && _extractedUser.includes('@')) {
+    let rawBrand = _extractedUser.split('@')[1].toLowerCase();
+    if (rawBrand === 'xbets988') _brandName = '988BET';
+    else if (rawBrand === 'wttan777') _brandName = 'TITAN777';
+    else _brandName = _extractedUser.split('@')[1].toUpperCase();
+  }
 
   // === DYNAMIC QRIS FEE RATES (DEPOSIT) ===
   let _qrisFeeRates = { OPA: 0.011, OPT: 0.01, OPZ: 0.01, GPP: 0.011, PEN: 0.011 };
