@@ -15,6 +15,16 @@ javascript:(async () => {
   const idusBr = localStorage.getItem('cm-scrap-idus_' + currentDomain);
   const usernameBr = localStorage.getItem('cm-scrap-usnm_' + currentDomain);
 
+  // === DETEKSI NAMA BRAND UNTUK HEADER (Berdasarkan Suffix Username / wlhun) ===
+  let _brandName = currentDomain; // Default fallback jika gagal
+  const _extractedUser = usernameMatch ? usernameMatch[1] : '';
+  if (_extractedUser && _extractedUser.includes('@')) {
+    let rawBrand = _extractedUser.split('@')[1].toLowerCase();
+    if (rawBrand === 'xbets988') _brandName = '988BET';
+    else if (rawBrand === 'wttan777') _brandName = 'TITAN777';
+    else _brandName = _extractedUser.split('@')[1].toUpperCase();
+  }
+
   // === 2. PREMIUM GLASSMORPHISM STYLES ===
   const st = document.createElement('style');
   st.textContent = `
@@ -142,7 +152,7 @@ javascript:(async () => {
         <div class="spa-title">
           <span class="spa-logo"><img src="https://i.ibb.co/Xk66G0bC/8-logo.png" alt="8 logo" border="0"></span>
           <span class="shimmer-text">TRANSACTION MONITORING</span> 
-          <span class="spa-badge">${currentDomain}</span>
+          <span class="spa-badge">${_brandName}</span>
         </div>
         <div class="spa-actions">
           <button class="spa-btn-icon" id="spa-theme-toggle">${themeIcon}</button>
