@@ -620,22 +620,22 @@
                 <thead>
                   <tr>
                     <th rowspan="2">TANGGAL</th>
-                    <th colspan="2" class="bg-baby-blue">QRIS OPA (DEPO)</th>
-                    <th colspan="2" class="bg-baby-blue">QRIS OPT (DEPO)</th>
-                    <th colspan="2" class="bg-baby-blue">QRIS OPZ (DEPO)</th>
-                    <th colspan="2" class="bg-baby-blue">QRIS GPP (DEPO)</th>
-                    <th colspan="2" class="bg-baby-blue">QRIS PEN (DEPO)</th>
+                    <th colspan="3" class="bg-baby-blue">QRIS OPA (DEPO)</th>
+                    <th colspan="3" class="bg-baby-blue">QRIS OPT (DEPO)</th>
+                    <th colspan="3" class="bg-baby-blue">QRIS OPZ (DEPO)</th>
+                    <th colspan="3" class="bg-baby-blue">QRIS GPP (DEPO)</th>
+                    <th colspan="3" class="bg-baby-blue">QRIS PEN (DEPO)</th>
                     <th rowspan="2" class="bg-lavender">TOTAL DP QR KOTOR</th>
                     <th rowspan="2" class="bg-cream">TOTAL DP QR BERSIH</th>
                     <th colspan="2" class="bg-mint">DP NON QR</th>
                     <th rowspan="2" class="bg-grey">TOTAL TK DEPO</th>
                     <th rowspan="2" class="bg-sage">TOTAL DEPO ALL</th>
                     
-                    <th colspan="2" class="bg-butter-yellow">QRIS OPA (WD)</th>
-                    <th colspan="2" class="bg-butter-yellow">QRIS OPT (WD)</th>
-                    <th colspan="2" class="bg-butter-yellow">QRIS OPZ (WD)</th>
-                    <th colspan="2" class="bg-butter-yellow">QRIS GPP (WD)</th>
-                    <th colspan="2" class="bg-butter-yellow">QRIS PEN (WD)</th>
+                    <th colspan="3" class="bg-butter-yellow">QRIS OPA (WD)</th>
+                    <th colspan="3" class="bg-butter-yellow">QRIS OPT (WD)</th>
+                    <th colspan="3" class="bg-butter-yellow">QRIS OPZ (WD)</th>
+                    <th colspan="3" class="bg-butter-yellow">QRIS GPP (WD)</th>
+                    <th colspan="3" class="bg-butter-yellow">QRIS PEN (WD)</th>
                     <th rowspan="2" class="bg-lavender">TOTAL WD QR KOTOR</th>
                     <th rowspan="2" class="bg-cream">TOTAL WD QR BERSIH</th>
                     <th colspan="2" class="bg-mint">WD NON QR</th>
@@ -647,22 +647,22 @@
                     <th rowspan="2" class="bg-mint">PROFIT BERSIH</th>
                   </tr>
                   <tr>
-                    <th class="bg-baby-blue">TK</th><th class="bg-baby-blue">NOMINAL</th>
-                    <th class="bg-baby-blue">TK</th><th class="bg-baby-blue">NOMINAL</th>
-                    <th class="bg-baby-blue">TK</th><th class="bg-baby-blue">NOMINAL</th>
-                    <th class="bg-baby-blue">TK</th><th class="bg-baby-blue">NOMINAL</th>
-                    <th class="bg-baby-blue">TK</th><th class="bg-baby-blue">NOMINAL</th>
+                    <th class="bg-baby-blue">TK</th><th class="bg-baby-blue">NOMINAL</th><th class="bg-baby-blue">FEE</th>
+                    <th class="bg-baby-blue">TK</th><th class="bg-baby-blue">NOMINAL</th><th class="bg-baby-blue">FEE</th>
+                    <th class="bg-baby-blue">TK</th><th class="bg-baby-blue">NOMINAL</th><th class="bg-baby-blue">FEE</th>
+                    <th class="bg-baby-blue">TK</th><th class="bg-baby-blue">NOMINAL</th><th class="bg-baby-blue">FEE</th>
+                    <th class="bg-baby-blue">TK</th><th class="bg-baby-blue">NOMINAL</th><th class="bg-baby-blue">FEE</th>
                     <th class="bg-mint">TK</th><th class="bg-mint">NOMINAL</th>
                     
-                    <th class="bg-butter-yellow">TK</th><th class="bg-butter-yellow">NOMINAL</th>
-                    <th class="bg-butter-yellow">TK</th><th class="bg-butter-yellow">NOMINAL</th>
-                    <th class="bg-butter-yellow">TK</th><th class="bg-butter-yellow">NOMINAL</th>
-                    <th class="bg-butter-yellow">TK</th><th class="bg-butter-yellow">NOMINAL</th>
-                    <th class="bg-butter-yellow">TK</th><th class="bg-butter-yellow">NOMINAL</th>
+                    <th class="bg-butter-yellow">TK</th><th class="bg-butter-yellow">NOMINAL</th><th class="bg-butter-yellow">FEE</th>
+                    <th class="bg-butter-yellow">TK</th><th class="bg-butter-yellow">NOMINAL</th><th class="bg-butter-yellow">FEE</th>
+                    <th class="bg-butter-yellow">TK</th><th class="bg-butter-yellow">NOMINAL</th><th class="bg-butter-yellow">FEE</th>
+                    <th class="bg-butter-yellow">TK</th><th class="bg-butter-yellow">NOMINAL</th><th class="bg-butter-yellow">FEE</th>
+                    <th class="bg-butter-yellow">TK</th><th class="bg-butter-yellow">NOMINAL</th><th class="bg-butter-yellow">FEE</th>
                     <th class="bg-mint">TK</th><th class="bg-mint">NOMINAL</th>
                   </tr>
                 </thead>
-                <tbody id="cm-table-tunai-rekap"><tr><td colspan="36" style="text-align:center; color:#aaa; padding:20px;">Data belum dimuat.</td></tr></tbody>
+                <tbody id="cm-table-tunai-rekap"><tr><td colspan="46" style="text-align:center; color:#aaa; padding:20px;">Data belum dimuat.</td></tr></tbody>
               </table>
             </div>
           </div>
@@ -1363,7 +1363,7 @@
     } else { 
       if (secs === 0) { 
         await showAlert('Pilih interval atau masukkan menit dulu!', 'Perhatian', 'warning'); 
-        return; 
+      return; 
       } 
       btn.innerText = 'STOP'; 
       btn.classList.add('active'); 
@@ -1425,7 +1425,21 @@
       let totalAgentFee = dp.totalQrFee + wd.totalQrFee; 
       let pKotor = dp.totalGross - wd.totalGross; 
       let pBersih = (dp.totalQrNett + dp.nonQr.v) - (wd.totalQrNett + wd.nonQr.v); 
-      tunaiRows.push([day, dp.qris.OPA ? dp.qris.OPA.c : 0, dp.qris.OPA ? dp.qris.OPA.v : 0, dp.qris.OPT ? dp.qris.OPT.c : 0, dp.qris.OPT ? dp.qris.OPT.v : 0, dp.qris.OPZ ? dp.qris.OPZ.c : 0, dp.qris.OPZ ? dp.qris.OPZ.v : 0, dp.qris.GPP ? dp.qris.GPP.c : 0, dp.qris.GPP ? dp.qris.GPP.v : 0, dp.qris.PEN ? dp.qris.PEN.c : 0, dp.qris.PEN ? dp.qris.PEN.v : 0, dp.totalQrGross, dp.totalQrNett, dp.nonQr.c, dp.nonQr.v, dp.totalTkt, dp.totalGross, wd.qris.OPA ? wd.qris.OPA.c : 0, wd.qris.OPA ? wd.qris.OPA.v : 0, wd.qris.OPT ? wd.qris.OPT.c : 0, wd.qris.OPT ? wd.qris.OPT.v : 0, wd.qris.OPZ ? wd.qris.OPZ.c : 0, wd.qris.OPZ ? wd.qris.OPZ.v : 0, wd.qris.GPP ? wd.qris.GPP.c : 0, wd.qris.GPP ? wd.qris.GPP.v : 0, wd.qris.PEN ? wd.qris.PEN.c : 0, wd.qris.PEN ? wd.qris.PEN.v : 0, wd.totalQrGross, wd.totalQrNett, wd.nonQr.c, wd.nonQr.v, wd.totalTkt, wd.totalGross, totalAgentFee, pKotor, pBersih]); 
+      tunaiRows.push([
+        day, 
+        dp.qris.OPA ? dp.qris.OPA.c : 0, dp.qris.OPA ? dp.qris.OPA.v : 0, dp.qris.OPA ? dp.qris.OPA.f : 0, 
+        dp.qris.OPT ? dp.qris.OPT.c : 0, dp.qris.OPT ? dp.qris.OPT.v : 0, dp.qris.OPT ? dp.qris.OPT.f : 0, 
+        dp.qris.OPZ ? dp.qris.OPZ.c : 0, dp.qris.OPZ ? dp.qris.OPZ.v : 0, dp.qris.OPZ ? dp.qris.OPZ.f : 0, 
+        dp.qris.GPP ? dp.qris.GPP.c : 0, dp.qris.GPP ? dp.qris.GPP.v : 0, dp.qris.GPP ? dp.qris.GPP.f : 0, 
+        dp.qris.PEN ? dp.qris.PEN.c : 0, dp.qris.PEN ? dp.qris.PEN.v : 0, dp.qris.PEN ? dp.qris.PEN.f : 0, 
+        dp.totalQrGross, dp.totalQrNett, dp.nonQr.c, dp.nonQr.v, dp.totalTkt, dp.totalGross, 
+        wd.qris.OPA ? wd.qris.OPA.c : 0, wd.qris.OPA ? wd.qris.OPA.v : 0, wd.qris.OPA ? wd.qris.OPA.f : 0, 
+        wd.qris.OPT ? wd.qris.OPT.c : 0, wd.qris.OPT ? wd.qris.OPT.v : 0, wd.qris.OPT ? wd.qris.OPT.f : 0, 
+        wd.qris.OPZ ? wd.qris.OPZ.c : 0, wd.qris.OPZ ? wd.qris.OPZ.v : 0, wd.qris.OPZ ? wd.qris.OPZ.f : 0, 
+        wd.qris.GPP ? wd.qris.GPP.c : 0, wd.qris.GPP ? wd.qris.GPP.v : 0, wd.qris.GPP ? wd.qris.GPP.f : 0, 
+        wd.qris.PEN ? wd.qris.PEN.c : 0, wd.qris.PEN ? wd.qris.PEN.v : 0, wd.qris.PEN ? wd.qris.PEN.f : 0, 
+        wd.totalQrGross, wd.totalQrNett, wd.nonQr.c, wd.nonQr.v, wd.totalTkt, wd.totalGross, totalAgentFee, pKotor, pBersih
+      ]); 
     });
     
     let cbRows = []; 
@@ -1518,9 +1532,12 @@
             if (res.ok) {
                 const json = await res.json();
                 if (json.settingls && json.settingls.length > 0) {
-                    let feeStr = json.settingls[0].fee || "0%"; // e.g., "1.10 %"
-                    let feeNum = parseFloat(feeStr.replace('%', '').trim()) / 100; // 0.011
-                    if (!isNaN(feeNum)) _qrisFeeRates[q] = feeNum;
+                    let qrisSetting = json.settingls.find(item => item.name === 'QRIS' || item.code === 'qris');
+                    if (qrisSetting) {
+                        let feeStr = qrisSetting.fee || "0%"; // e.g., "1.10 %"
+                        let feeNum = parseFloat(feeStr.replace('%', '').trim()) / 100; // 0.011
+                        if (!isNaN(feeNum)) _qrisFeeRates[q] = feeNum;
+                    }
                 }
             }
         });
@@ -1639,7 +1656,7 @@
                     let providers = json.data || [];
                     let dailyTotals = { date: ddmm, stake: 0, plWinlost: 0, plCommGet: 0, plBonus: 0, agWinlost: 0, agCommGive: 0, agBonus: 0, wlhCompTotal: 0, providers: providers };
                     providers.forEach(item => { 
-                        dailyTotals.stake += parseFloat(item.stake || 0); 
+                        dailyTotals.stake += parseFloat(item.stake || 0) + parseFloat(item.bonusStake || 0); // PERBAIKAN: TAMBAH BONUS STAKE
                         dailyTotals.plWinlost += parseFloat(item.plWinlost || 0); 
                         dailyTotals.plCommGet += parseFloat(item.plCommGet || 0); 
                         dailyTotals.plBonus += parseFloat(item.plBonus || 0); 
@@ -1667,7 +1684,12 @@
     });
 
     let totStake = 0, totPlTotal = 0, totAgTotal = 0, totCompany = 0;
-    _winloseProviderData.forEach(item => { totStake += parseFloat(item.stake || 0) * 1000; totPlTotal += (parseFloat(item.plWinlost || 0) + parseFloat(item.plCommGet || 0) + parseFloat(item.plBonus || 0)) * 1000; totAgTotal += (parseFloat(item.agWinlost || 0) - parseFloat(item.agCommGive || 0) + parseFloat(item.agBonus || 0)) * 1000; totCompany += parseFloat(item.wlhCompTotal || 0) * 1000; });
+    _winloseProviderData.forEach(item => { 
+        totStake += (parseFloat(item.stake || 0) + parseFloat(item.bonusStake || 0)) * 1000; // PERBAIKAN: TAMBAH BONUS STAKE
+        totPlTotal += (parseFloat(item.plWinlost || 0) + parseFloat(item.plCommGet || 0) + parseFloat(item.plBonus || 0)) * 1000; 
+        totAgTotal += (parseFloat(item.agWinlost || 0) - parseFloat(item.agCommGive || 0) + parseFloat(item.agBonus || 0)) * 1000; 
+        totCompany += parseFloat(item.wlhCompTotal || 0) * 1000; 
+    });
     document.getElementById('cm-card-wl-stake').innerText = formatRupiahPlain(totStake); document.getElementById('cm-card-wl-member').innerText = formatRupiahPlain(totPlTotal); document.getElementById('cm-card-wl-ag').innerText = formatRupiahPlain(totAgTotal); document.getElementById('cm-card-wl-company').innerText = formatRupiahPlain(totCompany);
     
     _lastSummary.totAg = totAgTotal;
@@ -1888,7 +1910,7 @@
     if (_winloseProviderData.length === 0) { html = '<tr><td colspan="11" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data winlose untuk periode ini.</td></tr>'; } 
     else {
         _winloseProviderData.forEach(item => {
-            let stake = parseFloat(item.stake || 0) * 1000, plWinlost = parseFloat(item.plWinlost || 0) * 1000, plCommGet = parseFloat(item.plCommGet || 0) * 1000, plBonus = parseFloat(item.plBonus || 0) * 1000;
+            let stake = (parseFloat(item.stake || 0) + parseFloat(item.bonusStake || 0)) * 1000, plWinlost = parseFloat(item.plWinlost || 0) * 1000, plCommGet = parseFloat(item.plCommGet || 0) * 1000, plBonus = parseFloat(item.plBonus || 0) * 1000;
             let plTotal = (parseFloat(item.plWinlost || 0) + parseFloat(item.plCommGet || 0) + parseFloat(item.plBonus || 0)) * 1000;
             let agWinlost = parseFloat(item.agWinlost || 0) * 1000, agCommGive = parseFloat(item.agCommGive || 0) * 1000, agBonus = parseFloat(item.agBonus || 0) * 1000;
             let agTotal = (parseFloat(item.agWinlost || 0) - parseFloat(item.agCommGive || 0) + parseFloat(item.agBonus || 0)) * 1000; 
@@ -1912,7 +1934,7 @@
     if (data.providers.length === 0) { html += '<tr><td colspan="11" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data provider.</td></tr>'; } 
     else {
         data.providers.forEach(item => {
-            let stake = parseFloat(item.stake || 0) * 1000, plWinlost = parseFloat(item.plWinlost || 0) * 1000, plCommGet = parseFloat(item.plCommGet || 0) * 1000, plBonus = parseFloat(item.plBonus || 0) * 1000;
+            let stake = (parseFloat(item.stake || 0) + parseFloat(item.bonusStake || 0)) * 1000, plWinlost = parseFloat(item.plWinlost || 0) * 1000, plCommGet = parseFloat(item.plCommGet || 0) * 1000, plBonus = parseFloat(item.plBonus || 0) * 1000;
             let plTotal = (parseFloat(item.plWinlost || 0) + parseFloat(item.plCommGet || 0) + parseFloat(item.plBonus || 0)) * 1000;
             let agWinlost = parseFloat(item.agWinlost || 0) * 1000, agCommGive = parseFloat(item.agCommGive || 0) * 1000, agBonus = parseFloat(item.agBonus || 0) * 1000;
             let agTotal = (parseFloat(item.agWinlost || 0) - parseFloat(item.agCommGive || 0) + parseFloat(item.agBonus || 0)) * 1000; 
@@ -1990,7 +2012,7 @@
       _allTrx = []; _dailyTunai = {}; _dailyCB = {}; _cbRawList = listCb; _handlerStats = {}; _ketStats = {};
       const parseHandler = (raw) => { if(!raw) return '-'; let h = raw.includes('@') ? raw.split('@')[0] : raw; return h.toLowerCase() === 'xbets988' ? 'SISTEM' : h; };
       let totalDepoGross = 0, totalWdGross = 0, totalDepoFee = 0, totalWdFee = 0, qrKotor = 0, qrBersih = 0, depoNonQris = 0, wdNonQris = 0, qrKotorDetails = {}, qrBersihDetails = {}, feeDetails = {};
-      const initDayObj = () => ({ depo: { qris: { OPA:{c:0,v:0}, OPT:{c:0,v:0}, OPZ:{c:0,v:0}, GPP:{c:0,v:0}, PEN:{c:0,v:0} }, nonQr: {c:0, v:0}, totalQrGross: 0, totalQrNett: 0, totalQrFee: 0, totalGross: 0, totalTkt: 0 }, wd: { qris: { OPA:{c:0,v:0}, OPT:{c:0,v:0}, OPZ:{c:0,v:0}, GPP:{c:0,v:0}, PEN:{c:0,v:0} }, nonQr: {c:0, v:0}, totalQrGross: 0, totalQrNett: 0, totalQrFee: 0, totalGross: 0, totalTkt: 0 } });
+      const initDayObj = () => ({ depo: { qris: { OPA:{c:0,v:0,f:0}, OPT:{c:0,v:0,f:0}, OPZ:{c:0,v:0,f:0}, GPP:{c:0,v:0,f:0}, PEN:{c:0,v:0,f:0} }, nonQr: {c:0, v:0}, totalQrGross: 0, totalQrNett: 0, totalQrFee: 0, totalGross: 0, totalTkt: 0 }, wd: { qris: { OPA:{c:0,v:0,f:0}, OPT:{c:0,v:0,f:0}, OPZ:{c:0,v:0,f:0}, GPP:{c:0,v:0,f:0}, PEN:{c:0,v:0,f:0} }, nonQr: {c:0, v:0}, totalQrGross: 0, totalQrNett: 0, totalQrFee: 0, totalGross: 0, totalTkt: 0 } });
       let totTunai = initDayObj(); let totTunaiAgentFee = 0, totTunaiPK = 0, totTunaiPB = 0;
 
       listDepo.forEach(item => {
@@ -2014,8 +2036,9 @@
             qrKotor += nominal; qrBersih += nett; d.depo.totalQrGross += nominal; d.depo.totalQrNett += nett; d.depo.totalQrFee += fee;
             totTunai.depo.totalQrGross += nominal; totTunai.depo.totalQrNett += nett; totTunai.depo.totalQrFee += fee;
             qrKotorDetails[qrisType] = (qrKotorDetails[qrisType] || 0) + nominal; qrBersihDetails[qrisType] = (qrBersihDetails[qrisType] || 0) + nett; feeDetails[qrisType] = (feeDetails[qrisType] || 0) + fee;
-            if(!d.depo.qris[qrisType]) d.depo.qris[qrisType] = {c:0, v:0}; if(!totTunai.depo.qris[qrisType]) totTunai.depo.qris[qrisType] = {c:0, v:0};
-            d.depo.qris[qrisType].c++; d.depo.qris[qrisType].v += nominal; totTunai.depo.qris[qrisType].c++; totTunai.depo.qris[qrisType].v += nominal;
+            if(!d.depo.qris[qrisType]) d.depo.qris[qrisType] = {c:0, v:0, f:0}; if(!totTunai.depo.qris[qrisType]) totTunai.depo.qris[qrisType] = {c:0, v:0, f:0};
+            d.depo.qris[qrisType].c++; d.depo.qris[qrisType].v += nominal; d.depo.qris[qrisType].f += fee; 
+            totTunai.depo.qris[qrisType].c++; totTunai.depo.qris[qrisType].v += nominal; totTunai.depo.qris[qrisType].f += fee;
         } else { depoNonQris += nominal; d.depo.nonQr.c++; d.depo.nonQr.v += nominal; totTunai.depo.nonQr.c++; totTunai.depo.nonQr.v += nominal; }
         let n = item.cmb && item.cmb.bank ? item.cmb.bank.name : '-'; let a = item.cmb && item.cmb.accno ? item.cmb.accno : ''; let an = item.cmb && item.cmb.accnm ? item.cmb.accnm : '';
         let ketText = '-'; if (n !== '-') { ketText = n.toLowerCase() === 'qris' ? `${n} (${a})` : `${n} - ${an}`; }
@@ -2048,7 +2071,14 @@
         let rawDay = item.prctm.split(' ')[0]; let day = toDDMM_ymd(rawDay); 
         if(!_dailyTunai[day]) _dailyTunai[day] = initDayObj(); let d = _dailyTunai[day]; 
         d.wd.totalGross += nominal; d.wd.totalTkt++; totTunai.wd.totalGross += nominal; totTunai.wd.totalTkt++; 
-        if (isAutoWd) { qrKotor -= nominal; qrBersih -= nett; d.wd.totalQrGross += nominal; d.wd.totalQrNett += nett; d.wd.totalQrFee += fee; totTunai.wd.totalQrGross += nominal; totTunai.wd.totalQrNett += nett; totTunai.wd.totalQrFee += fee; qrKotorDetails[wdType] = (qrKotorDetails[wdType] || 0) - nominal; qrBersihDetails[wdType] = (qrBersihDetails[wdType] || 0) - nett; feeDetails[wdType] = (feeDetails[wdType] || 0) + fee; if(!d.wd.qris[wdType]) d.wd.qris[wdType] = {c:0, v:0}; if(!totTunai.wd.qris[wdType]) totTunai.wd.qris[wdType] = {c:0, v:0}; d.wd.qris[wdType].c++; d.wd.qris[wdType].v += nominal; totTunai.wd.qris[wdType].c++; totTunai.wd.qris[wdType].v += nominal; } 
+        if (isAutoWd) { 
+            qrKotor -= nominal; qrBersih -= nett; d.wd.totalQrGross += nominal; d.wd.totalQrNett += nett; d.wd.totalQrFee += fee; 
+            totTunai.wd.totalQrGross += nominal; totTunai.wd.totalQrNett += nett; totTunai.wd.totalQrFee += fee; 
+            qrKotorDetails[wdType] = (qrKotorDetails[wdType] || 0) - nominal; qrBersihDetails[wdType] = (qrBersihDetails[wdType] || 0) - nett; feeDetails[wdType] = (feeDetails[wdType] || 0) + fee; 
+            if(!d.wd.qris[wdType]) d.wd.qris[wdType] = {c:0, v:0, f:0}; if(!totTunai.wd.qris[wdType]) totTunai.wd.qris[wdType] = {c:0, v:0, f:0}; 
+            d.wd.qris[wdType].c++; d.wd.qris[wdType].v += nominal; d.wd.qris[wdType].f += fee; 
+            totTunai.wd.qris[wdType].c++; totTunai.wd.qris[wdType].v += nominal; totTunai.wd.qris[wdType].f += fee; 
+        } 
         else { wdNonQris += nominal; d.wd.nonQr.c++; d.wd.nonQr.v += nominal; totTunai.wd.nonQr.c++; totTunai.wd.nonQr.v += nominal; } 
         let ketText = item.trxNote === '-' ? 'MANUAL' : item.trxNote; let handler = parseHandler(item.unfn); 
         _allTrx.push({ time: parseTrxTime(item.prctm), timeStr: item.prctm, tipe: 'Withdraw', username: item.usnn, nominal, fee, nett: -nett, bankPlayer: item.usb?.bank?.name, namaRek: item.usb?.accnm, handler: handler, ketText: ketText, cmb: item.cmb, trxNote: item.trxNote, status: item.ststr }); 
@@ -2099,9 +2129,44 @@
       }).join(' | ') + ` | <b>TOTAL: ${formatRupiahPlain(totalDepoFee + totalWdFee)}</b>`;
       document.getElementById('cm-fee-details').innerHTML = feeText;
 
-      let htmlRekapTunai = Object.keys(_dailyTunai).sort().map(day => { let d = _dailyTunai[day]; let dp = d.depo, wd = d.wd; let totalAgentFee = dp.totalQrFee + wd.totalQrFee; let pKotor = dp.totalGross - wd.totalGross; let pBersih = (dp.totalQrNett + dp.nonQr.v) - (wd.totalQrNett + wd.nonQr.v); _dailyTunai[day].pBersih = pBersih; _dailyTunai[day].pKotor = pKotor; return `<tr><td>${day}</td><td>${formatTK(dp.qris.OPA?.c)}</td><td>${formatRupiahTable(dp.qris.OPA?.v)}</td><td>${formatTK(dp.qris.OPT?.c)}</td><td>${formatRupiahTable(dp.qris.OPT?.v)}</td><td>${formatTK(dp.qris.OPZ?.c)}</td><td>${formatRupiahTable(dp.qris.OPZ?.v)}</td><td>${formatTK(dp.qris.GPP?.c)}</td><td>${formatRupiahTable(dp.qris.GPP?.v)}</td><td>${formatTK(dp.qris.PEN?.c)}</td><td>${formatRupiahTable(dp.qris.PEN?.v)}</td><td>${formatRupiahTable(dp.totalQrGross)}</td><td>${formatRupiahTable(dp.totalQrNett)}</td><td>${formatTK(dp.nonQr.c)}</td><td>${formatRupiahTable(dp.nonQr.v)}</td><td>${formatTK(dp.totalTkt)}</td><td>${formatRupiahTable(dp.totalGross)}</td><td>${formatTK(wd.qris.OPA?.c)}</td><td>${formatRupiahTable(wd.qris.OPA?.v)}</td><td>${formatTK(wd.qris.OPT?.c)}</td><td>${formatRupiahTable(wd.qris.OPT?.v)}</td><td>${formatTK(wd.qris.OPZ?.c)}</td><td>${formatRupiahTable(wd.qris.OPZ?.v)}</td><td>${formatTK(wd.qris.GPP?.c)}</td><td>${formatRupiahTable(wd.qris.GPP?.v)}</td><td>${formatTK(wd.qris.PEN?.c)}</td><td>${formatRupiahTable(wd.qris.PEN?.v)}</td><td>${formatRupiahTable(wd.totalQrGross)}</td><td>${formatRupiahTable(wd.totalQrNett)}</td><td>${formatTK(wd.nonQr.c)}</td><td>${formatRupiahTable(wd.nonQr.v)}</td><td>${formatTK(wd.totalTkt)}</td><td>${formatRupiahTable(wd.totalGross)}</td><td>${formatRupiahTable(totalAgentFee)}</td><td>${formatRupiahTable(pKotor)}</td><td>${formatRupiahTable(pBersih)}</td></tr>`; }).join('');
-      htmlRekapTunai += `<tr class="row-total"><td>TOTAL</td><td>${formatTK(totTunai.depo.qris.OPA?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPA?.v)}</td><td>${formatTK(totTunai.depo.qris.OPT?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPT?.v)}</td><td>${formatTK(totTunai.depo.qris.OPZ?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPZ?.v)}</td><td>${formatTK(totTunai.depo.qris.GPP?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.GPP?.v)}</td><td>${formatTK(totTunai.depo.qris.PEN?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.PEN?.v)}</td><td>${formatRupiahTable(totTunai.depo.totalQrGross)}</td><td>${formatRupiahTable(totTunai.depo.totalQrNett)}</td><td>${formatTK(totTunai.depo.nonQr.c)}</td><td>${formatRupiahTable(totTunai.depo.nonQr.v)}</td><td>${formatTK(totTunai.depo.totalTkt)}</td><td>${formatRupiahTable(totTunai.depo.totalGross)}</td><td>${formatTK(totTunai.wd.qris.OPA?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPA?.v)}</td><td>${formatTK(totTunai.wd.qris.OPT?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPT?.v)}</td><td>${formatTK(totTunai.wd.qris.OPZ?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPZ?.v)}</td><td>${formatTK(totTunai.wd.qris.GPP?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.GPP?.v)}</td><td>${formatTK(totTunai.wd.qris.PEN?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.PEN?.v)}</td><td>${formatRupiahTable(totTunai.wd.totalQrGross)}</td><td>${formatRupiahTable(totTunai.wd.totalQrNett)}</td><td>${formatTK(totTunai.wd.nonQr.c)}</td><td>${formatRupiahTable(totTunai.wd.nonQr.v)}</td><td>${formatTK(totTunai.wd.totalTkt)}</td><td>${formatRupiahTable(totTunai.wd.totalGross)}</td><td>${formatRupiahTable(totTunaiAgentFee)}</td><td>${formatRupiahTable(totTunaiPK)}</td><td>${formatRupiahTable(totTunaiPB)}</td></tr>`;
-      document.getElementById('cm-table-tunai-rekap').innerHTML = htmlRekapTunai || '<tr><td colspan="36" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data.</td></tr>';
+      let htmlRekapTunai = Object.keys(_dailyTunai).sort().map(day => { 
+          let d = _dailyTunai[day]; let dp = d.depo, wd = d.wd; 
+          let totalAgentFee = dp.totalQrFee + wd.totalQrFee; 
+          let pKotor = dp.totalGross - wd.totalGross; 
+          let pBersih = (dp.totalQrNett + dp.nonQr.v) - (wd.totalQrNett + wd.nonQr.v); 
+          _dailyTunai[day].pBersih = pBersih; _dailyTunai[day].pKotor = pKotor; 
+          return `<tr><td>${day}</td>
+          <td>${formatTK(dp.qris.OPA?.c)}</td><td>${formatRupiahTable(dp.qris.OPA?.v)}</td><td>${formatRupiahTable(dp.qris.OPA?.f)}</td>
+          <td>${formatTK(dp.qris.OPT?.c)}</td><td>${formatRupiahTable(dp.qris.OPT?.v)}</td><td>${formatRupiahTable(dp.qris.OPT?.f)}</td>
+          <td>${formatTK(dp.qris.OPZ?.c)}</td><td>${formatRupiahTable(dp.qris.OPZ?.v)}</td><td>${formatRupiahTable(dp.qris.OPZ?.f)}</td>
+          <td>${formatTK(dp.qris.GPP?.c)}</td><td>${formatRupiahTable(dp.qris.GPP?.v)}</td><td>${formatRupiahTable(dp.qris.GPP?.f)}</td>
+          <td>${formatTK(dp.qris.PEN?.c)}</td><td>${formatRupiahTable(dp.qris.PEN?.v)}</td><td>${formatRupiahTable(dp.qris.PEN?.f)}</td>
+          <td>${formatRupiahTable(dp.totalQrGross)}</td><td>${formatRupiahTable(dp.totalQrNett)}</td><td>${formatTK(dp.nonQr.c)}</td><td>${formatRupiahTable(dp.nonQr.v)}</td><td>${formatTK(dp.totalTkt)}</td><td>${formatRupiahTable(dp.totalGross)}</td>
+          <td>${formatTK(wd.qris.OPA?.c)}</td><td>${formatRupiahTable(wd.qris.OPA?.v)}</td><td>${formatRupiahTable(wd.qris.OPA?.f)}</td>
+          <td>${formatTK(wd.qris.OPT?.c)}</td><td>${formatRupiahTable(wd.qris.OPT?.v)}</td><td>${formatRupiahTable(wd.qris.OPT?.f)}</td>
+          <td>${formatTK(wd.qris.OPZ?.c)}</td><td>${formatRupiahTable(wd.qris.OPZ?.v)}</td><td>${formatRupiahTable(wd.qris.OPZ?.f)}</td>
+          <td>${formatTK(wd.qris.GPP?.c)}</td><td>${formatRupiahTable(wd.qris.GPP?.v)}</td><td>${formatRupiahTable(wd.qris.GPP?.f)}</td>
+          <td>${formatTK(wd.qris.PEN?.c)}</td><td>${formatRupiahTable(wd.qris.PEN?.v)}</td><td>${formatRupiahTable(wd.qris.PEN?.f)}</td>
+          <td>${formatRupiahTable(wd.totalQrGross)}</td><td>${formatRupiahTable(wd.totalQrNett)}</td><td>${formatTK(wd.nonQr.c)}</td><td>${formatRupiahTable(wd.nonQr.v)}</td><td>${formatTK(wd.totalTkt)}</td><td>${formatRupiahTable(wd.totalGross)}</td>
+          <td>${formatRupiahTable(totalAgentFee)}</td><td>${formatRupiahTable(pKotor)}</td><td>${formatRupiahTable(pBersih)}</td></tr>`; 
+      }).join('');
+      
+      htmlRekapTunai += `<tr class="row-total"><td>TOTAL</td>
+      <td>${formatTK(totTunai.depo.qris.OPA?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPA?.v)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPA?.f)}</td>
+      <td>${formatTK(totTunai.depo.qris.OPT?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPT?.v)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPT?.f)}</td>
+      <td>${formatTK(totTunai.depo.qris.OPZ?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPZ?.v)}</td><td>${formatRupiahTable(totTunai.depo.qris.OPZ?.f)}</td>
+      <td>${formatTK(totTunai.depo.qris.GPP?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.GPP?.v)}</td><td>${formatRupiahTable(totTunai.depo.qris.GPP?.f)}</td>
+      <td>${formatTK(totTunai.depo.qris.PEN?.c)}</td><td>${formatRupiahTable(totTunai.depo.qris.PEN?.v)}</td><td>${formatRupiahTable(totTunai.depo.qris.PEN?.f)}</td>
+      <td>${formatRupiahTable(totTunai.depo.totalQrGross)}</td><td>${formatRupiahTable(totTunai.depo.totalQrNett)}</td><td>${formatTK(totTunai.depo.nonQr.c)}</td><td>${formatRupiahTable(totTunai.depo.nonQr.v)}</td><td>${formatTK(totTunai.depo.totalTkt)}</td><td>${formatRupiahTable(totTunai.depo.totalGross)}</td>
+      <td>${formatTK(totTunai.wd.qris.OPA?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPA?.v)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPA?.f)}</td>
+      <td>${formatTK(totTunai.wd.qris.OPT?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPT?.v)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPT?.f)}</td>
+      <td>${formatTK(totTunai.wd.qris.OPZ?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPZ?.v)}</td><td>${formatRupiahTable(totTunai.wd.qris.OPZ?.f)}</td>
+      <td>${formatTK(totTunai.wd.qris.GPP?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.GPP?.v)}</td><td>${formatRupiahTable(totTunai.wd.qris.GPP?.f)}</td>
+      <td>${formatTK(totTunai.wd.qris.PEN?.c)}</td><td>${formatRupiahTable(totTunai.wd.qris.PEN?.v)}</td><td>${formatRupiahTable(totTunai.wd.qris.PEN?.f)}</td>
+      <td>${formatRupiahTable(totTunai.wd.totalQrGross)}</td><td>${formatRupiahTable(totTunai.wd.totalQrNett)}</td><td>${formatTK(totTunai.wd.nonQr.c)}</td><td>${formatRupiahTable(totTunai.wd.nonQr.v)}</td><td>${formatTK(totTunai.wd.totalTkt)}</td><td>${formatRupiahTable(totTunai.wd.totalGross)}</td>
+      <td>${formatRupiahTable(totTunaiAgentFee)}</td><td>${formatRupiahTable(totTunaiPK)}</td><td>${formatRupiahTable(totTunaiPB)}</td></tr>`;
+      
+      document.getElementById('cm-table-tunai-rekap').innerHTML = htmlRekapTunai || '<tr><td colspan="46" style="text-align:center; color:#aaa; padding:20px;">Tidak ada data.</td></tr>';
 
       let sAwal = listCb.length > 0 ? parseFloat(listCb[0].uscbalhstr) * 1000 : 0; let sAkhir = listCb.length > 0 ? parseFloat(listCb[listCb.length-1].uscbalhend) * 1000 : 0;
       document.getElementById('cm-card-cb-start').innerText = formatRupiahPlain(sAwal); document.getElementById('cm-card-cb-end').innerText = formatRupiahPlain(sAkhir); document.getElementById('cm-card-cb-in').innerText = formatRupiahPlain(totalIn); document.getElementById('cm-card-cb-out').innerText = formatRupiahPlain(totalOut);
