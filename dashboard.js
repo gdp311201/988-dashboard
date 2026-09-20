@@ -30,12 +30,20 @@
   let _qrisFeeRates = { OPA: 0.011, OPT: 0.01, OPZ: 0.01, GPP: 0.011, PEN: 0.011 };
 
   // === SMART ADAPTIVE WD FEE CONFIG (WITHDRAW) ===
-  // Default nilai awal sesuai permintaan
-  let _wdFeeConfig = { OPA: 3500, OPT: 3500, OPZ: 3500, GPP: 3500, PEN: 1500 };
-  // Cek localStorage, jika ada update timpa nilai default
+  let _wdFeeConfig = { 
+    OPA: 3500, OPT: 3500, OPZ: 3500, GPP: 3500, 
+    PEN_DEFAULT: 1500, 
+    PEN_SPECIAL: 4000, 
+    PEN_SPECIAL_BANKS: 'Seabank' 
+  };
   let savedWdFees = JSON.parse(localStorage.getItem('cm-wd-fee-config') || '{}');
   if (Object.keys(savedWdFees).length > 0) {
     _wdFeeConfig = Object.assign(_wdFeeConfig, savedWdFees);
+    // Migrasi jika masih pakai setting lama (PEN: 1500)
+    if (savedWdFees.PEN !== undefined && savedWdFees.PEN_DEFAULT === undefined) {
+      _wdFeeConfig.PEN_DEFAULT = savedWdFees.PEN;
+      delete _wdFeeConfig.PEN;
+    }
   }
 
   // ── STYLE ──────────────────────────────────────────────────────────────────
@@ -1009,9 +1017,19 @@
               <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS GPP (Flat)</label>
               <input type="number" class="gs-inp" id="wd-fee-GPP" value="${_wdFeeConfig.GPP}" style="font-family:sans-serif;">
             </div>
+            
+            <div style="grid-column: span 2; margin-top:8px; border-top:1px dashed var(--tbl-border); padding-top:12px;">
+              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS PEN (Default Flat - Bank Biasa & E-Wallet)</label>
+              <input type="number" class="gs-inp" id="wd-fee-PEN_DEFAULT" value="${_wdFeeConfig.PEN_DEFAULT}" style="font-family:sans-serif;">
+            </div>
+            
             <div>
-              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS PEN (Flat)</label>
-              <input type="number" class="gs-inp" id="wd-fee-PEN" value="${_wdFeeConfig.PEN}" style="font-family:sans-serif;">
+              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS PEN (Bank Khusus Fee)</label>
+              <input type="number" class="gs-inp" id="wd-fee-PEN_SPECIAL" value="${_wdFeeConfig.PEN_SPECIAL}" style="font-family:sans-serif;">
+            </div>
+            <div>
+              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">Daftar Bank Khusus PEN (pisah dgn koma)</label>
+              <input type="text" class="gs-inp" id="wd-fee-PEN_SPECIAL_BANKS" value="${_wdFeeConfig.PEN_SPECIAL_BANKS}" style="font-family:sans-serif;" placeholder="Seabank, Bank Neo">
             </div>
           </div>
 
@@ -1306,10 +1324,14 @@
 
   // --- FUNGSI SIMPAN FEE WD QRIS ---
   window.saveWdFees = async (btn) => {
-    ['OPA', 'OPT', 'OPZ', 'GPP', 'PEN'].forEach(q => {
-      let val = parseInt(document.getElementById(`wd-fee-${q}`).value) || 0;
-      _wdFeeConfig[q] = val;
-    });
+    _wdFeeConfig.OPA = parseInt(document.getElementById('wd-fee-OPA').value) || 0;
+    _wdFeeConfig.OPT = parseInt(document.getElementById('wd-fee-OPT').value) || 0;
+    _wdFeeConfig.OPZ = parseInt(document.getElementById('wd-fee-OPZ').value) || 0;
+    _wdFeeConfig.GPP = parseInt(document.getElementById('wd-fee-GPP').value) || 0;
+    _wdFeeConfig.PEN_DEFAULT = parseInt(document.getElementById('wd-fee-PEN_DEFAULT').value) || 0;
+    _wdFeeConfig.PEN_SPECIAL = parseInt(document.getElementById('wd-fee-PEN_SPECIAL').value) || 0;
+    _wdFeeConfig.PEN_SPECIAL_BANKS = document.getElementById('wd-fee-PEN_SPECIAL_BANKS').value.trim();
+    
     localStorage.setItem('cm-wd-fee-config', JSON.stringify(_wdFeeConfig));
     const originalText = btn.innerText; 
     btn.innerText = '✓ Tersimpan!'; 
@@ -1998,11 +2020,26 @@
         if(!_ketStats[ketText]) _ketStats[ketText] = { depo: 0, wd: 0 }; _ketStats[ketText].depo++;
       });
 
+      // PRE-COMPUTE DAFTAR BANK KHUSUS PEN (DILUAR LOOP BIAR CEPAT)
+      let _penSpecialBanks = (_wdFeeConfig.PEN_SPECIAL_BANKS || '').toLowerCase().split(',').map(b => b.trim()).filter(b => b);
+
       listWd.forEach(item => { 
         let nominal = parseFloat(item.amt) * 1000; let isAutoWd = item.trxNote && item.trxNote.includes('AutoWD'); 
         let wdType = isAutoWd ? (item.trxNote.match(/AutoWD\s*\[(.*?)\]/)?.[1] || 'AutoWD').toUpperCase() : null; 
-        // SMART ADAPTIVE FEE WD CONFIG
-        let fee = isAutoWd ? (_wdFeeConfig[wdType] || 0) : 0; let nett = nominal + fee; totalWdGross += nominal; totalWdFee += fee; 
+        
+        // SMART ADAPTIVE FEE WD CONFIG DENGAN DETEKSI BANK KHUSUS PEN
+        let fee = 0;
+        if (isAutoWd) {
+          if (wdType === 'PEN') {
+            let targetBank = (item.usb?.bank?.name || '').toLowerCase();
+            let isSpecial = _penSpecialBanks.some(b => targetBank.includes(b)); // pakai array yang sudah diolah di luar
+            fee = isSpecial ? (_wdFeeConfig.PEN_SPECIAL || 0) : (_wdFeeConfig.PEN_DEFAULT || 0);
+          } else {
+            fee = _wdFeeConfig[wdType] || 0;
+          }
+        }
+        let nett = nominal + fee; totalWdGross += nominal; totalWdFee += fee; 
+        
         let rawDay = item.prctm.split(' ')[0]; let day = toDDMM_ymd(rawDay); 
         if(!_dailyTunai[day]) _dailyTunai[day] = initDayObj(); let d = _dailyTunai[day]; 
         d.wd.totalGross += nominal; d.wd.totalTkt++; totTunai.wd.totalGross += nominal; totTunai.wd.totalTkt++; 
