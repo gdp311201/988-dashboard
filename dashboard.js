@@ -41,7 +41,13 @@
     PEN_SPECIAL: 4000, 
     PEN_SPECIAL_BANKS: 'Seabank' 
   };
-  let savedWdFees = JSON.parse(localStorage.getItem('cm-wd-fee-config') || '{}');
+  
+  // === MODIFIKASI: Bikin Key Unik per Brand agar tidak tertukar antar agent ===
+  const _gsConfigKey = 'cm-gs-config-' + _brandName;
+  const _gsPanelKey = 'cm-gs-panel-' + _brandName;
+  const _wdFeeKey = 'cm-wd-fee-config-' + _brandName;
+
+  let savedWdFees = JSON.parse(localStorage.getItem(_wdFeeKey) || '{}');
   if (Object.keys(savedWdFees).length > 0) {
     _wdFeeConfig = Object.assign(_wdFeeConfig, savedWdFees);
     // Migrasi jika masih pakai setting lama (PEN: 1500)
@@ -397,8 +403,8 @@
   }
   const _t = getLocalYMD(new Date());
   
-  let _gsConfig = JSON.parse(localStorage.getItem('cm-gs-config') || '{}');
-  let _gsPanel = localStorage.getItem('cm-gs-panel') || '';
+  let _gsConfig = JSON.parse(localStorage.getItem(_gsConfigKey) || '{}');
+  let _gsPanel = localStorage.getItem(_gsPanelKey) || '';
   
   const themeIcon = ui.classList.contains('dark') ? '☀️' : '🌙';
 
@@ -1275,7 +1281,7 @@
     if (!url) {
       if (_gsConfig[ym]) {
         delete _gsConfig[ym];
-        localStorage.setItem('cm-gs-config', JSON.stringify(_gsConfig));
+        localStorage.setItem(_gsConfigKey, JSON.stringify(_gsConfig));
         await showAlert('URL untuk bulan ini telah dihapus.', 'Informasi', 'success');
         renderGSTable();
       }
@@ -1306,7 +1312,7 @@
     }
     
     _gsConfig[ym] = url;
-    localStorage.setItem('cm-gs-config', JSON.stringify(_gsConfig));
+    localStorage.setItem(_gsConfigKey, JSON.stringify(_gsConfig));
     
     urlInp.style.borderColor = '#22c55e';
     btn.innerHTML = '✓';
@@ -1321,7 +1327,7 @@
 
   window.saveGSPanel = (btn) => { 
     _gsPanel = document.getElementById('gs-panel-inp').value.trim(); 
-    localStorage.setItem('cm-gs-panel', _gsPanel); 
+    localStorage.setItem(_gsPanelKey, _gsPanel); 
     const originalText = btn.innerText; 
     btn.innerText = '✓ Tersimpan!'; 
     setTimeout(() => { btn.innerText = originalText; }, 1500); 
@@ -1337,7 +1343,7 @@
     _wdFeeConfig.PEN_SPECIAL = parseInt(document.getElementById('wd-fee-PEN_SPECIAL').value) || 0;
     _wdFeeConfig.PEN_SPECIAL_BANKS = document.getElementById('wd-fee-PEN_SPECIAL_BANKS').value.trim();
     
-    localStorage.setItem('cm-wd-fee-config', JSON.stringify(_wdFeeConfig));
+    localStorage.setItem(_wdFeeKey, JSON.stringify(_wdFeeConfig));
     const originalText = btn.innerText; 
     btn.innerText = '✓ Tersimpan!'; 
     setTimeout(() => { btn.innerText = originalText; }, 1500);
@@ -1373,7 +1379,7 @@
   };
 
   async function runLoadAndExport(isAuto) { 
-    document.getElementById('cm-status').innerHTML = `${currentDomain} | 🔄 <b>Auto Sync:</b> Tarik data & Export...`; 
+    document.getElementById('cm-status').innerHTML = `${currentDomain} | 🔄 <b>Auto Sync:</b> Tarik Data & Export...`; 
     const success = await loadData(); 
     if (success) { 
       await exportToSheet(isAuto); 
