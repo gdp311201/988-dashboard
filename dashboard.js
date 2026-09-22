@@ -32,7 +32,7 @@
   let _wdFeeConfig = { 
     OPA: 3500, OPT: 3500, OPZ: 3500, GPP: 3500
   };
-  let savedWdFees = JSON.parse(localStorage.getItem('cm-wd-fee-config') || '{}');
+  let savedWdFees = JSON.parse(localStorage.getItem('cm-wd-fee-config-' + _brandName) || '{}');
   if (Object.keys(savedWdFees).length > 0) {
     _wdFeeConfig = Object.assign(_wdFeeConfig, savedWdFees);
   }
@@ -362,7 +362,7 @@
   const ui = document.createElement('div');
   ui.id = ID;
   
-  if (localStorage.getItem('cm-theme') === 'dark') ui.classList.add('dark');
+  if (localStorage.getItem('cm-theme-' + _brandName) === 'dark') ui.classList.add('dark');
   
   function getLocalYMD(dateObj) {
     const y = dateObj.getFullYear();
@@ -372,8 +372,8 @@
   }
   const _t = getLocalYMD(new Date());
   
-  let _gsConfig = JSON.parse(localStorage.getItem('cm-gs-config') || '{}');
-  let _gsPanel = localStorage.getItem('cm-gs-panel') || '';
+  let _gsConfig = JSON.parse(localStorage.getItem('cm-gs-config-' + _brandName) || '{}');
+  let _gsPanel = localStorage.getItem('cm-gs-panel-' + _brandName) || '';
   
   const themeIcon = ui.classList.contains('dark') ? '☀️' : '🌙';
 
@@ -1140,7 +1140,7 @@
     return isNaN(dt.getTime()) ? 0 : dt.getTime();
   }
 
-  window.toggleTheme = () => { const el = document.getElementById(ID); const btn = document.querySelector('.cm-theme-btn'); el.classList.toggle('dark'); if (el.classList.contains('dark')) { localStorage.setItem('cm-theme', 'dark'); btn.innerText = '☀️'; } else { localStorage.setItem('cm-theme', 'light'); btn.innerText = '🌙'; } };
+  window.toggleTheme = () => { const el = document.getElementById(ID); const btn = document.querySelector('.cm-theme-btn'); el.classList.toggle('dark'); if (el.classList.contains('dark')) { localStorage.setItem('cm-theme-' + _brandName, 'dark'); btn.innerText = '☀️'; } else { localStorage.setItem('cm-theme-' + _brandName, 'light'); btn.innerText = '🌙'; } };
   
   window.setDateRange = (type, val) => {
     const today = new Date(); today.setHours(0, 0, 0, 0); 
@@ -1252,7 +1252,7 @@
     if (!url) {
       if (_gsConfig[ym]) {
         delete _gsConfig[ym];
-        localStorage.setItem('cm-gs-config', JSON.stringify(_gsConfig));
+        localStorage.setItem('cm-gs-config-' + _brandName, JSON.stringify(_gsConfig));
         await showAlert('URL untuk bulan ini telah dihapus.', 'Informasi', 'success');
         renderGSTable();
       }
@@ -1283,7 +1283,7 @@
     }
     
     _gsConfig[ym] = url;
-    localStorage.setItem('cm-gs-config', JSON.stringify(_gsConfig));
+    localStorage.setItem('cm-gs-config-' + _brandName, JSON.stringify(_gsConfig));
     
     urlInp.style.borderColor = '#22c55e';
     btn.innerHTML = '✓';
@@ -1298,7 +1298,7 @@
 
   window.saveGSPanel = (btn) => { 
     _gsPanel = document.getElementById('gs-panel-inp').value.trim(); 
-    localStorage.setItem('cm-gs-panel', _gsPanel); 
+    localStorage.setItem('cm-gs-panel-' + _brandName, _gsPanel); 
     const originalText = btn.innerText; 
     btn.innerText = '✓ Tersimpan!'; 
     setTimeout(() => { btn.innerText = originalText; }, 1500); 
@@ -1310,7 +1310,7 @@
     _wdFeeConfig.OPZ = parseInt(document.getElementById('wd-fee-OPZ').value) || 0;
     _wdFeeConfig.GPP = parseInt(document.getElementById('wd-fee-GPP').value) || 0;
     
-    localStorage.setItem('cm-wd-fee-config', JSON.stringify(_wdFeeConfig));
+    localStorage.setItem('cm-wd-fee-config-' + _brandName, JSON.stringify(_wdFeeConfig));
     const originalText = btn.innerText; 
     btn.innerText = '✓ Tersimpan!'; 
     setTimeout(() => { btn.innerText = originalText; }, 1500);
