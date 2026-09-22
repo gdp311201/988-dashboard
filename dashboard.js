@@ -2,14 +2,11 @@
   const ID = 'cm-universal-dash-v55';
   if (document.getElementById(ID)) { document.getElementById(ID).remove(); return; }
 
-  // Inject Library untuk Export Excel
   if (!window.XLSX) { const s1 = document.createElement('script'); s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; document.head.appendChild(s1); }
 
-  // === AUTO DOMAIN & DOM SCRAPER (ZERO-CLICK UNIVERSAL) ===
   const currentDomain = window.location.hostname.replace('www.', '');
   const rawHTML = document.documentElement.outerHTML;
   
-  // Cari ID User & Username langsung dari HTML Panel
   const idusMatch = rawHTML.match(/var\s+idus\s*=\s*"?(\d+)"?;/);
   const usernameMatch = rawHTML.match(/Username\s*:\s*([a-zA-Z0-9_@.-]+)/);
   
@@ -21,8 +18,7 @@
     usnm: usernameMatch ? usernameMatch[1] : 'billybet@xbets988'
   };
 
-  // === DETEKSI NAMA BRAND UNTUK HEADER TABEL (Berdasarkan Suffix Username) ===
-  let _brandName = currentDomain; // Default fallback jika gagal
+  let _brandName = currentDomain; 
   const _extractedUser = usernameMatch ? usernameMatch[1] : '';
   if (_extractedUser && _extractedUser.includes('@')) {
     let rawBrand = _extractedUser.split('@')[1].toLowerCase();
@@ -31,27 +27,16 @@
     else _brandName = _extractedUser.split('@')[1].toUpperCase();
   }
 
-  // === DYNAMIC QRIS FEE RATES (DEPOSIT) ===
   let _qrisFeeRates = { OPA: 0.011, OPT: 0.01, OPZ: 0.01, GPP: 0.011, PEN: 0.011 };
 
-  // === SMART ADAPTIVE WD FEE CONFIG (WITHDRAW) ===
   let _wdFeeConfig = { 
-    OPA: 3500, OPT: 3500, OPZ: 3500, GPP: 3500, 
-    PEN_DEFAULT: 1500, 
-    PEN_SPECIAL: 4000, 
-    PEN_SPECIAL_BANKS: 'Seabank' 
+    OPA: 3500, OPT: 3500, OPZ: 3500, GPP: 3500
   };
   let savedWdFees = JSON.parse(localStorage.getItem('cm-wd-fee-config') || '{}');
   if (Object.keys(savedWdFees).length > 0) {
     _wdFeeConfig = Object.assign(_wdFeeConfig, savedWdFees);
-    // Migrasi jika masih pakai setting lama (PEN: 1500)
-    if (savedWdFees.PEN !== undefined && savedWdFees.PEN_DEFAULT === undefined) {
-      _wdFeeConfig.PEN_DEFAULT = savedWdFees.PEN;
-      delete _wdFeeConfig.PEN;
-    }
   }
 
-  // ── STYLE ──────────────────────────────────────────────────────────────────
   const st = document.createElement('style');
   st.textContent = `
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
@@ -88,7 +73,6 @@
       --spinner-color: #22c55e;
     }
     
-    /* MESH GRADIENT & GLASS BUBBLES */
     .cm-bg-wrap { position: fixed; inset: 0; z-index: -2; overflow: hidden; background: var(--bg-base); }
     .cm-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; animation: floatBlob 20s infinite ease-in-out; }
     .cm-blob.b1 { width: 500px; height: 500px; background: #3b82f6; top: -100px; left: -100px; }
@@ -112,7 +96,6 @@
     #${ID} ::-webkit-scrollbar-thumb { background:#1e3a5f; border-radius:4px; }
     #${ID} ::-webkit-scrollbar-track { background: transparent; }
     
-    /* FLOATING CIRCLE PERCENTAGE LOADER */
     .cm-loader-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index:99999; display:none; align-items:center; justify-content:center; }
     .cm-loader-container { display:flex; flex-direction:column; align-items:center; gap:12px; }
     .cm-loader-ring { width:90px; height:90px; position:relative; }
@@ -223,7 +206,6 @@
     table.cm-tbl.thin { table-layout:auto; white-space:nowrap; }
     table.cm-tbl.wide { min-width:2500px; white-space:nowrap; }
     
-    /* FIX TABEL STICKY SOLID */
     table.cm-tbl thead { position: sticky; top: 0; z-index: 20; }
     table.cm-tbl th { background:var(--tbl-head-bg); backdrop-filter: none; padding:8px; font-size:9px; font-weight:900; color:var(--tbl-head-text); border: 1px solid var(--tbl-border); text-align:center; vertical-align:middle; }
     table.cm-tbl td { padding:6px 8px; border: 1px solid var(--tbl-border); font-weight:600; color:var(--text-main); font-size:10px; text-align:center; vertical-align:middle; background: transparent; }
@@ -266,7 +248,6 @@
     .cm-view-btn { height:24px; width:24px; border-radius:50%; border:none; background:rgba(59, 130, 246, 0.7); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow: 0 2px 6px rgba(59,130,246,.3), inset 0 1px 1px rgba(255,255,255,0.4); transition: 0.2s; margin:auto; }
     .cm-view-btn:hover { background:rgba(59, 130, 246, 1); transform: scale(1.1); }
     
-    /* --- AGENT DASHBOARD 3-ROW LAYOUT & CHARTS FIXES (FULL HEIGHT NO SCROLL) --- */
     #pane-agent.active { gap: 12px; overflow: hidden; display: flex; flex-direction: column; height: 100%; }
     .cm-agent-summary { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; flex: 0 0 auto; }
     .cm-agent-charts { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; flex: 1 1 0; min-height: 200px; } 
@@ -276,7 +257,6 @@
     .cm-agent-head { padding: 8px 12px; font-size: 11px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; border-bottom: 1px solid var(--tbl-border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .cm-agent-body { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 8px; position: relative; }
     
-    /* MINI CHARTS (GLASSMORPHISM, BERDEMPETAN & TANGGAL MIRING) */
     .cm-mini-chart-scroll { flex: 1; overflow: hidden; display: flex; align-items: flex-end; justify-content: space-between; gap: 1px; padding: 0 4px 4px 4px; }
     .cm-mini-col { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; position: relative; padding-bottom: 30px; }
     .cm-mini-bars { position: absolute; bottom: 30px; left: 0; right: 0; display: flex; justify-content: center; align-items: flex-end; height: calc(100% - 30px); width: 100%; }
@@ -296,7 +276,6 @@
     .cm-mini-label { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%) rotate(-45deg); transform-origin: center top; text-align: center; font-size: 8px; color: var(--text-sub); white-space: nowrap; z-index: 5; }
     .cm-agent-tooltip { position: fixed; background: rgba(0,0,0,0.85); color: #fff; backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-size: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; pointer-events: none; display: none; white-space: nowrap; }
     
-    /* STATS BOXES */
     .cm-stats-flex { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
     .cm-stats-table { width: 100%; font-size: 10px; border-collapse: collapse; }
     .cm-stats-table th { text-align: left; padding: 4px 2px; font-size: 9px; color: var(--text-sub); font-weight: 800; text-transform: uppercase; border-bottom: 1px solid var(--tbl-border); }
@@ -312,7 +291,6 @@
     .cm-stat-val.pos { color: #16a34a; }
     .cm-stat-val.neg { color: #ef4444; }
 
-    /* FIX MODAL LAYOUT */
     .cm-player-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); z-index:2147483648; align-items:center; justify-content:center; padding:20px; }
     .cm-player-modal-bg.show { display:flex; }
     .cm-player-modal { background:var(--modal-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius:16px; width:1000px; max-width:95vw; height:80vh; max-height:600px; box-shadow:0 8px 40px rgba(0,0,0,.2); border:var(--glass-border); display:flex; flex-direction:column; position:relative; overflow: hidden; }
@@ -343,23 +321,20 @@
     .gs-url-inp { width: 100%; height: 30px; padding: 0 8px; border: 1px solid var(--tbl-border); border-radius: 4px; font-size: 10px; background: rgba(255,255,255,0.9); color: #000; outline: none; }
     .dark .gs-url-inp { background: rgba(15, 23, 42, 0.8); color: #fff; }
     
-    /* SETTING MODAL TABS */
     .gs-modal .cm-subtabs { margin-bottom: 16px; }
     .gs-modal .cm-subpane { overflow: hidden; }
 
-    /* CUSTOM SAVE ICON BUTTON (GLASSMORPHISM) */
     .gs-save-btn { 
       width: 32px; height: 28px; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.4); 
       background: rgba(59, 130, 246, 0.2); color: var(--text-main); cursor: pointer; 
       backdrop-filter: blur(8px) saturate(150%); -webkit-backdrop-filter: blur(8px) saturate(150%); 
-      display: flex; align-items: center; justify-content: center; font-size: 14px; 
+      display: flex; align-items:center; justify-content:center; font-size: 14px; 
       transition: all 0.3s ease; margin: 0 auto; box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
     }
     .dark .gs-save-btn { color: #bfdbfe; }
     .gs-save-btn:hover { background: rgba(59, 130, 246, 0.5); transform: translateY(-1px); color: #fff; }
     .gs-save-btn.success { background: rgba(22, 163, 74, 0.5); border-color: rgba(22, 163, 74, 0.6); color: #fff; }
 
-    /* CUSTOM GLASSMORPHISM NOTIFICATION DIALOG */
     .cm-dialog-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index:2147483650; align-items:center; justify-content:center; padding:20px; }
     .cm-dialog-bg.show { display:flex; }
     .cm-dialog-box { 
@@ -402,7 +377,6 @@
   
   const themeIcon = ui.classList.contains('dark') ? '☀️' : '🌙';
 
-  // Template Header Dinamis untuk Brand & Timestamp
   const brandBadge = `<span class="cm-brand-badge">${_brandName}</span>`;
   const tsHtml = `<div style="font-size:9px; color:var(--text-sub); font-weight:600;">Data pulled: <span class="cm-timestamp">-</span></div>`;
   const headerWrap = (title) => `<div style="white-space:nowrap; display:flex; flex-direction:column; gap:2px;"><div style="display:flex; align-items:center; gap:8px;"><span>${title}</span>${brandBadge}</div>${tsHtml}</div>`;
@@ -1008,33 +982,24 @@
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
             <div>
               <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS OPA (Flat)</label>
-              <input type="number" class="gs-inp" id="wd-fee-OPA" value="${_wdFeeConfig.OPA}" style="font-family:sans-serif;">
+              <input type="number" class="gs-inp" id="wd-fee-OPA" value="${_wdFeeConfig.OPA || 3500}" style="font-family:sans-serif;">
             </div>
             <div>
               <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS OPT (Flat)</label>
-              <input type="number" class="gs-inp" id="wd-fee-OPT" value="${_wdFeeConfig.OPT}" style="font-family:sans-serif;">
+              <input type="number" class="gs-inp" id="wd-fee-OPT" value="${_wdFeeConfig.OPT || 3500}" style="font-family:sans-serif;">
             </div>
             <div>
               <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS OPZ (Flat)</label>
-              <input type="number" class="gs-inp" id="wd-fee-OPZ" value="${_wdFeeConfig.OPZ}" style="font-family:sans-serif;">
+              <input type="number" class="gs-inp" id="wd-fee-OPZ" value="${_wdFeeConfig.OPZ || 3500}" style="font-family:sans-serif;">
             </div>
             <div>
               <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS GPP (Flat)</label>
-              <input type="number" class="gs-inp" id="wd-fee-GPP" value="${_wdFeeConfig.GPP}" style="font-family:sans-serif;">
+              <input type="number" class="gs-inp" id="wd-fee-GPP" value="${_wdFeeConfig.GPP || 3500}" style="font-family:sans-serif;">
             </div>
             
-            <div style="grid-column: span 2; margin-top:8px; border-top:1px dashed var(--tbl-border); padding-top:12px;">
-              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS PEN (Default Flat - Bank Biasa & E-Wallet)</label>
-              <input type="number" class="gs-inp" id="wd-fee-PEN_DEFAULT" value="${_wdFeeConfig.PEN_DEFAULT}" style="font-family:sans-serif;">
-            </div>
-            
-            <div>
-              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS PEN (Bank Khusus Fee)</label>
-              <input type="number" class="gs-inp" id="wd-fee-PEN_SPECIAL" value="${_wdFeeConfig.PEN_SPECIAL}" style="font-family:sans-serif;">
-            </div>
-            <div>
-              <label style="font-size:10px; font-weight:800; color:var(--text-sub);">Daftar Bank Khusus PEN (pisah dgn koma)</label>
-              <input type="text" class="gs-inp" id="wd-fee-PEN_SPECIAL_BANKS" value="${_wdFeeConfig.PEN_SPECIAL_BANKS}" style="font-family:sans-serif;" placeholder="Seabank, Bank Neo">
+            <div style="grid-column: span 2; margin-top:8px; border-top:1px dashed var(--tbl-border); padding-top:12px; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+              <div style="font-size:11px; font-weight:800; color:#3b82f6; text-align:center;">💡 QRIS PEN FEE AUTO-GENERATED</div>
+              <div style="font-size:10px; font-weight:600; color:var(--text-sub); text-align:center;">Fee diambil otomatis dari riwayat Auto WD Panel asli (Match Waktu & Nominal).</div>
             </div>
           </div>
 
@@ -1062,7 +1027,6 @@
   `;
   document.body.appendChild(ui);
 
-  // --- CUSTOM DIALOG SYSTEM (GLASSMORPHISM) ---
   let _dialogResolver = null;
   window.showAlert = (message, title = "Informasi", type = "info") => {
     return new Promise((resolve) => {
@@ -1161,6 +1125,21 @@
   function formatTK(val) { return val > 0 ? val : '<span style="color:#cbd5e1;">-</span>'; }
   function parseTrxTime(dateStr) { if (!dateStr || dateStr === '-') return new Date(0); const [d, m, y] = dateStr.split(' ')[0].split('-'); const t = dateStr.split(' ')[1] || '00:00:00'; return new Date(`${y}-${m}-${d}T${t}`); }
   
+  function parseTimeToMs(dateStr) {
+    if (!dateStr || dateStr === '-') return 0;
+    const parts = String(dateStr).split(' ');
+    const datePart = parts[0].split('-');
+    const timePart = parts[1] || '00:00:00';
+    let y, m, d;
+    if (datePart[0].length === 4) { 
+      y = datePart[0]; m = datePart[1]; d = datePart[2];
+    } else { 
+      d = datePart[0]; m = datePart[1]; y = datePart[2];
+    }
+    const dt = new Date(`${y}-${m}-${d}T${timePart}`);
+    return isNaN(dt.getTime()) ? 0 : dt.getTime();
+  }
+
   window.toggleTheme = () => { const el = document.getElementById(ID); const btn = document.querySelector('.cm-theme-btn'); el.classList.toggle('dark'); if (el.classList.contains('dark')) { localStorage.setItem('cm-theme', 'dark'); btn.innerText = '☀️'; } else { localStorage.setItem('cm-theme', 'light'); btn.innerText = '🌙'; } };
   
   window.setDateRange = (type, val) => {
@@ -1219,7 +1198,6 @@
     if(qrisTpFilters) qrisTpFilters.style.display = (sub === 'qris-topup') ? 'flex' : 'none';
   };
 
-  // --- FUNGSI SETTING TABS SWITCHER ---
   window.switchSettingTab = (tab) => {
     document.querySelectorAll('.gs-modal .cm-subtab').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.gs-modal .cm-subpane').forEach(e => { e.classList.remove('active'); e.style.display = 'none'; });
@@ -1232,7 +1210,6 @@
     }
   };
 
-  // --- FUNGSI SETTING & URL GAS BULANAN ---
   window.openGSModal = () => {
     document.getElementById('gs-panel-inp').value = _gsPanel;
     renderGSTable();
@@ -1327,15 +1304,11 @@
     setTimeout(() => { btn.innerText = originalText; }, 1500); 
   };
 
-  // --- FUNGSI SIMPAN FEE WD QRIS ---
   window.saveWdFees = async (btn) => {
     _wdFeeConfig.OPA = parseInt(document.getElementById('wd-fee-OPA').value) || 0;
     _wdFeeConfig.OPT = parseInt(document.getElementById('wd-fee-OPT').value) || 0;
     _wdFeeConfig.OPZ = parseInt(document.getElementById('wd-fee-OPZ').value) || 0;
     _wdFeeConfig.GPP = parseInt(document.getElementById('wd-fee-GPP').value) || 0;
-    _wdFeeConfig.PEN_DEFAULT = parseInt(document.getElementById('wd-fee-PEN_DEFAULT').value) || 0;
-    _wdFeeConfig.PEN_SPECIAL = parseInt(document.getElementById('wd-fee-PEN_SPECIAL').value) || 0;
-    _wdFeeConfig.PEN_SPECIAL_BANKS = document.getElementById('wd-fee-PEN_SPECIAL_BANKS').value.trim();
     
     localStorage.setItem('cm-wd-fee-config', JSON.stringify(_wdFeeConfig));
     const originalText = btn.innerText; 
@@ -1380,7 +1353,6 @@
     } 
   }
 
-  // --- FUNGSI EXPORT PINTAR (BACA BULAN & VERIFIKASI) ---
   window.exportToSheet = async (isAuto) => {
     const startVal = document.getElementById('cm-start').value;
     if (!startVal) { 
@@ -1517,7 +1489,6 @@
     } 
   };
 
-  // === DYNAMIC FETCH QRIS FEE RATES (DEPOSIT) ===
   async function fetchQrisFeeRates() {
     document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading QRIS Fee Rates...</b>`;
     const qrisAccounts = ['OPA', 'OPT', 'OPZ', 'GPP', 'PEN'];
@@ -1534,8 +1505,8 @@
                 if (json.settingls && json.settingls.length > 0) {
                     let qrisSetting = json.settingls.find(item => item.name === 'QRIS' || item.code === 'qris');
                     if (qrisSetting) {
-                        let feeStr = qrisSetting.fee || "0%"; // e.g., "1.10 %"
-                        let feeNum = parseFloat(feeStr.replace('%', '').trim()) / 100; // 0.011
+                        let feeStr = qrisSetting.fee || "0%";
+                        let feeNum = parseFloat(feeStr.replace('%', '').trim()) / 100;
                         if (!isNaN(feeNum)) _qrisFeeRates[q] = feeNum;
                     }
                 }
@@ -1545,6 +1516,43 @@
     } catch (e) {
         console.error('Error fetching QRIS fee rates:', e);
     }
+  }
+
+  async function fetchPenAutoWdFees(startVal, endVal) {
+    let feeMap = {};
+    let page = 1;
+    const limit = 100;
+    while(true) {
+      document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading PEN AutoWD Fees...</b> Page ${page}`;
+      const payload = { code: "PEN", endDate: endVal, limit: limit, page: page, startDate: startVal };
+      try {
+        const res = await fetch('/autowd/history/list', { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, 
+          body: JSON.stringify(payload) 
+        });
+        if (res.ok) {
+          const json = await res.json();
+          const trxList = json.data?.Trx || [];
+          if (trxList.length === 0) break;
+          trxList.forEach(t => {
+            let timeKey = parseTimeToMs(t.prctm);
+            let amtKey = parseFloat(t.amt) * 1000;
+            let key = `${timeKey}_${amtKey}`;
+            feeMap[key] = parseFloat(t.fee) * 1000;
+          });
+          if (trxList.length < limit) break;
+          page++;
+          if (page > 100) break;
+        } else {
+          break;
+        }
+      } catch (e) {
+        console.error('Error fetching PEN AutoWD Fees:', e);
+        break;
+      }
+    }
+    return feeMap;
   }
 
   function getPayloadTrx(type, startVal, endVal, page) { 
@@ -1598,7 +1606,6 @@
         try { let page = 1; while(true) { let payloadTp = { pgCode: q, startDate: startVal, endDate: endVal, page: page, limit: 100, agentId: window._cmIds.agentId }; let resTp = await fetch('/autowd/topup/history/list', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payloadTp) }); if (resTp.ok) { let jsonTp = await resTp.json(); let tpData = jsonTp.data?.topupCreditBalanceHistoryLists || []; if(tpData.length === 0) break; tpData.forEach(item => { if (item.moduleInfo.includes('Send balance')) { _qrisTopup.push({ time: item.entryTime, qris: q, prev: parseFloat(item.startAmount || 0) * 1000, amount: parseFloat(item.updateAmount || 0) * 1000, curr: parseFloat(item.endAmount || 0) * 1000, status: 'SETTLED' }); } }); page++; if (page > 100) break; } else { break; } } } catch (e) { console.error(`Error Topup Trx ${q}:`, e); }
     }
 
-    // PERBAIKAN SORT V2: Parser tanggal super kebal terhadap format YYYY-MM-DD, DD-MM-YYYY, pemisah slash (/), atau titik (.)
     const _qSortTime = (s) => { 
       if (!s || s === '-') return 0; 
       if (typeof s === 'number') return s; 
@@ -1622,7 +1629,6 @@
     renderQrisRekap(); renderQrisDisburse(); renderQrisTopup();
   }
 
-  // === PARALLEL BATCHING FOR WINLOSE DATA ===
   async function fetchWinloseData(startVal, endVal) {
     document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading Winlose Provider...</b>`;
     const payloadPeriod = { "start": toDDMM(startVal), "end": toDDMM(endVal), "idus": window._cmIds.idus, "usnm": window._cmIds.usnm, "level": 5, "levelbr": 6, "idpv": null, "pvnm": null, "by": 1, "pg": 1, "sort": ["asc"], "limit": "100" };
@@ -1656,7 +1662,7 @@
                     let providers = json.data || [];
                     let dailyTotals = { date: ddmm, stake: 0, plWinlost: 0, plCommGet: 0, plBonus: 0, agWinlost: 0, agCommGive: 0, agBonus: 0, wlhCompTotal: 0, providers: providers };
                     providers.forEach(item => { 
-                        dailyTotals.stake += parseFloat(item.stake || 0) + parseFloat(item.bonusStake || 0); // PERBAIKAN: TAMBAH BONUS STAKE
+                        dailyTotals.stake += parseFloat(item.stake || 0) + parseFloat(item.bonusStake || 0);
                         dailyTotals.plWinlost += parseFloat(item.plWinlost || 0); 
                         dailyTotals.plCommGet += parseFloat(item.plCommGet || 0); 
                         dailyTotals.plBonus += parseFloat(item.plBonus || 0); 
@@ -1685,7 +1691,7 @@
 
     let totStake = 0, totPlTotal = 0, totAgTotal = 0, totCompany = 0;
     _winloseProviderData.forEach(item => { 
-        totStake += (parseFloat(item.stake || 0) + parseFloat(item.bonusStake || 0)) * 1000; // PERBAIKAN: TAMBAH BONUS STAKE
+        totStake += (parseFloat(item.stake || 0) + parseFloat(item.bonusStake || 0)) * 1000;
         totPlTotal += (parseFloat(item.plWinlost || 0) + parseFloat(item.plCommGet || 0) + parseFloat(item.plBonus || 0)) * 1000; 
         totAgTotal += (parseFloat(item.agWinlost || 0) - parseFloat(item.agCommGive || 0) + parseFloat(item.agBonus || 0)) * 1000; 
         totCompany += parseFloat(item.wlhCompTotal || 0) * 1000; 
@@ -1698,7 +1704,6 @@
     renderWinloseDaily(); renderWinloseProvider();
   }
 
-  // === PARALLEL BATCHING FOR MEMBER STATS ===
   async function fetchMemberStats(startVal, endVal) {
     document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading Member Stats (Parallel)...</b>`;
     _dailyMemberStats = {};
@@ -1745,7 +1750,6 @@
     }
   }
 
-  // --- FUNGSI RENDER AGENT DASHBOARD ---
   window.renderAgentDashboard = function() {
     let days = Object.keys(_dailyTunai).sort();
     if (days.length === 0) return;
@@ -2002,8 +2006,8 @@
     _progressInterval = setInterval(() => { progress += Math.random() * 3 + 1; if (progress >= 99.5) progress = 99.5; let offset = circumference - (progress / 100) * circumference; fillEl.style.strokeDashoffset = offset; percentEl.innerText = Math.floor(progress) + '%'; let color = '#3b82f6'; if (progress > 33 && progress <= 66) color = '#8b5cf6'; else if (progress > 66) color = '#f97316'; fillEl.style.stroke = color; percentEl.style.color = color; }, 100);
 
     try {
-      // Fetch QRIS Fee Rates FIRST so it can be used during transaction processing
       await fetchQrisFeeRates();
+      let _penFeeMap = await fetchPenAutoWdFees(startVal, endVal);
 
       const [depoJson, wdJson, cbJson] = await Promise.all([ fetchTrx("1001", startVal, endVal, "Deposit"), fetchTrx("1002", startVal, endVal, "Withdraw"), fetchCB(startVal, endVal).catch(() => null) ]);
       await fetchQRISData(startVal, endVal); await fetchWinloseData(startVal, endVal); await fetchMemberStats(startVal, endVal);
@@ -2020,7 +2024,6 @@
         let isQris = item.cmb && item.cmb.bank && item.cmb.bank.name.toLowerCase() === 'qris';
         let qrisType = isQris ? (item.cmb.accno || 'QRIS').toUpperCase() : null;
         
-        // Menggunakan fee dinamis yang sudah di-fetch
         let feeRate = 0;
         if (isQris) {
           feeRate = _qrisFeeRates[qrisType] || 0;
@@ -2048,20 +2051,16 @@
         if(!_ketStats[ketText]) _ketStats[ketText] = { depo: 0, wd: 0 }; _ketStats[ketText].depo++;
       });
 
-      // PRE-COMPUTE DAFTAR BANK KHUSUS PEN (DILUAR LOOP BIAR CEPAT)
-      let _penSpecialBanks = (_wdFeeConfig.PEN_SPECIAL_BANKS || '').toLowerCase().split(',').map(b => b.trim()).filter(b => b);
-
       listWd.forEach(item => { 
         let nominal = parseFloat(item.amt) * 1000; let isAutoWd = item.trxNote && item.trxNote.includes('AutoWD'); 
         let wdType = isAutoWd ? (item.trxNote.match(/AutoWD\s*\[(.*?)\]/)?.[1] || 'AutoWD').toUpperCase() : null; 
         
-        // SMART ADAPTIVE FEE WD CONFIG DENGAN DETEKSI BANK KHUSUS PEN
         let fee = 0;
         if (isAutoWd) {
           if (wdType === 'PEN') {
-            let targetBank = (item.usb?.bank?.name || '').toLowerCase();
-            let isSpecial = _penSpecialBanks.some(b => targetBank.includes(b)); // pakai array yang sudah diolah di luar
-            fee = isSpecial ? (_wdFeeConfig.PEN_SPECIAL || 0) : (_wdFeeConfig.PEN_DEFAULT || 0);
+            let timeKey = parseTimeToMs(item.prctm);
+            let mapKey = `${timeKey}_${nominal}`;
+            fee = _penFeeMap[mapKey] || 0;
           } else {
             fee = _wdFeeConfig[wdType] || 0;
           }
@@ -2121,7 +2120,6 @@
       document.getElementById('cm-card-qr-bersih').innerText = formatRupiahPlain(qrBersih); document.getElementById('cm-card-qr-bersih-sub').innerText = Object.entries(qrBersihDetails).map(([k, v]) => `${k} (${formatRupiahPlain(v)})`).join(' | ') || '-';
       document.getElementById('cm-card-depo-nonqr').innerText = formatRupiahPlain(depoNonQris); document.getElementById('cm-card-wd-nonqr').innerText = formatRupiahPlain(wdNonQris);
       
-      // Update UI RINCIAN FEE QRIS dengan menampilkan Rate yang sedang berlaku
       let feeText = Object.entries(feeDetails).map(([k, v]) => {
           let rateVal = _qrisFeeRates[k] ? (_qrisFeeRates[k] * 100) : 0;
           let rateStr = rateVal.toFixed(2).replace(/\.?0+$/, '') + '%';
@@ -2192,7 +2190,6 @@
     }
   }
 
-  // --- WRAPPER AMAN UNTUK UPDATE TIMESTAMP TANPA MERUBAH FUNGSI ASLI ---
   const originalLoadData = loadData;
   loadData = async function() {
       const res = await originalLoadData();
