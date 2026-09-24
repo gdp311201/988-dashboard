@@ -30,7 +30,7 @@
   let _qrisFeeRates = { OPA: 0.011, OPT: 0.01, OPZ: 0.01, GPP: 0.011, PEN: 0.011 };
 
   let _wdFeeConfig = { 
-    OPA: 3500, OPT: 3500, OPZ: 3500, GPP: 3500
+    OPA: 3500, OPT: 3500, OPZ: 3500, GPP: 2600
   };
   let savedWdFees = JSON.parse(localStorage.getItem('cm-wd-fee-config-' + _brandName) || '{}');
   if (Object.keys(savedWdFees).length > 0) {
