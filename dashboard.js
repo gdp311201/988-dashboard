@@ -994,7 +994,7 @@
             </div>
             <div>
               <label style="font-size:10px; font-weight:800; color:var(--text-sub);">QRIS GPP (Flat)</label>
-              <input type="number" class="gs-inp" id="wd-fee-GPP" value="${_wdFeeConfig.GPP || 3500}" style="font-family:sans-serif;">
+              <input type="number" class="gs-inp" id="wd-fee-GPP" value="${_wdFeeConfig.GPP || 2600}" style="font-family:sans-serif;">
             </div>
             
             <div style="grid-column: span 2; margin-top:8px; border-top:1px dashed var(--tbl-border); padding-top:12px; display:flex; align-items:center; justify-content:center; flex-direction:column;">
