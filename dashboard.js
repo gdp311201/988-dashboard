@@ -278,7 +278,7 @@
     
     .cm-stats-flex { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
     .cm-stats-table { width: 100%; font-size: 10px; border-collapse: collapse; }
-    .cm-stats-table th { text-align: left; padding: 4px 2px; font-size: 9px; color: var(--text-sub); font-weight: 800; text-transform: uppercase; border-bottom: 1px solid var(--tbl-border); }
+    .cm-stats-table th { text-align: left; padding: 4px 2px; font-size: 9px; color: var(--text-sub); font-weight: 800; text-transform:uppercase; border-bottom: 1px solid var(--tbl-border); }
     .cm-stats-table td { padding: 4px 2px; color: var(--text-main); font-weight: 600; border-bottom: 1px dashed var(--tbl-border); }
     .cm-stats-table tr:last-child td { border-bottom: none; }
     .cm-stats-table .num-d { text-align: right; color: #16a34a; font-weight: 800; }
@@ -1522,9 +1522,15 @@
     let feeMap = {};
     let page = 1;
     const limit = 100;
+    
+    // TOLERANSI WAKTU: Mundur 3 hari untuk menangkap transaksi 'lompat hari' (Done time lewat dari Create time)
+    let startDateObj = new Date(startVal);
+    startDateObj.setDate(startDateObj.getDate() - 3);
+    let paddedStartVal = getLocalYMD(startDateObj);
+
     while(true) {
       document.getElementById('cm-status').innerHTML = `${currentDomain} | ⏳ <b>Loading PEN AutoWD Fees...</b> Page ${page}`;
-      const payload = { code: "PEN", endDate: endVal, limit: limit, page: page, startDate: startVal };
+      const payload = { code: "PEN", endDate: endVal, limit: limit, page: page, startDate: paddedStartVal };
       try {
         const res = await fetch('/autowd/history/list', { 
           method: 'POST', 
@@ -1536,10 +1542,11 @@
           const trxList = json.data?.Trx || [];
           if (trxList.length === 0) break;
           trxList.forEach(t => {
-            let timeKey = parseTimeToMs(t.prctm);
-            let amtKey = parseFloat(t.amt) * 1000;
-            let key = `${timeKey}_${amtKey}`;
-            feeMap[key] = parseFloat(t.fee) * 1000;
+            // FILTER STATUS HANYA DONE: Pastikan transaksi Failed tidak menimpa nilai fee yang Done
+            if (String(t.ststr).toLowerCase() === 'done') {
+              let refNo = t.refNo;
+              feeMap[refNo] = parseFloat(t.fee) * 1000;
+            }
           });
           if (trxList.length < limit) break;
           page++;
@@ -2052,15 +2059,27 @@
       });
 
       listWd.forEach(item => { 
-        let nominal = parseFloat(item.amt) * 1000; let isAutoWd = item.trxNote && item.trxNote.includes('AutoWD'); 
-        let wdType = isAutoWd ? (item.trxNote.match(/AutoWD\s*\[(.*?)\]/)?.[1] || 'AutoWD').toUpperCase() : null; 
+        let nominal = parseFloat(item.amt) * 1000; 
+        let trxNoteLower = (item.trxNote || '').toLowerCase();
+        let isAutoWd = trxNoteLower.includes('autowd') || trxNoteLower.includes('auto wd'); 
+        let wdType = null;
+        
+        if (isAutoWd) {
+            let match = item.trxNote.match(/\[(.*?)\]/);
+            if (match) {
+                wdType = match[1].toUpperCase();
+            } else {
+                let qrisTypes = ['OPA', 'OPT', 'OPZ', 'GPP', 'PEN'];
+                qrisTypes.forEach(t => { if (trxNoteLower.includes(t.toLowerCase())) wdType = t; });
+            }
+        }
         
         let fee = 0;
-        if (isAutoWd) {
+        if (isAutoWd && wdType) {
           if (wdType === 'PEN') {
-            let timeKey = parseTimeToMs(item.prctm);
-            let mapKey = `${timeKey}_${nominal}`;
-            fee = _penFeeMap[mapKey] || 0;
+            // MATCHING MENGGUNAKAN refNo - 100% AKURAT TANPA PEDULI WAKTU
+            let refNo = item.refNo;
+            fee = _penFeeMap[refNo] || 0;
           } else {
             fee = _wdFeeConfig[wdType] || 0;
           }
@@ -2070,7 +2089,7 @@
         let rawDay = item.prctm.split(' ')[0]; let day = toDDMM_ymd(rawDay); 
         if(!_dailyTunai[day]) _dailyTunai[day] = initDayObj(); let d = _dailyTunai[day]; 
         d.wd.totalGross += nominal; d.wd.totalTkt++; totTunai.wd.totalGross += nominal; totTunai.wd.totalTkt++; 
-        if (isAutoWd) { 
+        if (isAutoWd && wdType) { 
             qrKotor -= nominal; qrBersih -= nett; d.wd.totalQrGross += nominal; d.wd.totalQrNett += nett; d.wd.totalQrFee += fee; 
             totTunai.wd.totalQrGross += nominal; totTunai.wd.totalQrNett += nett; totTunai.wd.totalQrFee += fee; 
             qrKotorDetails[wdType] = (qrKotorDetails[wdType] || 0) - nominal; qrBersihDetails[wdType] = (qrBersihDetails[wdType] || 0) - nett; feeDetails[wdType] = (feeDetails[wdType] || 0) + fee; 
