@@ -2,14 +2,9 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <!-- ZOOM LOCK: maximum-scale=1 + user-scalable=no.
-         Saat dibuka lewat ikon Home Screen iOS (mode standalone/web app),
-         iOS MENGHORMATI setingan ini -> pinch zoom & double-tap zoom MATI TOTAL.
-         viewport-fit=cover = fullscreen penuh sampai area notch. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>988 INFINI GALLERY</title>
 
-    <!-- ==== SETUP WEB APP HOME SCREEN iOS ==== -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,7 +12,6 @@
     <meta name="theme-color" content="#000000">
     <meta name="format-detection" content="telephone=no">
 
-    <!-- FAVICON UNTUK TAB BROWSER & BOOKMARK -->
     <link rel="icon" type="image/png" href="https://i.ibb.co/Xk66G0bC/8-logo.png">
     <link rel="shortcut icon" href="https://i.ibb.co/Xk66G0bC/8-logo.png">
     <link rel="apple-touch-icon" href="https://i.ibb.co/Xk66G0bC/8-logo.png">
@@ -26,11 +20,8 @@
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        /* Cegah iOS memperbesar teks secara otomatis (text inflation) - font tetap ukuran default */
         html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
-        /* Blokir pinch-zoom & double-tap zoom via CSS (scroll vertikal tetap jalan).
-           Matikan bounce/rubber-band biar layout gak "lari-lari" pas scroll mentok. */
         html, body {
             touch-action: pan-y;
             overscroll-behavior: none;
@@ -45,14 +36,11 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             overflow-x: hidden;
             background: radial-gradient(circle at 50% 30%, rgba(251, 191, 36, 0.15) 0%, transparent 70%), linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.8));
-            /* Safe-area: supaya konten gak ketutup notch / Dynamic Island saat jadi app di Home Screen */
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-            /* Biar kerasa native & stabil: matiin seleksi teks (loupe long-press) & callout menu */
             -webkit-user-select: none; user-select: none;
             -webkit-touch-callout: none;
         }
 
-        /* Input tetap boleh diketik/diseleksi */
         input, textarea { -webkit-user-select: text; user-select: text; }
         .btn-login, .btn-salin, .btn-drag { touch-action: manipulation; }
 
@@ -136,6 +124,7 @@
 
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; width: 100%; }
         
+        /* PERUBAN UTAMA DI SINI: Card jadi Flex Column & Deskripsi ngembang */
         .card {
             background: rgba(255, 255, 255, 0.08); 
             backdrop-filter: blur(20px) saturate(180%); 
@@ -143,13 +132,17 @@
             border: 1px solid rgba(255, 255, 255, 0.12); 
             border-radius: 20px; padding: 24px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
             box-shadow: 0 16px 40px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15);
+            display: flex; 
+            flex-direction: column;
         }
         .card:hover { transform: translateY(-8px) scale(1.02); border-color: rgba(251, 191, 36, 0.4); box-shadow: 0 24px 64px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.25); }
         
         .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
         .card-icon { font-size: 28px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
         .card-title { font-size: 18px; font-weight: 800; font-family: 'Space Grotesk'; letter-spacing: 1px; }
-        .card-desc { font-size: 13px; color: #cbd5e1; margin-bottom: 24px; line-height: 1.6; }
+        
+        /* flex: 1 supaya deskripsi yang pendek ngerembang ke bawah, dan nekan tombol ke posisi paling bawah */
+        .card-desc { font-size: 13px; color: #cbd5e1; margin-bottom: 24px; line-height: 1.6; flex: 1; }
         
         .btn-group-card { display: flex; flex-direction: column; gap: 12px; }
         
@@ -263,7 +256,7 @@
                 </div>
             </div>
 
-            <!-- CARD 4: NOTIFIKASI (NEW) -->
+            <!-- CARD 4: NOTIFIKASI -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-icon">🔔</div>
@@ -284,21 +277,10 @@
     </div>
 
     <script>
-        /* ================================================================
-           iOS ZOOM LOCK - 4 LAPIS PENGAMAN
-           1) Viewport lock (meta)  -> aktif penuh di mode Home Screen
-           2) CSS touch-action      -> blokir pinch & double-tap, scroll jalan
-           3) JS gesture-blocker    -> blokir pinch/double-tap di Safari biasa
-           4) Input guard           -> cegah auto-zoom saat fokus input < 16px
-                                       (font TETAP tampil ukuran default 15px)
-        ================================================================ */
-
-        // (3) Blokir pinch-zoom khas Safari (gesture events iOS)
         ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (evt) {
             document.addEventListener(evt, function (e) { e.preventDefault(); }, { passive: false });
         });
 
-        // Blokir sentuhan 2 jari / lebih (pinch) sedari awal
         document.addEventListener('touchstart', function (e) {
             if (e.touches.length > 1) e.preventDefault();
         }, { passive: false });
@@ -306,7 +288,6 @@
             if (e.touches.length > 1) e.preventDefault();
         }, { passive: false });
 
-        // Blokir double-tap zoom (tanpa merusak fungsi klik tombol/link/input)
         var lastTouchEnd = 0;
         document.addEventListener('touchend', function (e) {
             var now = Date.now();
@@ -318,15 +299,10 @@
             lastTouchEnd = now;
         }, { passive: false });
 
-        // Blokir zoom via ctrl+scroll / trackpad pinch di desktop
         document.addEventListener('wheel', function (e) {
             if (e.ctrlKey) e.preventDefault();
         }, { passive: false });
 
-        // (4) INPUT GUARD: iOS otomatis zoom-in kalau fokus ke input dengan font < 16px.
-        //     Trik: naikkan font ke 16px HANYA saat fokus (supaya iOS gak nge-zoom),
-        //     lalu kompensasi dengan transform: scale() supaya TAMPILAN tetap
-        //     persis ukuran default (15px tetap kelihatan 15px, gak membesar).
         (function inputZoomGuard() {
             var SAFE = 16;
             function isField(el) {
@@ -362,7 +338,6 @@
             }, true);
         })();
 
-        // --- LOGIN LOGIC ---
         function checkLogin() {
             const user = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
@@ -385,7 +360,6 @@
             }
         });
 
-        // --- LIVE TIMESTAMP ---
         function updateTimestamp() {
             const now = new Date();
             const options = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
@@ -395,7 +369,6 @@
         setInterval(updateTimestamp, 1000);
         updateTimestamp();
 
-        // --- BOOKMARKLET LOADER LOGIC ---
         const scripts = {
             dashboard: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/dashboard.js',
             scrapper: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/hourlyreport.js',
