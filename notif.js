@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Auto Notif Panel Cash Market v7.0 (Strict Interval & Dynamic Wording)
+// @name         Auto Notif Panel Cash Market v7.1 (Strict Interval & Clear Articulation)
 // @namespace    http://tampermonkey.net/
-// @version      7.0
-// @description  Baca tiap interval, grouping TTS, auto-detect, filter Auto-WD
+// @version      7.1
+// @description  Baca tiap interval, grouping TTS, auto-detect, filter Auto-WD, clear brand articulation
 // @match        https://*.com/dp/list/websocket*
 // @match        https://*.com/wd/list/websocket*
 // @match        https://asia77cash.com/*
@@ -160,7 +160,7 @@
     };
 
     // ==========================================================
-    // NOTIFIER DENGAN LOGIKA PENGGENGANJANGAN KALIMAT DYNAMIC
+    // NOTIFIER DENGAN TANDA BACA UNTUK JEDA TTS (ARTICULATION)
     // ==========================================================
     const Notifier = {
         announce(rows, maxAnnounce, userTriggered = false) {
@@ -169,21 +169,20 @@
             const brand = TableParser.getActiveBrand();
             let text;
 
+            // Tambahin kata "Brand" di depan, dan tanda titik (.) buat bikin jeda
             if (rows.length === 1) {
-                // Kalau cuma 1
                 const r = rows[0];
-                text = `${brand} - ${r['Nama Pengguna']} ${actionText} ${Utils.formatIDR(r['Jumlah'])} ke ${r['Payment To']}`;
+                text = `Brand ${brand}. ${r['Nama Pengguna']} ${actionText} ${Utils.formatIDR(r['Jumlah'])} ke ${r['Payment To']}`;
             } else if (rows.length > maxAnnounce) {
-                // Kalau lebih dari batas max items (misal >4)
-                text = `${brand}, ada lebih dari ${maxAnnounce} transaksi ${actionText} pending.`;
+                text = `Brand ${brand}. Ada lebih dari ${maxAnnounce} transaksi ${actionText} pending.`;
             } else {
-                // Kalau 2 sampai max items (misal 2-4)
                 const ordinals = ['Pertama', 'Kedua', 'Ketiga', 'Berikutnya'];
                 const parts = rows.slice(0, maxAnnounce).map((r, i) => {
                     const ord = ordinals[i] || 'Berikutnya';
+                    // Tambahin koma buat jeda antar nama, nominal, dan bank tujuan
                     return `${ord}, ${r['Nama Pengguna']}, ${Utils.formatIDR(r['Jumlah'])}, ke ${r['Payment To']}`;
                 });
-                text = `${brand}, ada ${rows.length} transaksi ${actionText} pending. ${parts.join('. ')}.`;
+                text = `Brand ${brand}. Ada ${rows.length} transaksi ${actionText} pending. ${parts.join('. ')}.`;
             }
             
             Sound.speak(text);
@@ -440,7 +439,6 @@
 
         startNotifications() {
             if (this.notifTimer) clearInterval(this.notifTimer);
-            // Strict interval: Bakal baca tabel & ngomong tiap interval selesai
             this.notifTimer = setInterval(() => {
                 const rows = TableParser.getPendingTransactions();
                 const validRows = rows.filter(r => r['Jumlah'] > 0);
