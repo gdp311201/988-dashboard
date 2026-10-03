@@ -262,6 +262,19 @@
                     <button class="btn-salin" onclick="copyScript('monitoring', event)">📋 SALIN MANUAL</button>
                 </div>
             </div>
+
+            <!-- CARD 4: NOTIFIKASI (NEW) -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🔔</div>
+                    <div class="card-title">NOTIFIKASI</div>
+                </div>
+                <div class="card-desc">Real-time Auto Notif for DP/WD Pending. Multi-brand TTS, Panel Sound Silencer, and Draggable UI included.</div>
+                <div class="btn-group-card">
+                    <a href="#" id="drag-notif" class="btn-drag" draggable="true" onclick="event.preventDefault();">🔔 NOTIFIKASI</a>
+                    <button class="btn-salin" onclick="copyScript('notif', event)">📋 SALIN MANUAL</button>
+                </div>
+            </div>
         </div>
 
         <div class="footer">
@@ -386,7 +399,8 @@
         const scripts = {
             dashboard: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/dashboard.js',
             scrapper: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/hourlyreport.js',
-            monitoring: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/transactionmonitoring.js'
+            monitoring: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/transactionmonitoring.js',
+            notif: 'https://raw.githubusercontent.com/gdp311201/988-dashboard/refs/heads/main/notif.js'
         };
 
         function buildBookmarklet(url) {
@@ -397,6 +411,7 @@
             const dashLink = document.getElementById('drag-dashboard');
             const scrapLink = document.getElementById('drag-scrapper');
             const monitorLink = document.getElementById('drag-monitoring');
+            const notifLink = document.getElementById('drag-notif');
 
             if (!scripts.dashboard.includes('USERNAME_KAMU')) {
                 dashLink.href = buildBookmarklet(scripts.dashboard);
@@ -406,6 +421,9 @@
             }
             if (!scripts.monitoring.includes('USERNAME_KAMU')) {
                 monitorLink.href = buildBookmarklet(scripts.monitoring);
+            }
+            if (!scripts.notif.includes('USERNAME_KAMU')) {
+                notifLink.href = buildBookmarklet(scripts.notif);
             }
         }
 
