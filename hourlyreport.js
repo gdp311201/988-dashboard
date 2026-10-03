@@ -1,528 +1,534 @@
-// ==UserScript==
-// @name         Auto Notif Panel Cash Market v8.0 (Glassmorphism & Dual Mode)
-// @namespace    http://tampermonkey.net/
-// @version      8.0
-// @description  Premium Glass UI, Auto notif real-time, multi-brand, multi-bahasa, filter Auto-WD
-// @match        https://*.com/dp/list/websocket*
-// @match        https://*.com/wd/list/websocket*
-// @match        https://asia77cash.com/*
-// @grant        none
-// ==/UserScript==
+(async () => {
+  const SCRAP_ID = 'cm-hourly-scrapper-v15';
+  if (document.getElementById(SCRAP_ID)) { document.getElementById(SCRAP_ID).remove(); return; }
 
-(function() {
-    'use strict';
+  // === AUTO DOMAIN & DOM SCRAPER (ZERO-CLICK UNIVERSAL) ===
+  const currentDomain = window.location.hostname.replace('www.', '');
+  const rawHTML = document.documentElement.outerHTML;
+  
+  const idusMatch = rawHTML.match(/var\s+idus\s*=\s*"?(\d+)"?;/);
+  const usernameMatch = rawHTML.match(/Username\s*:\s*([a-zA-Z0-9_@.-]+)/);
+  
+  if (idusMatch) {
+      localStorage.setItem('cm-scrap-idus_' + currentDomain, idusMatch[1]);
+      localStorage.setItem('cm-scrap-idusBr_' + currentDomain, idusMatch[1]); 
+  }
+  if (usernameMatch) {
+      localStorage.setItem('cm-scrap-usnm_' + currentDomain, usernameMatch[1]);
+      localStorage.setItem('cm-scrap-usernameBr_' + currentDomain, usernameMatch[1]); 
+  }
 
-    const SCRAP_ID = 'cm-auto-notif-v8';
+  // === DETEKSI NAMA BRAND UNTUK HEADER TABEL (Berdasarkan Suffix Username / wlhun) ===
+  let _brandName = currentDomain; // Default fallback jika gagal
+  const _extractedUser = usernameMatch ? usernameMatch[1] : '';
+  if (_extractedUser && _extractedUser.includes('@')) {
+    let rawBrand = _extractedUser.split('@')[1].toLowerCase();
+    if (rawBrand === 'xbets988') _brandName = '988BET';
+    else if (rawBrand === 'wttan777') _brandName = 'TITAN777';
+    else _brandName = _extractedUser.split('@')[1].toUpperCase();
+  }
+
+  // === SERVER TIME SYNC LOGIC ===
+  let _serverTimeOffset = 0; // Selisih antara waktu server dan waktu lokal (ms)
+  
+  async function syncServerTime() {
+    try {
+      // Tembak HEAD request ke root domain untuk ambil HTTP Header Date
+      const res = await fetch(window.location.origin + '/?t=' + Date.now(), { method: 'HEAD' });
+      const serverDateStr = res.headers.get('Date');
+      if (serverDateStr) {
+        const serverTime = new Date(serverDateStr).getTime();
+        const localTime = Date.now();
+        _serverTimeOffset = serverTime - localTime;
+        logMsg(`Server time synced. Offset: ${Math.round(_serverTimeOffset/1000)}s`, 'info');
+      }
+    } catch (e) {
+      logMsg('Gagal sync waktu server, memakai waktu lokal.', 'wait');
+    }
+  }
+
+  // Helper untuk dapat waktu yang sudah disesuaikan dengan server
+  function getServerDate() {
+    return new Date(Date.now() + _serverTimeOffset);
+  }
+
+  // ── PREMIUM STYLE ───────────────────────────────────────────────────────────
+  const st = document.createElement('style');
+  st.textContent = `
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
+    #${SCRAP_ID} * { box-sizing:border-box; font-family:'Inter',sans-serif!important; }
     
-    // HACK 1: MATIKAN SUARA BAWAAN PANEL (COIN.OGG)
-    const originalPlay = HTMLMediaElement.prototype.play;
-    HTMLMediaElement.prototype.play = function() {
-        const src = this.currentSrc || (this.querySelector('source') ? this.querySelector('source').src : '');
-        if (this.id === 'myAudio' || this.id === 'myAudiodpwd' || src.includes('coin.ogg') || src.includes('coin2.ogg')) {
-            return Promise.reject(new Error('Blocked by Auto Notif: Panel sound silenced'));
-        }
-        return originalPlay.apply(this, arguments);
-    };
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('audio').forEach(a => {
-            if (a.id === 'myAudio' || a.id === 'myAudiodpwd') a.muted = true;
-        });
-    });
+    #${SCRAP_ID} {
+      position: fixed; inset: 0; z-index: 2147483647;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px) saturate(180%);
+      -webkit-backdrop-filter: blur(8px) saturate(180%);
+      animation: fadeIn 0.4s ease;
+    }
+    #${SCRAP_ID}.light { background: rgba(230, 230, 235, 0.5); }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    const CONFIG = {
-        defaultNotifInterval: 15,
-        minNotifInterval: 5,
-        maxNotifInterval: 120,
-        defaultMaxAnnounce: 4,
-        minMaxAnnounce: 1,
-        maxMaxAnnounce: 10,
-        soundVolume: 0.35,
-        beepFrequency: 880,
-        beepDuration: 180
-    };
+    .scrap-modal {
+      width: 640px; max-width: 95vw; max-height: 88vh; 
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 28px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2), 0 0 80px rgba(59, 130, 246, 0.1);
+      display: flex; flex-direction: column;
+      overflow: hidden; position: relative; color: #1c1e21;
+      animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    #${SCRAP_ID}.dark .scrap-modal {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1); color: #e2e8f0;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 80px rgba(16, 185, 129, 0.15);
+    }
+    @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    const activeMode = window.location.href.toLowerCase().includes('wd') ? 'wd' : 'depo';
-    const actionText = activeMode === 'wd' ? 'penarikan' : 'deposit';
-
-    const BRAND_MAPPING = {
-        'wttan777': 'TITAN',
-        'xbets988': 'BET'
-    };
-
-    const SafeStorage = {
-        get(key, fallback = null) { try { const v = localStorage.getItem(key); return v !== null ? v : fallback; } catch (e) { return fallback; } },
-        set(key, value) { try { return localStorage.setItem(key, value); } catch (e) { return false; } },
-        getJSON(key, fallback = {}) { try { const v = this.get(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } },
-        setJSON(key, value) { try { return this.set(key, JSON.stringify(value)); } catch (e) { return false; } }
-    };
-
-    const Sound = {
-        enabled: true,
-        volume: CONFIG.soundVolume,
-        language: 'id-ID',
-        ctx: null,
-        init() { try { window.AudioContext = window.AudioContext || window.webkitAudioContext; this.ctx = new AudioContext(); } catch (e) {} },
-        async beep(freq = CONFIG.beepFrequency, dur = CONFIG.beepDuration) {
-            if (!this.enabled || !this.ctx) return;
-            try {
-                if (this.ctx.state === 'suspended') await this.ctx.resume();
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.connect(gain); gain.connect(this.ctx.destination);
-                osc.frequency.value = freq; gain.gain.value = this.volume * 0.25;
-                const now = this.ctx.currentTime;
-                gain.gain.exponentialRampToValueAtTime(0.01, now + dur / 1000);
-                osc.start(now); osc.stop(now + dur / 1000);
-            } catch (e) {}
-        },
-        speak(text) {
-            if (!this.enabled) return;
-            if (!('speechSynthesis' in window)) { this.beep(); return; }
-            try {
-                window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(text);
-                u.lang = this.language; u.rate = 1.05; u.pitch = 1.15; u.volume = 1.0;
-                u.onerror = () => { this.beep(); };
-                window.speechSynthesis.speak(u);
-            } catch (e) { this.beep(); }
-        },
-        load() { 
-            const d = SafeStorage.getJSON('cm_sound', {}); 
-            if (typeof d.enabled === 'boolean') this.enabled = d.enabled; 
-            if (typeof d.volume === 'number') this.volume = Math.max(0, Math.min(1, d.volume)); 
-            if (typeof d.language === 'string') this.language = d.language; 
-        },
-        save() { SafeStorage.setJSON('cm_sound', { enabled: this.enabled, volume: this.volume, language: this.language }); }
-    };
-
-    const Utils = {
-        formatIDR(value) { return new Intl.NumberFormat('id-ID').format(Math.round(+value || 0)); },
-        validateRange(value, min, max, fallback) { const n = parseInt(value, 10); if (isNaN(n)) return fallback; return Math.max(min, Math.min(max, n)); }
-    };
-
-    const TableParser = {
-        getActiveBrand() {
-            const spans = document.querySelectorAll('.panel-top span');
-            for (let span of spans) {
-                if (span.textContent.includes('Username :')) {
-                    const match = span.textContent.match(/@(\w+)/);
-                    if (match && match[1]) {
-                        const code = match[1].toLowerCase();
-                        return BRAND_MAPPING[code] || code.toUpperCase();
-                    }
-                }
-            }
-            return 'Brand';
-        },
-        getPendingTransactions() {
-            const transactions = [];
-            const tableBody = document.querySelector('#dataList tbody');
-            if (!tableBody) return transactions;
-
-            const rows = tableBody.querySelectorAll('tr.menu-body, tr.parent-row');
-            rows.forEach(row => {
-                if (row.querySelector('.autowd-check')) return; // Skip Auto WD
-
-                const usernameEl = row.querySelector('.copy-btn-usnm');
-                if (!usernameEl) return;
-                const username = usernameEl.innerText.trim();
-
-                const tds = row.querySelectorAll('td');
-                let destBank = '', destName = '';
-                let amount = '0';
-
-                tds.forEach(td => {
-                    const bName = td.querySelector('.bankName');
-                    const bAccNm = td.querySelector('.bankaccnm');
-                    if (bName && bAccNm) {
-                        destBank = bName.innerText.trim();
-                        destName = bAccNm.innerText.trim();
-                    }
-                });
-                const destination = `${destBank} ${destName}`.trim();
-
-                const realAmountEl = row.querySelector('.realAmount');
-                if (realAmountEl) {
-                    const rawText = realAmountEl.innerText;
-                    const match = rawText.match(/\[Real\s*:\s*([\d,\.]+)/i);
-                    if (match && match[1]) amount = match[1].replace(/[,.]/g, '');
-                } else {
-                    const amountMonEl = row.querySelector('.amount-monitor');
-                    if (amountMonEl) amount = amountMonEl.innerText.trim();
-                }
-
-                transactions.push({
-                    'Nama Pengguna': username,
-                    'Payment To': destination || 'Tujuan Tidak Diketahui',
-                    'Jumlah': parseInt(amount) || 0
-                });
-            });
-            return transactions;
-        }
-    };
-
-    const Notifier = {
-        announce(rows, maxAnnounce, userTriggered = false) {
-            if (!rows.length) return;
-            const brand = TableParser.getActiveBrand();
-            let text;
-
-            if (rows.length === 1) {
-                const r = rows[0];
-                text = `Brand ${brand}. ${r['Nama Pengguna']} ${actionText} ${Utils.formatIDR(r['Jumlah'])} ke ${r['Payment To']}`;
-            } else if (rows.length > maxAnnounce) {
-                text = `Brand ${brand}. Ada lebih dari ${maxAnnounce} transaksi ${actionText} pending.`;
-            } else {
-                const ordinals = ['Pertama', 'Kedua', 'Ketiga', 'Berikutnya'];
-                const parts = rows.slice(0, maxAnnounce).map((r, i) => {
-                    const ord = ordinals[i] || 'Berikutnya';
-                    return `${ord}, ${r['Nama Pengguna']}, ${Utils.formatIDR(r['Jumlah'])}, ke ${r['Payment To']}`;
-                });
-                text = `Brand ${brand}. Ada ${rows.length} transaksi ${actionText} pending. ${parts.join('. ')}.`;
-            }
-            Sound.speak(text);
-        },
-        announceEmpty() { Sound.speak('Tidak ada transaksi menunggu'); }
-    };
-
-    // ── PREMIUM GLASSMORPHISM STYLE ───────────────────────────────────────────
-    const st = document.createElement('style');
-    st.textContent = `
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
-        #${SCRAP_ID} * { box-sizing:border-box; font-family:'Inter',sans-serif!important; }
-        
-        #${SCRAP_ID} {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2147483647;
-            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes scaleIn { from { transform: translate(-50%, -50%) scale(0.9); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
-
-        .notif-modal {
-            width: 380px; max-width: 95vw; max-height: 88vh;
-            background: rgba(255, 255, 255, 0.75); border: 1px solid rgba(255, 255, 255, 0.9);
-            border-radius: 28px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2), 0 0 80px rgba(251, 191, 36, 0.1);
-            backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
-            display: flex; flex-direction: column; overflow: hidden; color: #1c1e21;
-        }
-        #${SCRAP_ID}.dark .notif-modal {
-            background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); color: #e2e8f0;
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 80px rgba(251, 191, 36, 0.15);
-        }
-
-        .notif-header { padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: move; user-select: none; border-bottom: 1px solid rgba(0, 0, 0, 0.05); flex-shrink: 0; }
-        #${SCRAP_ID}.dark .notif-header { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        
-        .notif-logo { font-size: 16px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
-        .notif-logo img { width: 26px; height: 26px; filter: drop-shadow(0 0 8px rgba(251,191,36,0.6)); }
-        
-        .shimmer-text {
-            font-weight: 800;
-            background: linear-gradient(110deg, #1c1e21 30%, #ffffff 50%, #1c1e21 70%);
-            background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-            animation: shimmerGlint 4s linear infinite;
-        }
-        #${SCRAP_ID}.dark .shimmer-text {
-            background: linear-gradient(110deg, #e2e8f0 30%, #ffffff 50%, #e2e8f0 70%);
-            background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        @keyframes shimmerGlint { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-        .brand-badge { font-size: 10px; font-weight: 600; color: #f97316; background: rgba(249, 115, 22, 0.1); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(249, 115, 22, 0.2); }
-        #${SCRAP_ID}.dark .brand-badge { color: #fb923c; background: rgba(251, 146, 60, 0.1); border-color: rgba(251, 146, 60, 0.3); }
-
-        .btn-icon { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); background: transparent; cursor: pointer; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: 0.2s; color: #1c1e21; }
-        #${SCRAP_ID}.dark .btn-icon { color: #e2e8f0; border: 1px solid rgba(255,255,255,0.05); }
-        .btn-icon:hover { background: rgba(0,0,0,0.03); }
-        #${SCRAP_ID}.dark .btn-icon:hover { background: rgba(255,255,255,0.05); }
-        .btn-icon.exit:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
-
-        .notif-body { padding: 24px; overflow-y: auto; flex: 1; max-height: 450px; transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease; }
-        .notif-body.minimized { max-height: 0; padding-top: 0; padding-bottom: 0; opacity: 0; overflow: hidden; }
-        .notif-body::-webkit-scrollbar { width: 6px; }
-        .notif-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
-        #${SCRAP_ID}.dark .notif-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
-
-        .notif-tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.04); padding: 4px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 20px; }
-        #${SCRAP_ID}.dark .notif-tabs { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
-        .tab-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; font-size: 11px; font-weight: 600; cursor: pointer; color: #65676b; transition: all 0.3s ease; text-transform: uppercase; }
-        #${SCRAP_ID}.dark .tab-btn { color: #94a3b8; }
-        .tab-btn:hover { color: #2563eb; }
-        #${SCRAP_ID}.dark .tab-btn:hover { color: #fff; }
-        .tab-btn.active { background: rgba(255,255,255,0.8); color: #1c1e21; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        #${SCRAP_ID}.dark .tab-btn.active { background: rgba(255,255,255,0.1); color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-        .form-group { margin-bottom: 16px; }
-        .label { display: block; font-size: 11px; font-weight: 600; color: #65676b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        #${SCRAP_ID}.dark .label { color: #94a3b8; }
-        .input-field { width: 100%; padding: 12px 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 14px; background: rgba(255,255,255,0.5); color: #1c1e21; outline: none; transition: 0.3s; font-family: 'Inter', sans-serif; }
-        #${SCRAP_ID}.dark .input-field { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #fff; }
-        .input-field:focus { border-color: #f97316; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15); background: rgba(255,255,255,0.8); }
-        #${SCRAP_ID}.dark .input-field:focus { background: rgba(255,255,255,0.1); }
-
-        .btn-control { width: 100%; height: 46px; border: none; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; color: #fff; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn-start { background: linear-gradient(135deg, rgba(249, 115, 22, 1), rgba(217, 70, 11, 1)); box-shadow: 0 8px 20px rgba(249, 115, 22, 0.25); }
-        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(249, 115, 22, 0.35); }
-        .btn-stop { background: linear-gradient(135deg, rgba(55, 65, 81, 1), rgba(31, 41, 55, 1)); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); display: none; }
-        #${SCRAP_ID}.dark .btn-stop { background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
-        .btn-stop:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2); }
-        .btn-secondary { background: rgba(255,255,255,0.5); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.2); }
-        #${SCRAP_ID}.dark .btn-secondary { background: rgba(255,255,255,0.05); color: #fb923c; border-color: rgba(251, 146, 60, 0.3); }
-        .btn-secondary:hover { background: rgba(249, 115, 22, 0.1); }
-
-        .notif-footer { padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(0,0,0,0.05); }
-        #${SCRAP_ID}.dark .notif-footer { border-top: 1px solid rgba(255,255,255,0.05); }
-        .notif-footer.minimized { display: none; }
-        .status-text { font-size: 12px; font-weight: 600; color: #65676b; }
-        #${SCRAP_ID}.dark .status-text { color: #94a3b8; }
-        .time-text { font-family: 'Space Grotesk', monospace; font-size: 12px; font-weight: 600; color: #f97316; font-variant-numeric: tabular-nums; }
-    `;
-    document.head.appendChild(st);
-
-    // TEMA INISIALISASI
-    let isDark = localStorage.getItem('cm-notif-theme') !== 'light'; // Default Dark
-
-    const ui = document.createElement('div');
-    ui.id = SCRAP_ID;
-    if (isDark) ui.classList.add('dark');
-    const themeIcon = isDark ? '☀️' : '🌙';
-
-    ui.innerHTML = `
-        <div class="notif-modal">
-            <div class="notif-header" id="notifHeader">
-                <div class="notif-logo">
-                    <img src="https://i.ibb.co/Xk66G0bC/8-logo.png" alt="Logo">
-                    <span class="shimmer-text">NOTIF PRO</span>
-                    <div class="brand-badge" id="brandTitle">LOADING...</div>
-                </div>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn-icon" id="themeBtn" title="Toggle Theme">${themeIcon}</button>
-                    <button class="btn-icon" id="minimizeBtn" title="Minimize">—</button>
-                    <button class="btn-icon exit" id="closeBtn" title="Close">✖</button>
-                </div>
-            </div>
-            
-            <div class="notif-body" id="notifBody">
-                <div class="notif-tabs">
-                    <button class="tab-btn active" data-tab="transaksi">Transaksi</button>
-                    <button class="tab-btn" data-tab="setting">Setting</button>
-                </div>
-
-                <div class="tab-content active" id="tab-transaksi">
-                    <div class="form-group">
-                        <label class="label">Mode Aktif: <b style="color:#f97316">${activeMode === 'wd' ? 'WITHDRAW' : 'DEPOSIT'}</b></label>
-                    </div>
-                    <div class="form-group">
-                        <label class="label">Interval Notifikasi (detik)</label>
-                        <input type="number" id="notifIntervalInput" class="input-field" min="5" max="120" value="15">
-                    </div>
-                    <div class="form-group">
-                        <label class="label">Max Items di Bacakan</label>
-                        <input type="number" id="maxAnnounceInput" class="input-field" min="1" max="10" value="4">
-                    </div>
-                    <button class="btn-control btn-secondary" id="testNotifBtn">🔊 Test Notif Sekarang</button>
-                    <button class="btn-control btn-start" id="startBtn">▶ START NOTIF</button>
-                    <button class="btn-control btn-stop" id="stopBtn">■ STOP NOTIF</button>
-                </div>
-
-                <div class="tab-content" id="tab-setting">
-                    <div class="form-group">
-                        <label class="label">Pilih Bahasa TTS</label>
-                        <select id="langSelect" class="input-field">
-                            <option value="id-ID">🇮🇩 Bahasa Indonesia</option>
-                            <option value="en-US">🇬🇧 English (US)</option>
-                            <option value="en-GB">🇬🇧 English (UK)</option>
-                            <option value="zh-CN">🇨🇳 Mandarin (CN)</option>
-                            <option value="jv-ID">🇮🇩 Jawa</option>
-                            <option value="su-ID">🇮🇩 Sunda</option>
-                            <option value="id-ID" data-accent="medan">🇮🇩 Medan (Indonesia)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="notif-footer" id="notifFooter">
-                <span class="status-text" id="statusText">Ready</span>
-                <span class="time-text" id="timeText">00:00:00</span>
-            </div>
-        </div>
-    `;
-
-    const elements = {};
-
-    class UIController {
-        constructor() {
-            this.running = false;
-            this.notifTimer = null;
-            this.settings = {
-                notifInterval: CONFIG.defaultNotifInterval,
-                maxAnnounce: CONFIG.defaultMaxAnnounce
-            };
-            
-            document.body.appendChild(ui);
-            elements.startBtn = document.getElementById('startBtn');
-            elements.stopBtn = document.getElementById('stopBtn');
-            elements.testNotifBtn = document.getElementById('testNotifBtn');
-            elements.notifIntervalInput = document.getElementById('notifIntervalInput');
-            elements.maxAnnounceInput = document.getElementById('maxAnnounceInput');
-            elements.langSelect = document.getElementById('langSelect');
-            elements.statusText = document.getElementById('statusText');
-            elements.brandTitle = document.getElementById('brandTitle');
-            elements.timeText = document.getElementById('timeText');
-            elements.notifBody = document.getElementById('notifBody');
-            elements.notifFooter = document.getElementById('notifFooter');
-            elements.notifModal = document.querySelector(`#${SCRAP_ID} .notif-modal`);
-            elements.header = document.getElementById('notifHeader');
-            elements.themeBtn = document.getElementById('themeBtn');
-            elements.minimizeBtn = document.getElementById('minimizeBtn');
-            elements.closeBtn = document.getElementById('closeBtn');
-            elements.tabs = [...document.querySelectorAll(`#${SCRAP_ID} .tab-btn`)];
-            
-            this.loadSettings();
-            this.bindEvents();
-        }
-
-        bindEvents() {
-            elements.startBtn.addEventListener('click', () => this.start());
-            elements.stopBtn.addEventListener('click', () => this.stop());
-            elements.testNotifBtn.addEventListener('click', () => this.testNotification(true));
-            elements.notifIntervalInput.addEventListener('change', () => { this.saveSettings(); if (this.running) this.startNotifications(); });
-            elements.maxAnnounceInput.addEventListener('change', () => this.saveSettings());
-            elements.langSelect.addEventListener('change', () => { Sound.language = elements.langSelect.value; Sound.save(); });
-            
-            elements.tabs.forEach(tab => tab.addEventListener('click', () => this.switchTab(tab.getAttribute('data-tab'))));
-            
-            elements.themeBtn.addEventListener('click', () => this.toggleTheme());
-            elements.minimizeBtn.addEventListener('click', () => this.toggleMinimize());
-            elements.closeBtn.addEventListener('click', () => { const h = document.getElementById(SCRAP_ID); if(h) h.remove(); });
-            
-            setInterval(() => {
-                elements.brandTitle.textContent = TableParser.getActiveBrand();
-                elements.timeText.textContent = new Date().toLocaleTimeString('id-ID');
-            }, 1000);
-
-            this.makeDraggable();
-        }
-
-        toggleTheme() { 
-            const el = document.getElementById(SCRAP_ID); 
-            el.classList.toggle('dark'); 
-            const isDarkNow = el.classList.contains('dark');
-            elements.themeBtn.innerText = isDarkNow ? '☀️' : '🌙'; 
-            localStorage.setItem('cm-notif-theme', isDarkNow ? 'dark' : 'light'); 
-        }
-
-        toggleMinimize() {
-            const hidden = elements.notifBody.classList.contains('minimized');
-            if (hidden) {
-                elements.notifBody.classList.remove('minimized');
-                elements.notifFooter.classList.remove('minimized');
-                elements.minimizeBtn.innerText = '—';
-            } else {
-                elements.notifBody.classList.add('minimized');
-                elements.notifFooter.classList.add('minimized');
-                elements.minimizeBtn.innerText = '□';
-            }
-        }
-
-        switchTab(tabName) {
-            elements.tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tabName));
-            document.getElementById('tab-transaksi').classList.toggle('active', tabName === 'transaksi');
-            document.getElementById('tab-setting').classList.toggle('active', tabName === 'setting');
-        }
-
-        makeDraggable() {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            const h = elements.header;
-            const c = document.getElementById(SCRAP_ID);
-            
-            const onMouseMove = (e) => {
-                e.preventDefault();
-                pos1 = pos3 - e.clientX;
-                pos2 = pos4 - e.clientY;
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                c.style.top = (c.offsetTop - pos2) + "px";
-                c.style.left = (c.offsetLeft - pos1) + "px";
-            };
-            const onMouseUp = () => {
-                window.removeEventListener('mousemove', onMouseMove);
-                window.removeEventListener('mouseup', onMouseUp);
-            };
-            
-            h.onmousedown = (e) => {
-                if (e.target.closest('.btn-icon')) return;
-                e.preventDefault();
-                const rect = c.getBoundingClientRect();
-                c.style.transform = 'none';
-                c.style.top = rect.top + 'px';
-                c.style.left = rect.left + 'px';
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                window.addEventListener('mousemove', onMouseMove);
-                window.addEventListener('mouseup', onMouseUp);
-            };
-        }
-
-        loadSettings() {
-            const saved = SafeStorage.getJSON('cm_notif_opts', {});
-            if (saved.notifInterval) elements.notifIntervalInput.value = Utils.validateRange(saved.notifInterval, CONFIG.minNotifInterval, CONFIG.maxNotifInterval, CONFIG.defaultNotifInterval);
-            if (saved.maxAnnounce) elements.maxAnnounceInput.value = Utils.validateRange(saved.maxAnnounce, CONFIG.minMaxAnnounce, CONFIG.maxMaxAnnounce, CONFIG.defaultMaxAnnounce);
-            elements.langSelect.value = Sound.language;
-        }
-
-        saveSettings() {
-            this.settings.notifInterval = Utils.validateRange(elements.notifIntervalInput.value, CONFIG.minNotifInterval, CONFIG.maxNotifInterval, CONFIG.defaultNotifInterval);
-            this.settings.maxAnnounce = Utils.validateRange(elements.maxAnnounceInput.value, CONFIG.minMaxAnnounce, CONFIG.maxMaxAnnounce, CONFIG.defaultMaxAnnounce);
-            SafeStorage.setJSON('cm_notif_opts', this.settings);
-            elements.notifIntervalInput.value = this.settings.notifInterval;
-            elements.maxAnnounceInput.value = this.settings.maxAnnounce;
-        }
-
-        updateStatus(msg) { elements.statusText.textContent = msg; }
-
-        testNotification() {
-            const rows = TableParser.getPendingTransactions();
-            const validRows = rows.filter(r => r['Jumlah'] > 0);
-            if (!validRows.length) { Notifier.announceEmpty(); this.updateStatus('Tidak ada pending'); }
-            else { Notifier.announce(validRows, this.settings.maxAnnounce); this.updateStatus(`${validRows.length} transaksi ditemukan`); }
-        }
-
-        start() {
-            if (this.running) return;
-            this.running = true;
-            this.saveSettings();
-            elements.startBtn.style.display = 'none';
-            elements.stopBtn.style.display = 'flex';
-            this.updateStatus(`Aktif - interval ${this.settings.notifInterval}s`);
-            this.startNotifications();
-        }
-
-        stop() {
-            if (this.notifTimer) clearInterval(this.notifTimer);
-            this.running = false;
-            elements.startBtn.style.display = 'flex';
-            elements.stopBtn.style.display = 'none';
-            this.updateStatus('Stopped');
-        }
-
-        startNotifications() {
-            if (this.notifTimer) clearInterval(this.notifTimer);
-            this.notifTimer = setInterval(() => {
-                const rows = TableParser.getPendingTransactions();
-                const validRows = rows.filter(r => r['Jumlah'] > 0);
-                if (validRows.length) Notifier.announce(validRows, this.settings.maxAnnounce);
-                this.updateStatus(validRows.length > 0 ? `${validRows.length} pending — ${new Date().toLocaleTimeString('id-ID')}` : `Cek ulang ${new Date().toLocaleTimeString('id-ID')}`);
-            }, this.settings.notifInterval * 1000);
-        }
+    .scrap-header { padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); flex-shrink: 0; }
+    #${SCRAP_ID}.dark .scrap-header { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+    .scrap-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
+    .scrap-logo img { width: 28px; height: 28px; filter: drop-shadow(0 0 8px rgba(251,191,36,0.6)); }
+    
+    /* SHIMMER / GLINT EFFECT UNTUK TEKS HOURLY REPORT */
+    .shimmer-text {
+      font-weight: 800;
+      background: linear-gradient(110deg, #1c1e21 30%, #ffffff 50%, #1c1e21 70%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmerGlint 4s linear infinite;
+    }
+    #${SCRAP_ID}.dark .shimmer-text {
+      background: linear-gradient(110deg, #e2e8f0 30%, #ffffff 50%, #e2e8f0 70%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    @keyframes shimmerGlint {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
     }
 
-    Sound.init();
-    Sound.load();
-    setTimeout(() => {
-        if (document.querySelector('#dataList')) new UIController();
-    }, 2000);
-})();
+    /* DOMAIN BADGE STYLE */
+    .domain-badge { 
+      font-size: 11px; font-weight: 600; color: #3b82f6; 
+      background: rgba(59, 130, 246, 0.1); padding: 4px 10px; border-radius: 20px; 
+      border: 1px solid rgba(59, 130, 246, 0.2); 
+    }
+    #${SCRAP_ID}.dark .domain-badge { color: #60a5fa; background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); }
+
+    .scrap-tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.04); padding: 4px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); }
+    #${SCRAP_ID}.dark .scrap-tabs { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
+    .scrap-tab-btn { padding: 8px 18px; border-radius: 8px; border: none; background: transparent; font-size: 12px; font-weight: 600; cursor: pointer; color: #65676b; transition: all 0.3s ease; }
+    #${SCRAP_ID}.dark .scrap-tab-btn { color: #94a3b8; }
+    .scrap-tab-btn:hover { color: #2563eb; }
+    #${SCRAP_ID}.dark .scrap-tab-btn:hover { color: #fff; }
+    .scrap-tab-btn.active { background: rgba(255,255,255,0.8); color: #1c1e21; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    #${SCRAP_ID}.dark .scrap-tab-btn.active { background: rgba(255,255,255,0.1); color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+    .scrap-btn-icon { width: 36px; height: 36px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05); background: transparent; cursor: pointer; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: 0.2s; color: #1c1e21; }
+    #${SCRAP_ID}.dark .scrap-btn-icon { color: #e2e8f0; border: 1px solid rgba(255,255,255,0.05); }
+    .scrap-btn-icon:hover { background: rgba(0,0,0,0.03); }
+    #${SCRAP_ID}.dark .scrap-btn-icon:hover { background: rgba(255,255,255,0.05); }
+    .scrap-exit:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
+
+    .scrap-body { padding: 0; overflow-y: auto; flex: 1; }
+    .scrap-body::-webkit-scrollbar { width: 6px; }
+    .scrap-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+    #${SCRAP_ID}.dark .scrap-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+    /* HOME TAB PADDING */
+    #tab-home { padding: 28px; }
+
+    /* PREMIUM CLOCK CARD */
+    .clock-card { 
+      text-align: center; margin-bottom: 28px; padding: 24px; 
+      background: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.6); border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.03), inset 0 1px 1px rgba(255,255,255,0.8);
+    }
+    #${SCRAP_ID}.dark .clock-card { 
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); 
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.05); 
+    }
+    .live-date { font-size: 13px; font-weight: 500; color: #65676b; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+    #${SCRAP_ID}.dark .live-date { color: #94a3b8; }
+    .live-clock { 
+      font-family: 'Space Grotesk', sans-serif!important; 
+      font-size: 64px; font-weight: 600; line-height: 1; letter-spacing: 4px; 
+      color: #1c1e21; font-variant-numeric: tabular-nums; 
+    }
+    #${SCRAP_ID}.dark .live-clock { color: #fff; }
+    .auto-status { margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: #16a34a; background: rgba(22, 163, 74, 0.1); padding: 4px 10px; border-radius: 20px; }
+    #${SCRAP_ID}.dark .auto-status { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+    .auto-status .dot { width: 6px; height: 6px; background: #16a34a; border-radius: 50%; animation: blink 2s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .next-run { font-size: 11px; font-weight: 500; color: #65676b; margin-top: 8px; letter-spacing: 0.5px; font-variant-numeric: tabular-nums; }
+    #${SCRAP_ID}.dark .next-run { color: #94a3b8; }
+
+    /* PREMIUM BUTTON */
+    .btn-control { 
+      width: 100%; height: 52px; border: none; border-radius: 16px; font-size: 15px; font-weight: 600; cursor: pointer; color: #fff; transition: all 0.3s ease; 
+      background: linear-gradient(135deg, rgba(59, 130, 246, 1), rgba(29, 78, 216, 1)); 
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25); 
+      display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 28px;
+    }
+    .btn-control:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+    .btn-control:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(59, 130, 246, 0.35); }
+    .btn-control:active { transform: translateY(0); }
+
+    /* SNAPSHOT GRID */
+    .snapshot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+    .snap-card { 
+      background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.03); border-radius: 16px; padding: 16px; text-align: center; 
+      transition: 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    #${SCRAP_ID}.dark .snap-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .snap-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+    #${SCRAP_ID}.dark .snap-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+    .snap-card.full { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; padding: 20px; }
+    .snap-lbl { font-size: 11px; font-weight: 600; color: #65676b; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    #${SCRAP_ID}.dark .snap-lbl { color: #94a3b8; }
+    .snap-val { font-family: 'Space Grotesk', sans-serif!important; font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .snap-val.full-val { font-size: 22px; }
+
+    .console-box { background: rgba(0,0,0,0.9); border: 1px solid rgba(0,0,0,0.8); border-radius: 16px; padding: 16px; height: 140px; overflow-y: auto; font-family: 'Space Grotesk', monospace; }
+    #${SCRAP_ID}.dark .console-box { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.05); }
+    .console-line { font-size: 12px; margin-bottom: 6px; color: #22c55e; }
+    .console-line.wait { color: #64748b; }
+    .console-line.err { color: #ef4444; }
+    .console-line.info { color: #3b82f6; }
+
+    /* HISTORY TAB - PADDING ATAS DIHILANGKAN AGAR NEMPEL KE HEADER MODAL */
+    #tab-history { padding: 0 28px 28px 28px; }
+
+    /* PREMIUM TABLE */
+    .history-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-family: 'Space Grotesk', sans-serif; margin-top: -8px; }
+    
+    /* FIX STICKY HEADER SAAT DI SCROLL (TANPA BOCOR) */
+    .history-table th { 
+      text-align: center; padding: 12px 8px; font-size: 11px; font-weight: 600; color: #65676b; 
+      text-transform: uppercase; letter-spacing: 1px; 
+      position: sticky; top: 0; z-index: 10;
+      background: #f8fafc; /* Solid background agar tidak tembus */
+      box-shadow: 0 -8px 0 0 #f8fafc; /* Menutup celah 8px di atas th */
+    }
+    #${SCRAP_ID}.dark .history-table th { 
+      color: #e2e8f0; 
+      background: #0f172a; 
+      box-shadow: 0 -8px 0 0 #0f172a; 
+    }
+    
+    .history-table td { text-align: center; padding: 14px; font-size: 13px; font-weight: 500; border: none; }
+    .history-table tr.row-filled td { background: rgba(255,255,255,0.6); }
+    #${SCRAP_ID}.dark .history-table tr.row-filled td { background: rgba(255,255,255,0.05); }
+    .history-table tr.row-filled td:first-child { border-radius: 12px 0 0 12px; }
+    .history-table tr.row-filled td:last-child { border-radius: 0 12px 12px 0; }
+    .history-table tr.row-empty { opacity: 0.3; }
+    .history-table .jam-col { font-weight: 700; }
+  `;
+  document.head.appendChild(st);
+
+  let isDark = localStorage.getItem('cm-theme') === 'dark';
+  if (!isDark) isDark = localStorage.getItem('cm-scrap-theme') === 'dark';
+
+  const ui = document.createElement('div');
+  ui.id = SCRAP_ID;
+  if (isDark) ui.classList.add('dark'); else ui.classList.add('light');
+  const themeIcon = isDark ? '☀️' : '🌙';
+
+  ui.innerHTML = `
+    <div class="scrap-modal">
+      <div class="scrap-header">
+        <div class="scrap-logo">
+          <img src="https://i.ibb.co/Xk66G0bC/8-logo.png" alt="Logo">
+          <span class="shimmer-text">HOURLY REPORT</span> 
+          <div class="domain-badge">${_brandName}</div>
+        </div>
+        <div class="scrap-tabs">
+          <button class="scrap-tab-btn active" onclick="switchTab('home')">HOME</button>
+          <button class="scrap-tab-btn" onclick="switchTab('history')">HISTORY</button>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="scrap-btn-icon" onclick="toggleTheme()">${themeIcon}</button>
+          <button class="scrap-btn-icon scrap-exit" onclick="document.getElementById('${SCRAP_ID}').remove()">✖</button>
+        </div>
+      </div>
+      
+      <div class="scrap-body">
+        <!-- HOME TAB -->
+        <div id="tab-home" style="display:flex; flex-direction:column;">
+          <div class="clock-card">
+            <div class="live-date" id="live-date">--</div>
+            <div class="live-clock" id="live-clock">00:00:00</div>
+            <div class="next-run" id="next-run">Next auto-scrape at 01:00:00</div>
+            <div class="auto-status"><div class="dot"></div> AUTO-SCRAPE ACTIVE (SERVER TIME)</div>
+          </div>
+          
+          <button class="btn-control" id="btn-push" onclick="pushNow()">PUSH NOW</button>
+          
+          <div class="snapshot-grid">
+            <div class="snap-card"><div class="snap-lbl">RG (Register)</div><div class="snap-val" id="snap-rg">0</div></div>
+            <div class="snap-card"><div class="snap-lbl">ND (New Depo)</div><div class="snap-val" id="snap-nd">0</div></div>
+            <div class="snap-card"><div class="snap-lbl">TRX (Tickets)</div><div class="snap-val" id="snap-trx">0</div></div>
+            <div class="snap-card full"><div class="snap-lbl">TO (Turnover)</div><div class="snap-val full-val" id="snap-to">Rp 0</div></div>
+            <div class="snap-card full"><div class="snap-lbl">WL (Winlose)</div><div class="snap-val full-val" id="snap-wl">Rp 0</div></div>
+          </div>
+          
+          <div class="console-box" id="console-box">
+            <div class="console-line wait">[System] Initializing...</div>
+          </div>
+        </div>
+
+        <!-- HISTORY TAB -->
+        <div id="tab-history" style="display:none;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>JAM</th><th>RG</th><th>ND</th><th>TRX</th><th>TO</th><th>WL</th>
+              </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(ui);
+
+  let _lastHour = -1; // Init dengan -1 agar trigger scrape pertama kali
+
+  window.toggleTheme = () => { 
+    const el = document.getElementById(SCRAP_ID); 
+    el.classList.toggle('dark'); el.classList.toggle('light');
+    const btn = el.querySelector('.scrap-btn-icon[onclick="toggleTheme()"]'); 
+    if (el.classList.contains('dark')) { localStorage.setItem('cm-scrap-theme', 'dark'); btn.innerText = '☀️'; } 
+    else { localStorage.setItem('cm-scrap-theme', 'light'); btn.innerText = '🌙'; } 
+  };
+
+  window.switchTab = (tab) => {
+    document.querySelectorAll('.scrap-tab-btn').forEach(e => e.classList.remove('active'));
+    document.querySelector(`.scrap-tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
+    document.getElementById('tab-home').style.display = tab === 'home' ? 'flex' : 'none';
+    document.getElementById('tab-history').style.display = tab === 'history' ? 'block' : 'none';
+    if (tab === 'history') renderHistoryTable();
+  };
+
+  function logMsg(msg, type = 'success') {
+    const box = document.getElementById('console-box');
+    const time = new Date().toLocaleTimeString('id-ID', { hour12: false });
+    const div = document.createElement('div');
+    div.className = `console-line ${type}`;
+    div.innerText = `[${time}] ${msg}`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function formatRupiah(angka) {
+    if (angka === 0 || isNaN(angka)) return 'Rp 0';
+    const neg = angka < 0;
+    const abs = Math.abs(Math.round(angka));
+    return (neg ? '-Rp ' : 'Rp ') + abs.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  // --- HISTORY DATA MANAGEMENT (PER DOMAIN & PER SERVER DATE) ---
+  function getTodayKey() {
+    // Pakai waktu server agar penentuan tanggal akurat
+    const today = getServerDate();
+    return `cm-scrap-hist-${currentDomain}-${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`;
+  }
+
+  function getTodayHistory() {
+    const key = getTodayKey();
+    let data = JSON.parse(localStorage.getItem(key) || '{}');
+    return data;
+  }
+
+  function saveHistoryData(hourStr, data, isPush = false) {
+    const key = getTodayKey();
+    let hist = getTodayHistory();
+    hist[hourStr] = { ...data, is_push: isPush };
+    localStorage.setItem(key, JSON.stringify(hist));
+    renderHistoryTable();
+  }
+
+  function renderHistoryTable() {
+    const tbody = document.getElementById('history-body');
+    const hist = getTodayHistory();
+    let html = '';
+    for(let i=1; i<=24; i++) {
+      const hh = String(i).padStart(2, '0') + ':00';
+      const d = hist[hh];
+      
+      const cls = d ? 'row-filled' : 'row-empty';
+      let wlText = '-', wlStyle = '';
+      if (d) {
+        wlText = formatRupiah(d.wl);
+        if (d.wl > 0) wlStyle = 'color:#16a34a; font-weight:600;';
+        else if (d.wl < 0) wlStyle = 'color:#ef4444; font-weight:600;';
+      }
+
+      html += `<tr class="${cls}">
+        <td class="jam-col">${hh}</td>
+        <td>${d ? d.rg : '-'}</td>
+        <td>${d ? d.nd : '-'}</td>
+        <td>${d ? d.trx : '-'}</td>
+        <td>${d ? formatRupiah(d.to) : '-'}</td>
+        <td style="${wlStyle}">${wlText}</td>
+      </tr>`;
+    }
+    tbody.innerHTML = html;
+  }
+  renderHistoryTable();
+
+  function getDisplayHour(dateObj) {
+    let h = dateObj.getHours();
+    return h === 0 ? 24 : h;
+  }
+
+  // --- LIVE CLOCK & AUTO RUN (MENGGUNAKAN SERVER TIME) ---
+  setInterval(() => {
+    const now = getServerDate(); // Gunakan waktu server
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const dateOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    document.getElementById('live-date').innerText = now.toLocaleDateString('id-ID', dateOptions);
+    document.getElementById('live-clock').innerText = `${h}:${m}:${s}`;
+    
+    let nextH = getDisplayHour(now) + 1;
+    if (nextH > 24) nextH = 1;
+    document.getElementById('next-run').innerText = `Next auto-scrape at ${String(nextH).padStart(2, '0')}:00:00`;
+
+    // Cek pergantian jam
+    const currentHour = now.getHours();
+    if (currentHour !== _lastHour) {
+      _lastHour = currentHour;
+      // Hanya scrape jika bukan jam 00:00:0x (karena data server biasanya belum fix di detik awal)
+      if (currentHour !== 0) {
+        executeScrape(false);
+      }
+    }
+  }, 1000);
+
+  async function fetchAPI(url, payload) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async function getData() {
+    // Gunakan waktu server untuk menentukan hari pengambilan data
+    const today = getServerDate();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    const ddmm = `${dd}-${mm}-${yyyy}`;
+    
+    const idus = localStorage.getItem('cm-scrap-idus_' + currentDomain);
+    const usnm = localStorage.getItem('cm-scrap-usnm_' + currentDomain);
+    const idusBr = localStorage.getItem('cm-scrap-idusBr_' + currentDomain);
+    const usernameBr = localStorage.getItem('cm-scrap-usernameBr_' + currentDomain);
+    
+    if (!idus || !idusBr) {
+      logMsg('ID belum terdeteksi. Coba refresh halaman panel!', 'err');
+      return null;
+    }
+
+    const payloadRG = { filter: { fs: [ddmm, ddmm] }, idus: parseInt(idus), limit: 500, page: 1, sort: { usnm: ["asc"] } };
+    const resRG = await fetchAPI('/memberlist', payloadRG);
+    const rg = resRG.usls ? resRG.usls.length : 0;
+
+    const payloadND = { filter: { fs: [ddmm, ddmm], nonnewmb: [true] }, idus: parseInt(idus), limit: 500, page: 1, sort: { usnm: ["asc"] } };
+    const resND = await fetchAPI('/memberlist', payloadND);
+    const nd = resND.usls ? resND.usls.length : 0;
+
+    let trx = 0;
+    let page = 1;
+    
+    while(true) {
+      const payloadTrx = { "idusBr": parseInt(idusBr), "startdate": `${ddmm} 00:00:00`, "enddate": `${ddmm} 23:59:59`, "level": 5, "usernameBr": usernameBr, "page": page, "limit": 500, "type": "1001", "bo": true, "st": "10" };
+      const resTrx = await fetchAPI('/trx/historypl', payloadTrx);
+      let batch = resTrx.trx || [];
+      trx += batch.length;
+      if (batch.length < 500) break;
+      page++;
+    }
+
+    const payloadWL = { "start": ddmm, "end": ddmm, "idus": parseInt(idus), "usnm": usnm, "level": 5, "levelbr": 6, "idpv": null, "pvnm": null, "by": 1, "pg": 1, "sort": ["asc"], "limit": "100" };
+    const resWL = await fetchAPI('/t1/report', payloadWL);
+    let to = 0, wl = 0;
+    if (resWL.data && resWL.data.length > 0) {
+      resWL.data.forEach(item => {
+        to += parseFloat(item.stake || 0) * 1000;
+        // PERUBAHAN LOGIKA WL: Ambil langsung nilai agWinlost (AG WIN LOSE)
+        wl += parseFloat(item.agWinlost || 0) * 1000;
+      });
+    }
+
+    return { rg, nd, trx, to, wl };
+  }
+
+  async function fetchSnapshot() {
+    try {
+      const data = await getData();
+      if (!data) return null;
+      document.getElementById('snap-rg').innerText = data.rg;
+      document.getElementById('snap-nd').innerText = data.nd;
+      document.getElementById('snap-trx').innerText = data.trx;
+      document.getElementById('snap-to').innerText = formatRupiah(data.to);
+      document.getElementById('snap-wl').innerText = formatRupiah(data.wl);
+      return data;
+    } catch (e) {
+      logMsg('Gagal memuat snapshot: ' + e.message, 'err');
+      return null;
+    }
+  }
+
+  async function executeScrape(isPush) {
+    const now = getServerDate(); // Gunakan waktu server
+    let targetHour = getDisplayHour(now); 
+    
+    if (isPush) {
+      targetHour = targetHour + 1;
+      if (targetHour > 24) targetHour = 1;
+      logMsg(`PUSH NOW: Menarik data untuk jam ${String(targetHour).padStart(2, '0')}:00...`, 'info');
+    } else {
+      logMsg(`AUTO SCRAPE: Menarik data final untuk jam ${String(targetHour).padStart(2, '0')}:00...`, 'info');
+    }
+    
+    const hh = String(targetHour).padStart(2, '0') + ':00';
+
+    const data = await fetchSnapshot();
+    if (!data) {
+      logMsg('Gagal scrape: Data kosong atau ID belum terdeteksi.', 'err');
+      return;
+    }
+
+    saveHistoryData(hh, data, isPush);
+    logMsg(`✅ Data jam ${hh} tersimpan di History.`, 'success');
+  }
+
+  window.pushNow = async () => {
+    const btn = document.getElementById('btn-push');
+    btn.innerText = 'LOADING...'; btn.disabled = true;
+    await executeScrape(true);
+    btn.innerText = 'PUSH NOW'; btn.disabled = false;
+  };
+
+  // === INITIALIZATION ===
+  logMsg('Auto-Scrapper Active. Menginisialisasi...', 'info');
+  // Sinkronisasi waktu server terlebih dahulu, lalu ambil snapshot
+  syncServerTime().then(() => {
+    _lastHour = getServerDate().getHours(); // Set jam awal setelah sync
+    fetchSnapshot();
+  });
+
+})(); 
